@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gig_buddy/src/bloc/login_bloc.dart';
+import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
 import 'package:gig_buddy/src/route/router.dart';
 
 class EmailOtpView extends StatelessWidget {

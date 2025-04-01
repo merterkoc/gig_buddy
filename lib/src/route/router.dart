@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gig_buddy/src/bloc/login_bloc.dart';
+import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
 import 'package:gig_buddy/src/features/friends/view/firends_view.dart';
 import 'package:gig_buddy/src/features/home/view/home_view.dart';
 import 'package:gig_buddy/src/features/login/view/email_otp/email_otp.dart';
@@ -10,6 +10,7 @@ import 'package:gig_buddy/src/features/profile/view/profile_view.dart';
 import 'package:gig_buddy/src/features/settings/helpers/settings_controller.dart';
 import 'package:gig_buddy/src/features/settings/helpers/settings_service.dart';
 import 'package:gig_buddy/src/features/settings/view/settings_view.dart';
+import 'package:gig_buddy/src/http/dio/interface/i_dio_client.dart';
 import 'package:gig_buddy/src/route/nav_bar.dart';
 import 'package:gig_buddy/src/route/sheel_route.dart';
 import 'package:go_router/go_router.dart';
@@ -42,7 +43,7 @@ enum AppRoute {
 
 final GoRouter goRouter = GoRouter(
   debugLogDiagnostics: true,
-  initialLocation: AppRoute.onBoardingView.path,
+  initialLocation: AppRoute.homeView.path,
   routes: <RouteBase>[
     ShellRoute(
       builder: (context, state, child) {
@@ -113,7 +114,7 @@ final GoRouter goRouter = GoRouter(
                       CupertinoPage<void>(
                     key: state.pageKey,
                     maintainState: false,
-                    child: ProfileView(),
+                    child: const ProfileView(),
                   ),
                 ),
               ],

@@ -1,8 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
-import 'package:gig_buddy/src/bloc/model/authentication_status.dart';
-import 'package:gig_buddy/src/bloc/model/request_state.dart';
+import 'package:fresh_dio/fresh_dio.dart';
+import 'package:gig_buddy/src/http/dio/model/request_state.dart';
 
 part 'login_event.dart';
 

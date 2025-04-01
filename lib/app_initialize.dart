@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gig_buddy/src/cache/shared_preferences.dart';
+import 'package:gig_buddy/src/helper/device_info/device_info_helper.dart';
+import 'package:gig_buddy/src/helper/device_info/package_info_helper.dart';
 import 'package:gig_buddy/src/route/router.dart';
 
 class AppInitializationService {
@@ -9,5 +11,7 @@ class AppInitializationService {
     WidgetsFlutterBinding.ensureInitialized();
     await Shared().init();
     await settingsController.loadSettings();
+    await DeviceInfoHelper.init();
+    await PackageInfoHelper.init();
   }
 }

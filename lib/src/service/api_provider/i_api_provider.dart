@@ -1,0 +1,77 @@
+import 'package:dio/dio.dart';
+import 'package:gig_buddy/src/http/dio/dio_client.dart';
+import 'package:gig_buddy/src/http/dio/model/response_entity.dart';
+
+abstract class ApiProvider {
+  ApiProvider(this._path, {this.interceptor});
+
+  late final DioClient _dio = DioClient(interceptor: interceptor);
+
+  final String _path;
+
+  final Interceptor? interceptor;
+
+  Future<ResponseEntity<dynamic>> get({
+    /// The resource path
+    /// e.g. delete
+    /// delete is the resource
+    /// if you set resource to 'delete', your url like this
+    /// http://localhost:8080/yourPath/delete
+    String? resource,
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
+  }) async {
+    resource ??= '';
+    final response = await _dio.get<dynamic>(
+      resource == '' ? _path : '$_path/$resource',
+      queryParameters: queryParameters,
+    );
+    return response;
+  }
+
+  Future<ResponseEntity<dynamic>> post([
+    String? resource,
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
+  ]) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '$_path/$resource',
+      queryParameters: queryParameters,
+      data: data,
+    );
+    return response;
+  }
+
+  Future<ResponseEntity<dynamic>> put([
+    String? resource,
+    Map<String, dynamic>? data,
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
+  ]) async {
+    final response = await _dio.put<Map<String, dynamic>>(
+      '$_path/$resource',
+      queryParameters: queryParameters,
+      data: data,
+    );
+    return response;
+  }
+
+  Future<ResponseEntity<dynamic>> delete([
+    String? resource,
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
+  ]) async {
+    final response = await _dio.delete<Map<String, dynamic>>(
+      '$_path/$resource',
+      queryParameters: queryParameters,
+    );
+    return response;
+  }
+
+  Future<void> deleteById(String id) async {
+    await _dio.delete<Map<String, dynamic>>('$_path/$id');
+  }
+
+  DioClient get dioClient => _dio;
+}

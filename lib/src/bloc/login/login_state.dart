@@ -5,8 +5,8 @@ class LoginState extends Equatable {
   const LoginState({
     this.email,
     this.password,
-    this.emailOtpRequestState = RequestState.idle,
-    this.verifyEmailOtpRequestState = RequestState.idle,
+    this.emailOtpRequestState = RequestState.initialized,
+    this.verifyEmailOtpRequestState = RequestState.initialized,
     this.authenticationStatus = AuthenticationStatus.unauthenticated,
   });
 
