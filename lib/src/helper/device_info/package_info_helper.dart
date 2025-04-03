@@ -1,6 +1,6 @@
-export 'package:package_info_plus/package_info_plus.dart';
-
 import 'package:package_info_plus/package_info_plus.dart';
+
+export 'package:package_info_plus/package_info_plus.dart';
 
 class PackageInfoHelper {
   PackageInfoHelper._();
@@ -11,7 +11,7 @@ class PackageInfoHelper {
 
   static late final PackageInfo packageInfo;
 
-  static init() async {
+  static Future<void> init() async {
     packageInfo = await PackageInfo.fromPlatform();
   }
 

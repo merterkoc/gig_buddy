@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gig_buddy/src/cache/shared_preferences.dart';
+import 'package:gig_buddy/src/common/manager/location_manager.dart';
 import 'package:gig_buddy/src/helper/device_info/device_info_helper.dart';
 import 'package:gig_buddy/src/helper/device_info/package_info_helper.dart';
 import 'package:gig_buddy/src/route/router.dart';
@@ -13,5 +14,6 @@ class AppInitializationService {
     await settingsController.loadSettings();
     await DeviceInfoHelper.init();
     await PackageInfoHelper.init();
+    await LocationManager.init();
   }
 }
