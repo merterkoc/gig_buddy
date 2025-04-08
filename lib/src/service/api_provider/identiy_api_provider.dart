@@ -51,4 +51,23 @@ class IdentityApiProvider extends ApiProvider {
       resource: 'userinfo',
     );
   }
+
+  Future<ResponseEntity<dynamic>> getAllInterests() {
+    return get(
+      resource: 'userinfo/interests',
+    );
+  }
+
+  Future<ResponseEntity<dynamic>> patchUserInterests(
+    int interestsID,
+    String operation,
+  ) {
+    return patch(
+      resource: 'userinfo/interests',
+      data: {
+        'interest_id': interestsID,
+        'operation': operation,
+      },
+    );
+  }
 }

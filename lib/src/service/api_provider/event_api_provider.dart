@@ -38,4 +38,8 @@ class EventApiProvider extends ApiProvider {
   Future<ResponseEntity<dynamic>> leaveEvent(String eventId) async {
     return post(resource: '$eventId/leave');
   }
+
+  Future<ResponseEntity<dynamic>> getMyEvents() async {
+    return get(resource: 'user');
+  }
 }

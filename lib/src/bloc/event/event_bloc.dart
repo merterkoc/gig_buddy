@@ -5,7 +5,6 @@ import 'package:bloc/bloc.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
-import 'package:gig_buddy/src/common/constants/app_constants.dart';
 import 'package:gig_buddy/src/common/manager/location_manager.dart';
 import 'package:gig_buddy/src/http/dio/model/request_state.dart';
 import 'package:gig_buddy/src/repository/event_repository.dart';
@@ -19,7 +18,7 @@ class EventBloc extends Bloc<EventEvent, EventState> {
   EventBloc(
     this._eventRepository,
   ) : super(const EventState()) {
-    on<InitState>(_onInit);
+    on<EventInitState>(_onInit);
     on<EventLoad>(_onLoad);
     on<EventLoadMore>(_onLoadMore);
     on<EventSearch>(_onSearch, transformer: restartable());
@@ -27,13 +26,14 @@ class EventBloc extends Bloc<EventEvent, EventState> {
     on<EventFailure>(_onFailure);
     on<JoinEvent>(_onJoin);
     on<LeaveEvent>(_onLeave);
+    on<GetMyEvents>(_onGetMyEvents);
   }
 
   final EventRepository _eventRepository;
 
   CancelToken? _cancelToken;
 
-  void _onInit(InitState event, Emitter<EventState> emit) =>
+  void _onInit(EventInitState event, Emitter<EventState> emit) =>
       emit(const EventState());
 
   Future<void> _onLoad(EventLoad event, Emitter<EventState> emit) async {
@@ -117,5 +117,11 @@ class EventBloc extends Bloc<EventEvent, EventState> {
     } else {
       add(EventFailure(message: leaveData.message));
     }
+  }
+
+  FutureOr<void> _onGetMyEvents(GetMyEvents event, Emitter<EventState> emit) {
+    final myEvents = _eventRepository.getMyEvents();
+
+
   }
 }

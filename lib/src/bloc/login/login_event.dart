@@ -7,6 +7,10 @@ sealed class LoginEvent extends Equatable {
   List<Object?> get props => throw UnimplementedError();
 }
 
+final class LoginInitState extends LoginEvent {
+  const LoginInitState();
+}
+
 final class CreateAccount extends LoginEvent {
   const CreateAccount(
       {required this.email, required this.password, this.image});
@@ -53,4 +57,18 @@ class Logout extends LoginEvent {
 
 class FetchUserInfo extends LoginEvent {
   const FetchUserInfo();
+}
+
+class FetchAllInterests extends LoginEvent {
+  const FetchAllInterests();
+}
+
+class PatchUserInterests extends LoginEvent {
+  const PatchUserInterests(
+    this.operation, {
+    required this.interestDto,
+  }) : assert(operation == 'add' || operation == 'remove', 'Invalid operation');
+
+  final InterestDto interestDto;
+  final String operation;
 }

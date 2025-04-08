@@ -30,4 +30,8 @@ class EventRepository extends IRepository {
   Future<ResponseEntity<void>> leaveEvent(String eventId) {
     return _eventApiProvider.leaveEvent(eventId);
   }
+
+  Future<ResponseEntity<dynamic>> getMyEvents() {
+    return _eventApiProvider.getMyEvents();
+  }
 }

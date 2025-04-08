@@ -145,6 +145,30 @@ abstract class IDioClient {
     }
   }
 
+  Future<ResponseEntity<T>> patch<T>(
+    String uri, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    ProgressCallback? onSendProgress,
+    CancelToken? cancelToken,
+  }) async {
+    try {
+      final response = await _dio.patch<T>(
+        uri,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+        onSendProgress: onSendProgress,
+        cancelToken: cancelToken,
+      );
+      return _handleResponse(response);
+    } catch (e) {
+      return _handleError(e);
+    }
+  }
+
+
   Future<ResponseEntity<T>> _handleResponse<T>(
     Response<T> response,
   ) {

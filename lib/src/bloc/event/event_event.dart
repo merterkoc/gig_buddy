@@ -7,8 +7,8 @@ sealed class EventEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class InitState extends EventEvent {
-  const InitState();
+class EventInitState extends EventEvent {
+  const EventInitState();
 }
 
 class EventLoad extends EventEvent {
@@ -66,4 +66,11 @@ class LeaveEvent extends EventEvent {
 
   @override
   List<Object?> get props => [eventId];
+}
+
+class GetMyEvents extends EventEvent {
+  const GetMyEvents();
+
+  @override
+  List<Object?> get props => [];
 }

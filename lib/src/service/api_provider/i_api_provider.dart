@@ -60,14 +60,28 @@ abstract class ApiProvider {
     return response;
   }
 
-  Future<ResponseEntity<dynamic>> delete([
+  Future<ResponseEntity<dynamic>> delete({
     String? resource,
     Map<String, dynamic>? queryParameters,
     CancelToken? cancelToken,
-  ]) async {
+  }) async {
     final response = await _dio.delete<Map<String, dynamic>>(
       '$_path/$resource',
       queryParameters: queryParameters,
+    );
+    return response;
+  }
+
+  Future<ResponseEntity<dynamic>> patch({
+    String? resource,
+    Map<String, dynamic>? data,
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
+  }) async {
+    final response = await _dio.patch<Map<String, dynamic>>(
+      '$_path/$resource',
+      queryParameters: queryParameters,
+      data: data,
     );
     return response;
   }
