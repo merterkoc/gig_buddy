@@ -1,10 +1,10 @@
 import 'package:avatar_stack/animated_avatar_stack.dart';
 import 'package:flutter/material.dart';
-import 'package:gig_buddy/src/common/widgets/avatar_stack_widget/avatar_stack_widget.dart';
-import 'package:gig_buddy/src/service/model/event/event.dart';
+import 'package:gig_buddy/src/route/router.dart';
+import 'package:go_router/go_router.dart';
 
-class EventCard extends StatefulWidget {
-  const EventCard({
+class EventDetailCard extends StatefulWidget {
+  const EventDetailCard({
     required this.isJoined,
     super.key,
     this.title,
@@ -31,13 +31,13 @@ class EventCard extends StatefulWidget {
   final VoidCallback? onTap;
   final bool isJoined;
   final ValueChanged<bool>? onJoinedChanged;
-  final List<EventParticipantModel>? avatars;
+  final List<String>? avatars;
 
   @override
-  State<EventCard> createState() => _EventCardState();
+  State<EventDetailCard> createState() => _EventCardState();
 }
 
-class _EventCardState extends State<EventCard> {
+class _EventCardState extends State<EventDetailCard> {
   late bool isJoined;
 
   @override
@@ -52,10 +52,7 @@ class _EventCardState extends State<EventCard> {
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        color: Theme
-            .of(context)
-            .colorScheme
-            .surfaceContainer,
+        color: Theme.of(context).colorScheme.surfaceContainer,
       ),
       padding: const EdgeInsets.all(8),
       child: Column(
@@ -76,8 +73,7 @@ class _EventCardState extends State<EventCard> {
         children: [
           Text(
             widget.subtitle ?? '',
-            style: Theme
-                .of(context)
+            style: Theme.of(context)
                 .textTheme
                 .titleMedium
                 ?.copyWith(fontWeight: FontWeight.bold),
@@ -87,35 +83,36 @@ class _EventCardState extends State<EventCard> {
             children: [
               Text(
                 widget.location ?? '',
-                style: Theme
-                    .of(context)
-                    .textTheme
-                    .bodySmall,
+                style: Theme.of(context).textTheme.bodySmall,
               ),
               const SizedBox(width: 8),
               Text(
                 widget.startDateTime ?? '',
-                style: Theme
-                    .of(context)
-                    .textTheme
-                    .bodySmall,
+                style: Theme.of(context).textTheme.bodySmall,
               ),
               const SizedBox(width: 8),
               Text(
                 widget.endDate ?? '',
-                style: Theme
-                    .of(context)
-                    .textTheme
-                    .bodySmall,
+                style: Theme.of(context).textTheme.bodySmall,
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
           Row(
             children: [
               Expanded(
-                child: AvatarStackWidget(
-                  avatars: widget.avatars ?? [],
+                child: AnimatedAvatarStack(
+                  height: 40,
+                  infoWidgetBuilder: (context, info) {
+                    return InkWell(
+                      onTap: () {
+                        // Örneğin profil sayfasına yönlendir:
+                        print('adsfadfsgasdf');
+                      },
+                      child: info.widget,
+                    );
+                  },
+                  avatars: _buildAvatars(),
                 ),
               ),
               const SizedBox(width: 8),
@@ -138,26 +135,24 @@ class _EventCardState extends State<EventCard> {
   Stack buildEventImage(BuildContext context) {
     return Stack(
       children: [
-        Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(6),
-            image: DecorationImage(
-              image: NetworkImage(widget.imageUrl ?? ''),
-              fit: BoxFit.cover,
+        if (widget.imageUrl != null)
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(6),
+              image: DecorationImage(
+                image: NetworkImage(widget.imageUrl ?? ''),
+                fit: BoxFit.cover,
+              ),
             ),
+            height: 240,
+            width: double.infinity,
           ),
-          height: 240,
-          width: double.infinity,
-        ),
         if (widget.startDateTime != null)
           Align(
             alignment: Alignment.topLeft,
             child: Container(
               decoration: BoxDecoration(
-                color: Theme
-                    .of(context)
-                    .colorScheme
-                    .primaryContainer,
+                color: Theme.of(context).colorScheme.primaryContainer,
                 borderRadius: BorderRadius.circular(6),
               ),
               padding: const EdgeInsets.all(8),
@@ -171,10 +166,7 @@ class _EventCardState extends State<EventCard> {
           alignment: Alignment.topRight,
           child: Container(
             decoration: BoxDecoration(
-              color: Theme
-                  .of(context)
-                  .colorScheme
-                  .primaryContainer,
+              color: Theme.of(context).colorScheme.primaryContainer,
               borderRadius: BorderRadius.circular(6),
             ),
             padding: const EdgeInsets.all(8),
@@ -188,4 +180,10 @@ class _EventCardState extends State<EventCard> {
     );
   }
 
+  List<NetworkImage> _buildAvatars() {
+    return widget.avatars?.map((e) {
+          return NetworkImage(e);
+        }).toList() ??
+        [];
+  }
 }

@@ -29,15 +29,13 @@ class ImageHelper {
     int originalWidth = decodedImage.width;
     int originalHeight = decodedImage.height;
 
-    // Eğer genişlik 1024'ten küçükse, orijinal boyutta bırak
-    if (originalWidth <= 1024) {
+    if (originalWidth <= 256) {
       return file;
     }
 
-    // Yeni genişliği 1024'e sabitleyerek yükseklik oranını koru
     double aspectRatio = originalHeight / originalWidth;
-    int newWidth = 1024;
-    int newHeight = (1024 * aspectRatio).round();
+    int newWidth = 256;
+    int newHeight = (256 * aspectRatio).round();
 
     final result = await FlutterImageCompress.compressAndGetFile(
       file.absolute.path,

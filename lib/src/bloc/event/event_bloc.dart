@@ -9,6 +9,7 @@ import 'package:gig_buddy/src/common/manager/location_manager.dart';
 import 'package:gig_buddy/src/http/dio/model/request_state.dart';
 import 'package:gig_buddy/src/repository/event_repository.dart';
 import 'package:gig_buddy/src/service/model/event/event.dart';
+import 'package:gig_buddy/src/service/model/event_detail/event_detail.dart';
 
 part 'event_event.dart';
 
@@ -27,6 +28,7 @@ class EventBloc extends Bloc<EventEvent, EventState> {
     on<JoinEvent>(_onJoin);
     on<LeaveEvent>(_onLeave);
     on<GetMyEvents>(_onGetMyEvents);
+    on<GetEventsByUserId>(_onGetEventsByUserId);
   }
 
   final EventRepository _eventRepository;
@@ -42,7 +44,7 @@ class EventBloc extends Bloc<EventEvent, EventState> {
       location: LocationManager.currentLocation,
     );
     if (fetchData.isOk) {
-      final events = (fetchData.data as List<dynamic>)
+      final events = (fetchData.data['data'] as List<dynamic>)
           .map((e) => EventModel.fromJson(e as Map<String, dynamic>))
           .toList();
       add(EventSuccess(events: events));
@@ -72,7 +74,7 @@ class EventBloc extends Bloc<EventEvent, EventState> {
         location: LocationManager.currentLocation,
       );
       if (fetchData.isOk) {
-        final events = (fetchData.data as List<dynamic>)
+        final events = (fetchData.data['data'] as List<dynamic>)
             .map((e) => EventModel.fromJson(e as Map<String, dynamic>))
             .toList();
         emit(
@@ -85,6 +87,7 @@ class EventBloc extends Bloc<EventEvent, EventState> {
         add(EventFailure(message: fetchData.message));
       }
     } catch (e) {
+      add(EventFailure(message: e.toString()));
       rethrow;
     }
   }
@@ -119,9 +122,42 @@ class EventBloc extends Bloc<EventEvent, EventState> {
     }
   }
 
-  FutureOr<void> _onGetMyEvents(GetMyEvents event, Emitter<EventState> emit) {
-    final myEvents = _eventRepository.getMyEvents();
+  Future<void> _onGetMyEvents(
+      GetMyEvents event, Emitter<EventState> emit) async {
+    emit(state.copyWith(requestState: RequestState.loading));
+    try {
+      final response = await _eventRepository.getMyEvents();
+      if (response.isOk) {
+        final events = (response.data['data'] as List<dynamic>)
+            .map((e) => EventDetail.fromJson(e as Map<String, dynamic>))
+            .toList();
+        emit(state.copyWith(
+            myEvents: events, requestState: RequestState.success));
+      } else {
+        add(EventFailure(message: response.message));
+      }
+    } catch (e) {
+      add(EventFailure(message: e.toString()));
+      rethrow;
+    }
+  }
 
-
+  Future<void> _onGetEventsByUserId(GetEventsByUserId event, Emitter<EventState> emit) async {
+    emit(state.copyWith(currentProfileEventsRequestState: RequestState.loading));
+    try {
+      final response = await _eventRepository.getEventsByUserId(event.userId);
+      if (response.isOk) {
+        final events = (response.data['data'] as List<dynamic>)
+            .map((e) => EventDetail.fromJson(e as Map<String, dynamic>))
+            .toList();
+        emit(state.copyWith(
+            currentProfileEvents: events, currentProfileEventsRequestState: RequestState.success));
+      } else {
+        emit(state.copyWith(currentProfileEventsRequestState: RequestState.error));
+      }
+    } catch (e) {
+      emit(state.copyWith(currentProfileEventsRequestState: RequestState.error));
+      rethrow;
+    }
   }
 }

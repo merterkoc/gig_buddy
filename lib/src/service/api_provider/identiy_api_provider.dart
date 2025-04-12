@@ -70,4 +70,10 @@ class IdentityApiProvider extends ApiProvider {
       },
     );
   }
+
+  Future<ResponseEntity<dynamic>> fetchUserProfile(String userId) {
+    return get(
+      resource: 'profile/$userId',
+    );
+  }
 }

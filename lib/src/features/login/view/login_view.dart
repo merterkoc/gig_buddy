@@ -22,81 +22,86 @@ class _LoginViewState extends State<LoginView> {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(18),
-          child: Form(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Logo(),
-                const SizedBox(height: 20),
-                const Text(
-                  'Sign in',
-                  style: TextStyle(
-                    fontSize: 38,
-                    fontWeight: FontWeight.bold,
+          child: SingleChildScrollView(
+            child: Form(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Logo(),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Sign in',
+                    style: TextStyle(
+                      fontSize: 38,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                const Text('Email'),
-                TextFormField(
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  onChanged: (value) {},
-                ),
-                const SizedBox(height: 20),
-                const Text('Password'),
-                TextFormField(
-                  controller: _passwordController,
-                  obscureText: true,
-                  onChanged: (value) {},
-                ),
-                const SizedBox(height: 10),
-                BlocBuilder<LoginBloc, LoginState>(
-                  buildWhen: (previous, current) =>
-                      previous.submitEmail != current.submitEmail,
-                  builder: (context, state) {
-                    return LoginButtons.email(
-                      isActive: true,
-                      inProgress: state.submitEmail.isLoading,
-                      onPressed: () {
-                        context.read<LoginBloc>().add(SubmitEmail(
-                              password: _passwordController.text,
-                              email: _emailController.text,
-                            ));
-                      },
-                    );
-                  },
-                ),
-                const SizedBox(height: 20),
-                const Align(
-                  child: Text(
-                    'or',
+                  const SizedBox(
+                    height: 10,
                   ),
-                ),
-                const SizedBox(height: 20),
-                const LoginButtons.facebook(),
-                const LoginButtons.google(),
-                const LoginButtons.apple(
-                  isActive: true,
-                ),
-                const Align(
-                  child: Text(
-                    'or',
+                  const Text('Email'),
+                  TextFormField(
+                    autofillHints: const [AutofillHints.email],
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
+
+                    onChanged: (value) {},
                   ),
-                ),
-                LoginButtons.email(
-                  isActive: true,
-                  logo: const Icon(Icons.person_add),
-                  inProgress: false,
-                  text: 'Sign up with Email',
-                  onPressed: () {
-                    goRouter.pushNamed(
-                      AppRoute.registerView.name,
-                    );
-                  },
-                )
-              ],
+                  const SizedBox(height: 20),
+                  const Text('Password'),
+                  TextFormField(
+                    autofillHints: const [AutofillHints.password],
+                    controller: _passwordController,
+                    obscureText: true,
+                    onChanged: (value) {},
+                  ),
+                  const SizedBox(height: 10),
+                  BlocBuilder<LoginBloc, LoginState>(
+                    buildWhen: (previous, current) =>
+                        previous.submitEmail != current.submitEmail,
+                    builder: (context, state) {
+                      return LoginButtons.email(
+                        isActive: true,
+                        inProgress: state.submitEmail.isLoading,
+                        onPressed: () {
+                          context.read<LoginBloc>().add(SubmitEmail(
+                                password: _passwordController.text,
+                                email: _emailController.text,
+                              ));
+                        },
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  const Align(
+                    child: Text(
+                      'or',
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  const LoginButtons.facebook(),
+                  const LoginButtons.google(),
+                  const LoginButtons.apple(
+                    isActive: true,
+                  ),
+                  const Align(
+                    child: Text(
+                      'or',
+                    ),
+                  ),
+                  LoginButtons.email(
+                    isActive: true,
+                    logo: const Icon(Icons.person_add),
+                    inProgress: false,
+                    text: 'Sign up with Email',
+                    onPressed: () {
+                      goRouter.pushNamed(
+                        AppRoute.registerView.name,
+                      );
+                    },
+                  )
+                ],
+              ),
             ),
           ),
         ),

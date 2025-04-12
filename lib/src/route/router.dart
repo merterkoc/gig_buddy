@@ -12,6 +12,7 @@ import 'package:gig_buddy/src/features/search/view/search_view.dart';
 import 'package:gig_buddy/src/features/settings/helpers/settings_controller.dart';
 import 'package:gig_buddy/src/features/settings/helpers/settings_service.dart';
 import 'package:gig_buddy/src/features/settings/view/settings_view.dart';
+import 'package:gig_buddy/src/features/user_profile/view/user_profile_view.dart';
 import 'package:gig_buddy/src/http/dio/interface/i_dio_client.dart';
 import 'package:gig_buddy/src/route/authentication_listener.dart';
 import 'package:gig_buddy/src/route/nav_bar.dart';
@@ -34,6 +35,7 @@ enum AppRoute {
   registerView(path: '/registerView'),
   emailOtpView(path: 'emailOtpView'),
   profileView(path: '/profileView'),
+  userProfileView(path: '/userProfileView/:userId'),
   settingsView(path: '/settingsView'),
   friendsView(path: '/friendsView'),
   searchView(path: 'searchView');
@@ -116,7 +118,16 @@ final GoRouter goRouter = GoRouter(
                       name: AppRoute.searchView.name,
                       builder: (BuildContext context, GoRouterState state) {
                         final keywords = state.extra! as String;
-                        return  SearchView(keywords: keywords);
+                        return SearchView(keywords: keywords);
+                      },
+                    ),
+                    GoRoute(
+                      path: AppRoute.userProfileView.path,
+                      name: AppRoute.userProfileView.name,
+                      builder: (BuildContext context, GoRouterState state) {
+                        return UserProfileView(
+                          userId: state.pathParameters['userId']!,
+                        );
                       },
                     ),
                   ],

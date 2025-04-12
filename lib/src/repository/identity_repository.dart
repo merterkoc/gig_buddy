@@ -52,4 +52,8 @@ class IdentityRepository extends IRepository {
   ) async {
     return _identityApiProvider.patchUserInterests(interestsID, operation);
   }
+
+  Future<ResponseEntity<dynamic>> fetchUserProfile(String userId) async {
+    return _identityApiProvider.fetchUserProfile(userId);
+  }
 }

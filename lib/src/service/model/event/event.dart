@@ -18,9 +18,21 @@ class EventModel with _$EventModel {
     @JsonKey(name: 'ticket_url') required String ticketUrl,
     required List<String> images,
     @JsonKey(name: 'participant_avatars')
-    required List<String>? participantAvatars,
+    required List<EventParticipantModel>? participantAvatars,
   }) = _EventModel;
 
   factory EventModel.fromJson(Map<String, dynamic> json) =>
       _$EventModelFromJson(json);
+}
+
+@freezed
+@immutable
+class EventParticipantModel with _$EventParticipantModel {
+  factory EventParticipantModel({
+   @JsonKey(name: 'user_id') required String userId,
+   @JsonKey(name: 'user_image')  required String? userImage,
+  }) = _EventParticipantModel;
+
+  factory EventParticipantModel.fromJson(Map<String, dynamic> json) =>
+      _$EventParticipantModelFromJson(json);
 }

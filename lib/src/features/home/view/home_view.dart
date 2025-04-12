@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gig_buddy/src/bloc/event/event_bloc.dart';
+import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
 import 'package:gig_buddy/src/common/widgets/cards/event_card.dart';
-import 'package:gig_buddy/src/service/model/event/event.dart';
+import 'package:gig_buddy/src/route/router.dart';
+import 'package:go_router/go_router.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -17,6 +19,8 @@ class _HomeViewState extends State<HomeView> {
   @override
   void initState() {
     context.read<EventBloc>().add(const EventLoad(page: 0));
+    context.read<LoginBloc>()
+      .add(const FetchUserInfo());
     super.initState();
   }
 
@@ -29,6 +33,30 @@ class _HomeViewState extends State<HomeView> {
           'Events',
           style: Theme.of(context).textTheme.headlineSmall,
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16, top: 8, bottom: 8),
+            child: GestureDetector(
+              onTap: () {
+                context.goNamed(AppRoute.profileView.name);
+              },
+              child: BlocBuilder<LoginBloc, LoginState>(
+                buildWhen: (previous, current) => previous.user != current.user,
+                builder: (context, state) {
+                  if (state.user == null) {
+                    return const SizedBox();
+                  }
+                  return CircleAvatar(
+                    radius: 20,
+                    backgroundImage: NetworkImage(
+                        context.read<LoginBloc>().state.user!.userImage),
+                    backgroundColor: Colors.transparent,
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
       ),
       body: BlocBuilder<EventBloc, EventState>(
         buildWhen: (previous, current) => previous.events != current.events,

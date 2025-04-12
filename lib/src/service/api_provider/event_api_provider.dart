@@ -42,4 +42,8 @@ class EventApiProvider extends ApiProvider {
   Future<ResponseEntity<dynamic>> getMyEvents() async {
     return get(resource: 'user');
   }
+
+  Future<ResponseEntity<dynamic>> getEventsByUserId(String userId) async {
+    return get(resource: 'user/$userId');
+  }
 }

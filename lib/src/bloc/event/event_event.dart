@@ -70,7 +70,13 @@ class LeaveEvent extends EventEvent {
 
 class GetMyEvents extends EventEvent {
   const GetMyEvents();
+}
+
+class GetEventsByUserId extends EventEvent {
+  const GetEventsByUserId(this.userId);
+
+  final String userId;
 
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [userId];
 }
