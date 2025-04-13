@@ -19,8 +19,7 @@ class _HomeViewState extends State<HomeView> {
   @override
   void initState() {
     context.read<EventBloc>().add(const EventLoad(page: 0));
-    context.read<LoginBloc>()
-      .add(const FetchUserInfo());
+    context.read<LoginBloc>().add(const FetchUserInfo());
     super.initState();
   }
 
@@ -121,7 +120,10 @@ class _HomeViewState extends State<HomeView> {
           distance: state.events![index].distance,
           isJoined: state.events![index].isJoined ?? false,
           onTap: () {
-            //context.push(EventDetailRoute(event: state.searchEvents![index]));
+            context.goNamed(
+              AppRoute.eventDetailView.name,
+              pathParameters: {'eventId': state.events![index].id},
+            );
           },
           avatars: state.events![index].participantAvatars,
           onJoinedChanged: (isJoined) {
@@ -152,7 +154,10 @@ class _HomeViewState extends State<HomeView> {
           distance: state.searchEvents![index].distance,
           isJoined: state.searchEvents![index].isJoined ?? false,
           onTap: () {
-            //context.push(EventDetailRoute(event: state.searchEvents![index]));
+            context.goNamed(
+              AppRoute.eventDetailView.name,
+              pathParameters: {'eventId': state.searchEvents![index].id},
+            );
           },
           avatars: state.searchEvents![index].participantAvatars,
           onJoinedChanged: (isJoined) {

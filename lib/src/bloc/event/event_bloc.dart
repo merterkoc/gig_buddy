@@ -25,6 +25,7 @@ class EventBloc extends Bloc<EventEvent, EventState> {
     on<EventSearch>(_onSearch, transformer: restartable());
     on<EventSuccess>(_onSuccess);
     on<EventFailure>(_onFailure);
+    on<FetchEventById>(_onFetchEventById);
     on<JoinEvent>(_onJoin);
     on<LeaveEvent>(_onLeave);
     on<GetMyEvents>(_onGetMyEvents);
@@ -104,6 +105,18 @@ class EventBloc extends Bloc<EventEvent, EventState> {
     );
   }
 
+  FutureOr<void> _onFetchEventById(
+      FetchEventById event, Emitter<EventState> emit) async {
+    final fetchData = await _eventRepository.fetchEventById(event.eventId);
+    if (fetchData.isOk) {
+      final event =
+          EventDetail.fromJson(fetchData.data['data'] as Map<String, dynamic>);
+      emit(state.copyWith(selectedEventDetail: event));
+    } else {
+      add(EventFailure(message: fetchData.message));
+    }
+  }
+
   FutureOr<void> _onJoin(JoinEvent event, Emitter<EventState> emit) async {
     final joinData = await _eventRepository.joinEvent(event.eventId);
     if (joinData.isOk) {
@@ -142,8 +155,10 @@ class EventBloc extends Bloc<EventEvent, EventState> {
     }
   }
 
-  Future<void> _onGetEventsByUserId(GetEventsByUserId event, Emitter<EventState> emit) async {
-    emit(state.copyWith(currentProfileEventsRequestState: RequestState.loading));
+  Future<void> _onGetEventsByUserId(
+      GetEventsByUserId event, Emitter<EventState> emit) async {
+    emit(
+        state.copyWith(currentProfileEventsRequestState: RequestState.loading));
     try {
       final response = await _eventRepository.getEventsByUserId(event.userId);
       if (response.isOk) {
@@ -151,12 +166,15 @@ class EventBloc extends Bloc<EventEvent, EventState> {
             .map((e) => EventDetail.fromJson(e as Map<String, dynamic>))
             .toList();
         emit(state.copyWith(
-            currentProfileEvents: events, currentProfileEventsRequestState: RequestState.success));
+            currentProfileEvents: events,
+            currentProfileEventsRequestState: RequestState.success));
       } else {
-        emit(state.copyWith(currentProfileEventsRequestState: RequestState.error));
+        emit(state.copyWith(
+            currentProfileEventsRequestState: RequestState.error));
       }
     } catch (e) {
-      emit(state.copyWith(currentProfileEventsRequestState: RequestState.error));
+      emit(
+          state.copyWith(currentProfileEventsRequestState: RequestState.error));
       rethrow;
     }
   }

@@ -9,6 +9,7 @@ class EventState extends Equatable {
     this.myEvents,
     this.currentProfileEvents,
     this.currentProfileEventsRequestState = RequestState.notInitialized,
+    this.selectedEventDetail,
   });
 
   final List<EventModel>? events;
@@ -18,6 +19,7 @@ class EventState extends Equatable {
   final List<EventDetail>? myEvents;
   final List<EventDetail>? currentProfileEvents;
   final RequestState currentProfileEventsRequestState;
+  final EventDetail? selectedEventDetail;
 
   EventState copyWith({
     List<EventModel>? events,
@@ -27,6 +29,7 @@ class EventState extends Equatable {
     List<EventDetail>? myEvents,
     List<EventDetail>? currentProfileEvents,
     RequestState? currentProfileEventsRequestState,
+    EventDetail? selectedEventDetail,
   }) {
     return EventState(
       events: events ?? this.events,
@@ -37,8 +40,11 @@ class EventState extends Equatable {
       currentProfileEvents: currentProfileEvents ?? this.currentProfileEvents,
       currentProfileEventsRequestState: currentProfileEventsRequestState ??
           this.currentProfileEventsRequestState,
+      selectedEventDetail: selectedEventDetail ?? this.selectedEventDetail,
     );
   }
+
+  List<EventModel> get allEvents => [...?events, ...?searchEvents];
 
   @override
   List<Object?> get props => [
@@ -49,5 +55,6 @@ class EventState extends Equatable {
         myEvents,
         currentProfileEvents,
         currentProfileEventsRequestState,
+        selectedEventDetail,
       ];
 }

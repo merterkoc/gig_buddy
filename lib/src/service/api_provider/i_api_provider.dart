@@ -42,6 +42,7 @@ abstract class ApiProvider {
       queryParameters: queryParameters,
       data: data,
       options: options,
+      cancelToken: cancelToken,
     );
     return response;
   }

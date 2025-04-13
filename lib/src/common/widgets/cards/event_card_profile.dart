@@ -15,6 +15,7 @@ class EventCardProfile extends StatefulWidget {
     this.distance,
     this.onTap,
     this.onJoinedChanged,
+    this.onMatchChanged,
   });
 
   final String? title;
@@ -28,6 +29,7 @@ class EventCardProfile extends StatefulWidget {
   final VoidCallback? onTap;
   final bool isJoined;
   final ValueChanged<bool>? onJoinedChanged;
+  final ValueChanged<bool>? onMatchChanged;
 
   @override
   State<EventCardProfile> createState() => _EventCardProfileState();
@@ -35,28 +37,33 @@ class EventCardProfile extends StatefulWidget {
 
 class _EventCardProfileState extends State<EventCardProfile> {
   late bool isJoined;
+  late bool isMatched;
 
   @override
   void initState() {
     isJoined = widget.isJoined;
+    isMatched = widget.isJoined;
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return SurfaceContainer(
-      color: Theme.of(context).colorScheme.surfaceContainerHighest,
-      isExpanded: true,
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        spacing: 10,
-        children: [
-          buildEventImage(context),
-          Expanded(
-            flex: 2,
-            child: buildEventDetailInfo(context),
-          ),
-        ],
+    return InkWell(
+      onTap: widget.onTap,
+      child: SurfaceContainer(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        isExpanded: true,
+        margin: const EdgeInsets.only(bottom: 12),
+        child: Row(
+          spacing: 10,
+          children: [
+            buildEventImage(context),
+            Expanded(
+              flex: 2,
+              child: buildEventDetailInfo(context),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -128,6 +135,18 @@ class _EventCardProfileState extends State<EventCardProfile> {
                 child: Text(isJoined ? 'Leave' : 'Join'),
               ),
             ],
+          ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: OutlinedButton(
+              onPressed: () {
+                setState(() {
+                  isMatched = !isMatched;
+                });
+                widget.onMatchChanged?.call(isMatched);
+              },
+              child: const Text('Match'),
+            ),
           ),
         ],
       ),

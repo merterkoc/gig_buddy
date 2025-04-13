@@ -58,12 +58,15 @@ class _EventCardState extends State<EventCard> {
             .surfaceContainer,
       ),
       padding: const EdgeInsets.all(8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          buildEventImage(context),
-          buildEventDetailInfo(context),
-        ],
+      child: InkWell(
+        onTap: widget.onTap,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            buildEventImage(context),
+            buildEventDetailInfo(context),
+          ],
+        ),
       ),
     );
   }

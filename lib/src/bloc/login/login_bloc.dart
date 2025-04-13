@@ -145,9 +145,9 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     PatchUserInterests event,
     Emitter<LoginState> emit,
   ) async {
-    final oldState = state.user!.interests.toList(growable: true);
+    final oldState = state.user!.interests!.toList(growable: true);
     try {
-      final userInterests = state.user!.interests.toList(growable: true);
+      final userInterests = state.user!.interests!.toList(growable: true);
       if (event.operation == 'add') {
         userInterests.add(event.interestDto);
       } else if (event.operation == 'remove') {

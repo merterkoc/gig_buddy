@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gig_buddy/src/bloc/authentication/auth_bloc.dart';
+import 'package:gig_buddy/src/bloc/buddy/buddy_bloc.dart';
 import 'package:gig_buddy/src/bloc/event/event_bloc.dart';
 import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
 import 'package:gig_buddy/src/bloc/profile/profile_bloc.dart';
 import 'package:gig_buddy/src/common/firebase/manager/auth_manager.dart';
 import 'package:gig_buddy/src/features/settings/helpers/settings_controller.dart';
+import 'package:gig_buddy/src/repository/buddy_repository.dart';
 import 'package:gig_buddy/src/repository/event_repository.dart';
 import 'package:gig_buddy/src/repository/identity_repository.dart';
 import 'package:gig_buddy/src/route/router.dart';
@@ -34,6 +36,9 @@ class GigBuddyApp extends StatelessWidget {
             BlocProvider(
               lazy: false,
               create: (context) => AuthBloc(),
+            ),
+            BlocProvider(
+              create: (context) => BuddyBloc(BuddyRepository()),
             ),
             BlocProvider(
               create: (context) => ProfileBloc(IdentityRepository()),

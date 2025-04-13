@@ -168,7 +168,6 @@ abstract class IDioClient {
     }
   }
 
-
   Future<ResponseEntity<T>> _handleResponse<T>(
     Response<T> response,
   ) {
@@ -192,7 +191,15 @@ abstract class IDioClient {
   Future<ResponseEntity<T>> _handleError<T>(
     dynamic e,
   ) {
-    final error = e as DioException;
+    if (e is! DioException) {
+      return Future.value(
+        ResponseEntity<T>.error(
+          statusCode: 601,
+          message: 'Unknown error',
+        ),
+      );
+    }
+    final error = e;
     if (error.response != null) {
       return Future.value(
         ResponseEntity<T>.error(
@@ -230,8 +237,8 @@ abstract class IDioClient {
               ? error.response?.data
               : (error.response?.data['message'] != null)
                   ? error.response?.data['message']
-                  : error.response?.data['error'] ??
-                      'Error message not found') as String?;
+                  : error.response?.data['error'] ?? 'Error message not found')
+          as String?;
     } catch (e) {
       return null;
     }

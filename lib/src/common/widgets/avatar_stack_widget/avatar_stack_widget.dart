@@ -21,7 +21,7 @@ class AvatarStackWidget extends StatelessWidget {
           for (final avatar in avatars)
             InkWell(
               onTap: () {
-                context.goNamed(AppRoute.userProfileView.name, pathParameters: {
+                context.pushNamed(AppRoute.userProfileView.name, pathParameters: {
                   'userId': avatar.userId,
                 });
               },

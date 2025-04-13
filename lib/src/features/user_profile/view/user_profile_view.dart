@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gig_buddy/src/bloc/buddy/buddy_bloc.dart';
 import 'package:gig_buddy/src/bloc/event/event_bloc.dart';
 import 'package:gig_buddy/src/bloc/profile/profile_bloc.dart';
 import 'package:gig_buddy/src/common/widgets/cards/event_card_profile.dart';
 import 'package:gig_buddy/src/common/widgets/containers/surface_container.dart';
 import 'package:gig_buddy/src/common/widgets/user/user_avatar_widget.dart';
+import 'package:gig_buddy/src/route/router.dart';
+import 'package:go_router/go_router.dart';
 
 class UserProfileView extends StatefulWidget {
   const UserProfileView({required this.userId, super.key});
@@ -148,12 +151,14 @@ class _UserProfileViewState extends State<UserProfileView> {
             spacing: 10,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Interests',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              if (state.user!.interests.isEmpty) const Text('No interests'),
+              const Text(
+                'Interests',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              if (state.user!.interests!.isEmpty) const Text('No interests'),
               Wrap(
                 spacing: 10,
-                children: state.user!.interests.map((interest) {
+                children: state.user!.interests!.map((interest) {
                   return Chip(
                     label: Text(interest.name),
                   );
@@ -177,20 +182,21 @@ class _UserProfileViewState extends State<UserProfileView> {
           );
         } else if (state.currentProfileEventsRequestState.isError) {
           return Center(
-              child: Column(
-            children: [
-              const Text('Error'),
-              const SizedBox(height: 8),
-              ElevatedButton(
-                onPressed: () {
-                  context
-                      .read<EventBloc>()
-                      .add(GetEventsByUserId(widget.userId));
-                },
-                child: const Text('Retry'),
-              ),
-            ],
-          ));
+            child: Column(
+              children: [
+                const Text('Error'),
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  onPressed: () {
+                    context
+                        .read<EventBloc>()
+                        .add(GetEventsByUserId(widget.userId));
+                  },
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
+          );
         }
         return SurfaceContainer(
           isExpanded: true,
@@ -221,7 +227,10 @@ class _UserProfileViewState extends State<UserProfileView> {
                     distance: state.events![index].distance,
                     isJoined: state.events![index].isJoined ?? false,
                     onTap: () {
-                      //context.push(EventDetailRoute(event: state.searchEvents![index]));
+                      context.pushNamed(
+                        AppRoute.eventDetailView.name,
+                        pathParameters: {'eventId': state.events![index].id},
+                      );
                     },
                     onJoinedChanged: (isJoined) {
                       if (isJoined) {
@@ -232,6 +241,14 @@ class _UserProfileViewState extends State<UserProfileView> {
                       context
                           .read<EventBloc>()
                           .add(LeaveEvent(state.events![index].id));
+                    },
+                    onMatchChanged: (isMatched) {
+                      context.read<BuddyBloc>().add(
+                            CreateBuddyRequest(
+                              eventId: state.events![index].id,
+                              receiverId: widget.userId,
+                            ),
+                          );
                     },
                   );
                 },

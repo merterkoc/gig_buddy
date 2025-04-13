@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
+import 'package:gig_buddy/src/features/event_detail/view/event_detail_view.dart';
 import 'package:gig_buddy/src/features/friends/view/firends_view.dart';
 import 'package:gig_buddy/src/features/home/view/home_view.dart';
 import 'package:gig_buddy/src/features/login/view/email_otp/email_otp.dart';
@@ -38,7 +39,8 @@ enum AppRoute {
   userProfileView(path: '/userProfileView/:userId'),
   settingsView(path: '/settingsView'),
   friendsView(path: '/friendsView'),
-  searchView(path: 'searchView');
+  searchView(path: 'searchView'),
+  eventDetailView(path: '/eventDetailsView/:eventId');
 
   const AppRoute({required this.path});
 
@@ -130,6 +132,15 @@ final GoRouter goRouter = GoRouter(
                         );
                       },
                     ),
+                    GoRoute(
+                      path: AppRoute.eventDetailView.path,
+                      name: AppRoute.eventDetailView.name,
+                      builder: (BuildContext context, GoRouterState state) {
+                        return EventDetailView(
+                          eventId: state.pathParameters['eventId']!,
+                        );
+                      },
+                    )
                   ],
                 ),
               ],

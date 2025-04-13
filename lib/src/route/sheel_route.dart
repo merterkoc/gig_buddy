@@ -26,7 +26,12 @@ class _ShellViewState extends State<ShellView>
   Widget build(BuildContext context) {
     super.build(context);
     return GlobalListener.listen(
-      child: widget.child,
+      child: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+        child: widget.child,
+      ),
     );
   }
 

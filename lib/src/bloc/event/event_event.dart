@@ -50,6 +50,15 @@ class EventFailure extends EventEvent {
   final String? message;
 }
 
+class FetchEventById extends EventEvent {
+  const FetchEventById(this.eventId);
+
+  final String eventId;
+
+  @override
+  List<Object?> get props => [eventId];
+}
+
 class JoinEvent extends EventEvent {
   const JoinEvent(this.eventId);
 
@@ -80,3 +89,4 @@ class GetEventsByUserId extends EventEvent {
   @override
   List<Object?> get props => [userId];
 }
+

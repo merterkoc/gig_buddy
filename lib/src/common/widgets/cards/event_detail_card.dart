@@ -1,6 +1,7 @@
 import 'package:avatar_stack/animated_avatar_stack.dart';
 import 'package:flutter/material.dart';
 import 'package:gig_buddy/src/route/router.dart';
+import 'package:gig_buddy/src/service/model/event/event.dart';
 import 'package:go_router/go_router.dart';
 
 class EventDetailCard extends StatefulWidget {
@@ -31,7 +32,7 @@ class EventDetailCard extends StatefulWidget {
   final VoidCallback? onTap;
   final bool isJoined;
   final ValueChanged<bool>? onJoinedChanged;
-  final List<String>? avatars;
+  final List<EventParticipantModel>? avatars;
 
   @override
   State<EventDetailCard> createState() => _EventCardState();
@@ -181,9 +182,13 @@ class _EventCardState extends State<EventDetailCard> {
   }
 
   List<NetworkImage> _buildAvatars() {
-    return widget.avatars?.map((e) {
-          return NetworkImage(e);
-        }).toList() ??
-        [];
+    final seenUrls = <String>{};
+
+    return widget.avatars?.where((e) {
+      final url = e.userImage ?? '';
+      if (seenUrls.contains(url)) return false;
+      seenUrls.add(url);
+      return true;
+    }).map((e) => NetworkImage(e.userImage ?? '')).toList() ?? [];
   }
 }

@@ -23,6 +23,10 @@ class EventRepository extends IRepository {
     );
   }
 
+  Future<ResponseEntity<dynamic>> fetchEventById(String eventId) {
+    return _eventApiProvider.fetchEventById(eventId);
+  }
+
   Future<ResponseEntity<void>> joinEvent(String eventId) {
     return _eventApiProvider.joinEvent(eventId);
   }

@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:gig_buddy/src/service/model/event/event.dart';
 
 part 'event_detail.freezed.dart';
 
@@ -12,13 +13,17 @@ class EventDetail with _$EventDetail {
     required String name,
     required String start,
     required String end,
-    required String location,
-    required String distance,
+    required String? location,
+    required String? distance,
+    required String? locale,
+    required String? city,
+    required String? country,
+    @JsonKey(name: 'venue_name')required String? venueName,
     @JsonKey(name: 'is_joined') required bool isJoined,
     @JsonKey(name: 'ticket_url') required String ticketUrl,
     required List<Images> images,
     @JsonKey(name: 'participant_avatars')
-    required List<String>? participantAvatars,
+    required List<EventParticipantModel>? participantAvatars,
   }) = _EventDetail ;
 
   factory EventDetail.fromJson(Map<String, dynamic> json) =>

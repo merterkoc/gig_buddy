@@ -13,7 +13,8 @@ class UserDto with _$UserDto {
     required String username,
     @JsonKey(name: 'created_at') required String createdAt,
     @JsonKey(name: 'user_image') required String userImage,
-    @JsonKey(name: 'interests') required List<InterestDto> interests,
+    @JsonKey(name: 'interests', disallowNullValue: false)
+    required List<InterestDto>? interests,
   }) = _UserDto;
 
   factory UserDto.fromJson(Map<String, dynamic> json) =>
