@@ -12,7 +12,7 @@ class DefaultHttpHeaderInterceptor extends Interceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) {
-    final iosDeviceInfo = DeviceInfoHelper.iosDeviceInfo;
+    final deviceInfo = DeviceInfoHelper.deviceInfo;
     final packageInfo = PackageInfoHelper.packageInfo;
     final lang = Platform.localeName.replaceAll('_', '-');
     final locale = Platform.localeName.split('_')[1];
@@ -22,7 +22,7 @@ class DefaultHttpHeaderInterceptor extends Interceptor {
       'language': lang,
       'country': locale,
       'app_version': packageInfo.version,
-      'device': iosDeviceInfo.identifierForVendor,
+      //'device': deviceInfo.identifierForVendor,
       'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDM2MjI3MzksImlhdCI6MTc0MzUzNjMzOSwicm9sZSI6InVzZXIiLCJ1c2VyaWQiOiJlYjU3ZTI1YS04OThjLTQ0MjQtYmM3NS05Y2Q1MDI0MWQ0ZmYiLCJ1c2VybmFtZSI6ImViNTdlMjVhLTg5OGMtNDQyNC1iYzc1LTljZDUwMjQxZDRmZiJ9.cZaSgwuUZtK8WCGxHfzhuKNz5EAwJ73dv-Idfg-6mSA',
     });
     handler.next(options);

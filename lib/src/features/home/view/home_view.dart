@@ -26,6 +26,7 @@ class _HomeViewState extends State<HomeView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         centerTitle: false,
         title: Text(
@@ -75,6 +76,10 @@ class _HomeViewState extends State<HomeView> {
                   children: [
                     TextField(
                       controller: _controller,
+                      keyboardType: TextInputType.text,
+                      onSubmitted: (_) {
+                        FocusScope.of(context).unfocus();
+                      },
                       decoration: const InputDecoration(
                         border: InputBorder.none,
                         hintText: 'Search',
