@@ -9,7 +9,7 @@ class DioClient extends IDioClient {
 
   DioClient._internal({this.interceptor})
       : super(
-          url: 'https://mastiff-splendid-sadly.ngrok-free.app/',
+          url: const String.fromEnvironment('BASE_URL'),
           interceptor: interceptor,
         );
 
