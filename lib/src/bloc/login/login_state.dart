@@ -3,41 +3,48 @@ part of 'login_bloc.dart';
 @immutable
 class LoginState extends Equatable {
   const LoginState({
-    this.createAccountRequestState = RequestState.initialized,
+    required this.verifyIDTokenRequest,
+    required this.createAccountRequest,
     this.submitEmail = RequestState.initialized,
     this.verifyEmailOtpRequestState = RequestState.initialized,
-    this.verifyIDTokenRequestState = RequestState.initialized,
     this.user,
     this.interests = const [],
     this.interestRequestState = const {},
   });
 
-  final RequestState createAccountRequestState;
+  factory LoginState.initial() {
+    return LoginState(
+      createAccountRequest: ResponseEntity.initial(),
+      verifyIDTokenRequest: ResponseEntity.initial(),
+    );
+  }
+
+  final ResponseEntity<void> createAccountRequest;
   final RequestState submitEmail;
   final RequestState verifyEmailOtpRequestState;
-  final RequestState verifyIDTokenRequestState;
+  final ResponseEntity<void> verifyIDTokenRequest;
   final UserDto? user;
   final List<InterestDto> interests;
   final Map<int, RequestState> interestRequestState;
 
   LoginState copyWith({
-    RequestState? createAccountRequestState,
+    ResponseEntity<void>? createAccountRequest,
     RequestState? submitEmail,
     RequestState? verifyEmailOtpRequestState,
-    RequestState? verifyIDTokenRequestState,
+    ResponseEntity<void>? verifyIDTokenRequest,
     AuthenticationStatus? authenticationStatus,
     UserDto? user,
     List<InterestDto>? interests,
     Map<int, RequestState>? interestRequestState,
   }) {
     return LoginState(
-      createAccountRequestState:
-          createAccountRequestState ?? this.createAccountRequestState,
+      createAccountRequest:
+          createAccountRequest ?? this.createAccountRequest,
       submitEmail: submitEmail ?? this.submitEmail,
       verifyEmailOtpRequestState:
           verifyEmailOtpRequestState ?? this.verifyEmailOtpRequestState,
-      verifyIDTokenRequestState:
-          verifyIDTokenRequestState ?? this.verifyIDTokenRequestState,
+      verifyIDTokenRequest:
+          verifyIDTokenRequest ?? this.verifyIDTokenRequest,
       user: user ?? this.user,
       interests: interests ?? this.interests,
       interestRequestState: interestRequestState ?? this.interestRequestState,
@@ -46,10 +53,10 @@ class LoginState extends Equatable {
 
   @override
   List<Object?> get props => [
-        createAccountRequestState,
+        createAccountRequest,
         submitEmail,
         verifyEmailOtpRequestState,
-        verifyIDTokenRequestState,
+        verifyIDTokenRequest,
         user,
         interests,
         interestRequestState,

@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:fresh_dio/fresh_dio.dart';
 
 import 'package:gig_buddy/src/http/dio/interceptors/http_handler/default_http_handler.dart';
@@ -183,6 +184,7 @@ abstract class IDioClient {
         ResponseEntity.error(
           message: response.statusMessage,
           statusCode: response.statusCode!,
+          displayMessage: _generateDisplayMessage(response),
         ),
       );
     }
@@ -201,10 +203,13 @@ abstract class IDioClient {
     }
     final error = e;
     if (error.response != null) {
+      final stackTrace = StackTrace.current;
+      debugPrint(stackTrace.toString());
       return Future.value(
         ResponseEntity<T>.error(
           statusCode: error.response!.statusCode!,
           message: getMessage(error),
+          displayMessage: _generateDisplayMessage(error.response!),
           data:
               error.response!.statusCode == 200 && error.response?.data != null
                   ? error.response?.data as T
@@ -212,11 +217,14 @@ abstract class IDioClient {
         ),
       );
     } else {
+      final stackTrace = StackTrace.current;
+      debugPrint(stackTrace.toString());
       if (error.type == DioExceptionType.connectionTimeout ||
           error.type == DioExceptionType.receiveTimeout) {
         return Future.value(
           ResponseEntity<T>.error(
             statusCode: 408,
+            displayMessage: 'Connection timeout',
             message: 'Connection timeout',
           ),
         );
@@ -224,6 +232,7 @@ abstract class IDioClient {
         return Future.value(
           ResponseEntity<T>.error(
             statusCode: 601,
+            displayMessage: 'Unknown error',
             message: 'Unknown error',
           ),
         );
@@ -252,5 +261,13 @@ abstract class IDioClient {
 
   void logout() {
     _fresh.clearToken();
+  }
+
+  String? _generateDisplayMessage(Response<dynamic> response) {
+    if (response.data is Map) {
+      return (response.data as Map)['displayMessage'] as String?;
+    } else {
+      return response.data.toString();
+    }
   }
 }

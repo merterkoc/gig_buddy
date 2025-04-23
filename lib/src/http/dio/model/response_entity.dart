@@ -9,16 +9,19 @@ class ResponseEntity<T> extends Equatable {
     this.message,
     this.data,
     this.status = RequestState.initialized,
+    this.displayMessage,
   });
 
   factory ResponseEntity.error({
     String? message,
+    String? displayMessage,
     int statusCode = 400,
     T? data,
   }) {
     return ResponseEntity(
       statusCode: statusCode,
       message: message,
+      displayMessage: displayMessage,
       status: RequestState.error,
       data: data,
     );
@@ -39,10 +42,15 @@ class ResponseEntity<T> extends Equatable {
     );
   }
 
-  factory ResponseEntity.success({T? data, int statusCode = 200}) {
+  factory ResponseEntity.success({
+    T? data,
+    int statusCode = 200,
+    String? displayMessage,
+  }) {
     return ResponseEntity(
       statusCode: statusCode,
       data: data,
+      displayMessage: displayMessage,
       status: RequestState.success,
     );
   }
@@ -51,16 +59,28 @@ class ResponseEntity<T> extends Equatable {
   final String? message;
   final T? data;
   final RequestState status;
+  final String? displayMessage;
 
   static Map<String, dynamic> toJson(ResponseEntity<dynamic> response) {
     final data = <String, dynamic>{};
     data['code'] = response.statusCode;
     data['message'] = response.message;
-    data['data'] = response.data;
+    data['data'] = (response.data as Map<String, dynamic>)['data'];
     return data;
   }
 
   bool get isOk => statusCode == 200 || statusCode == 201;
+
+  T? get result {
+    if (data == null) return null;
+    if (data is Map<String, dynamic>) {
+      return (data! as Map<String, dynamic>)['data'] as T?;
+    } else if (data is List<dynamic>) {
+      return (data! as List<dynamic>).cast<T?>() as T?;
+    } else {
+      throw Exception('Unknown data type');
+    }
+  }
 
   @override
   List<Object?> get props => [statusCode, message, data, status];

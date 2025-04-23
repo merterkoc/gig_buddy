@@ -23,7 +23,7 @@ class IdentityRepository extends IRepository {
 
   Future<ResponseEntity<TokenDTO>> verifyIDToken(String idToken) async {
     final response = await _identityApiProvider.verifyIDToken(idToken);
-    final token = TokenDTO.fromJson(response.data as Map<String, dynamic>);
+    final token = TokenDTO.fromJson(response.result as Map<String, dynamic>);
     return ResponseEntity<TokenDTO>(
       data: token,
       statusCode: response.statusCode,

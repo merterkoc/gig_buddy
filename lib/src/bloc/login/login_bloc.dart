@@ -10,6 +10,7 @@ import 'package:fresh_dio/fresh_dio.dart';
 import 'package:gig_buddy/src/common/firebase/manager/auth_manager.dart';
 import 'package:gig_buddy/src/common/util/image_util.dart';
 import 'package:gig_buddy/src/http/dio/model/request_state.dart';
+import 'package:gig_buddy/src/http/dio/model/response_entity.dart';
 import 'package:gig_buddy/src/repository/identity_repository.dart';
 import 'package:gig_buddy/src/service/model/interest/interest_dto.dart';
 import 'package:gig_buddy/src/service/model/user/user_dto.dart';
@@ -20,7 +21,7 @@ part 'login_state.dart';
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
   LoginBloc(this._authManager, this._identityRepository)
-      : super(const LoginState()) {
+      : super(LoginState.initial()) {
     on<LoginInitState>(_onInit);
     on<CreateAccount>(_onCreateAccount);
     on<SubmitEmail>(_onSubmitEmail);
@@ -35,14 +36,14 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   final IdentityRepository _identityRepository;
 
   Future<void> _onInit(LoginInitState event, Emitter<LoginState> emit) async {
-    emit(const LoginState());
+    emit(LoginState.initial());
   }
 
   Future<void> _onCreateAccount(
     CreateAccount event,
     Emitter<LoginState> emit,
   ) async {
-    emit(state.copyWith(createAccountRequestState: RequestState.loading));
+    emit(state.copyWith(createAccountRequest: ResponseEntity.loading()));
     try {
       final response = await _identityRepository.create(
         email: event.email,
@@ -51,16 +52,11 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
             ? await ImageHelper.pathToUINT8List(event.image!.path)
             : null,
       );
-      if (response.isOk) {
-        return emit(
-          state.copyWith(createAccountRequestState: RequestState.success),
-        );
-      }
-      throw Exception(
-        'Register failed with status code ${response.statusCode} and message ${response.message}',
+      emit(
+        state.copyWith(createAccountRequest: response),
       );
     } on Exception {
-      emit(state.copyWith(createAccountRequestState: RequestState.error));
+      emit(state.copyWith(createAccountRequest: ResponseEntity.error()));
       rethrow;
     }
   }
@@ -91,7 +87,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     VerifyIDToken event,
     Emitter<LoginState> emit,
   ) async {
-    emit(state.copyWith(verifyIDTokenRequestState: RequestState.loading));
+    emit(state.copyWith(verifyIDTokenRequest: ResponseEntity.loading()));
     try {
       final response = await _identityRepository.verifyIDToken(
         event.token,
@@ -101,11 +97,18 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       emit(
         state.copyWith(
           submitEmail: RequestState.success,
-          verifyIDTokenRequestState: RequestState.success,
+          verifyIDTokenRequest: response,
         ),
       );
     } on Exception {
-      emit(state.copyWith(verifyIDTokenRequestState: RequestState.error));
+      emit(
+        state.copyWith(
+          submitEmail: RequestState.error,
+          verifyIDTokenRequest: ResponseEntity.error(
+            displayMessage: 'Failed to verify your sign in. Please try again.',
+          ),
+        ),
+      );
     }
   }
 

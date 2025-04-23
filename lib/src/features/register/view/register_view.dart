@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
 import 'package:gig_buddy/src/common/modal/action_sheet.dart';
 import 'package:gig_buddy/src/common/util/image_util.dart';
-import 'package:gig_buddy/src/features/login/widgets/login_buttons.dart';
+import 'package:gig_buddy/src/features/login/widgets/login_buttons.dart';import 'package:gig_buddy/src/features/register/view/register_listener.dart';
 import 'package:image_picker/image_picker.dart';
 
 class RegisterView extends StatefulWidget {
@@ -22,27 +22,7 @@ class _RegisterViewState extends State<RegisterView> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<LoginBloc, LoginState>(
-      listenWhen: (previous, current) =>
-          previous.createAccountRequestState !=
-          current.createAccountRequestState,
-      listener: (context, state) {
-        if (state.createAccountRequestState.isSuccess) {
-          CupertinoAction.showModalPopup(
-            context,
-            title: const Text('Success'),
-            message: const Text('Account created successfully'),
-            actions: [],
-          );
-        } else if (state.createAccountRequestState.isError) {
-          CupertinoAction.showModalPopup(
-            context,
-            title: const Text('Error'),
-            message: const Text('Something went wrong'),
-            actions: [],
-          );
-        }
-      },
+    return RegisterListener.listen(
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Register', style: TextStyle(fontSize: 18)),
@@ -138,13 +118,13 @@ class _RegisterViewState extends State<RegisterView> {
                   const SizedBox(height: 10),
                   BlocBuilder<LoginBloc, LoginState>(
                     buildWhen: (previous, current) =>
-                        previous.createAccountRequestState !=
-                        current.createAccountRequestState,
+                        previous.createAccountRequest !=
+                        current.createAccountRequest,
                     builder: (context, state) {
                       return LoginButtons.email(
                         text: 'Submit',
                         isActive: true,
-                        inProgress: state.createAccountRequestState.isLoading,
+                        inProgress: state.createAccountRequest.status.isLoading,
                         onPressed: () {
                           context.read<LoginBloc>().add(
                                 CreateAccount(
