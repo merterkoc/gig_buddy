@@ -36,7 +36,7 @@ class EventSearch extends EventEvent {
 class EventSuccess extends EventEvent {
   const EventSuccess({required this.events});
 
-  final List<EventModel> events;
+  final List<EventDetail> events;
 
   @override
   List<Object?> get props => [events];
@@ -89,4 +89,3 @@ class GetEventsByUserId extends EventEvent {
   @override
   List<Object?> get props => [userId];
 }
-

@@ -12,8 +12,8 @@ class EventState extends Equatable {
     this.selectedEventDetail,
   });
 
-  final List<EventModel>? events;
-  final List<EventModel>? searchEvents;
+  final List<EventDetail>? events;
+  final List<EventDetail>? searchEvents;
   final RequestState requestState;
   final String? errorMessage;
   final List<EventDetail>? myEvents;
@@ -22,8 +22,8 @@ class EventState extends Equatable {
   final EventDetail? selectedEventDetail;
 
   EventState copyWith({
-    List<EventModel>? events,
-    List<EventModel>? searchEvents,
+    List<EventDetail>? events,
+    List<EventDetail>? searchEvents,
     RequestState? requestState,
     String? errorMessage,
     List<EventDetail>? myEvents,
@@ -44,7 +44,7 @@ class EventState extends Equatable {
     );
   }
 
-  List<EventModel> get allEvents => [...?events, ...?searchEvents];
+  List<EventDetail> get allEvents => [...?events, ...?searchEvents, ...?myEvents];
 
   @override
   List<Object?> get props => [

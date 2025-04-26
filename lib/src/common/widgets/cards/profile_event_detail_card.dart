@@ -1,11 +1,9 @@
-import 'package:avatar_stack/animated_avatar_stack.dart';
 import 'package:flutter/material.dart';
-import 'package:gig_buddy/src/route/router.dart';
-import 'package:gig_buddy/src/service/model/event/event.dart';
-import 'package:go_router/go_router.dart';
+import 'package:gig_buddy/src/common/widgets/avatar_stack_widget/avatar_stack_widget.dart';
+import 'package:gig_buddy/src/service/model/event_detail/event_detail.dart';
 
-class EventDetailCard extends StatefulWidget {
-  const EventDetailCard({
+class ProfileEventDetailCard extends StatefulWidget {
+  const ProfileEventDetailCard({
     required this.isJoined,
     super.key,
     this.title,
@@ -35,10 +33,10 @@ class EventDetailCard extends StatefulWidget {
   final List<EventParticipantModel>? avatars;
 
   @override
-  State<EventDetailCard> createState() => _EventCardState();
+  State<ProfileEventDetailCard> createState() => _EventCardState();
 }
 
-class _EventCardState extends State<EventDetailCard> {
+class _EventCardState extends State<ProfileEventDetailCard> {
   late bool isJoined;
 
   @override
@@ -56,12 +54,15 @@ class _EventCardState extends State<EventDetailCard> {
         color: Theme.of(context).colorScheme.surfaceContainer,
       ),
       padding: const EdgeInsets.all(8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          buildEventImage(context),
-          buildEventDetailInfo(context),
-        ],
+      child: InkWell(
+        onTap: widget.onTap,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            buildEventImage(context),
+            buildEventDetailInfo(context),
+          ],
+        ),
       ),
     );
   }
@@ -102,18 +103,8 @@ class _EventCardState extends State<EventDetailCard> {
           Row(
             children: [
               Expanded(
-                child: AnimatedAvatarStack(
-                  height: 40,
-                  infoWidgetBuilder: (context, info) {
-                    return InkWell(
-                      onTap: () {
-                        // Örneğin profil sayfasına yönlendir:
-                        print('adsfadfsgasdf');
-                      },
-                      child: info.widget,
-                    );
-                  },
-                  avatars: _buildAvatars(),
+                child: AvatarStackWidget(
+                  avatars: widget.avatars!,
                 ),
               ),
               const SizedBox(width: 8),
@@ -181,14 +172,4 @@ class _EventCardState extends State<EventDetailCard> {
     );
   }
 
-  List<NetworkImage> _buildAvatars() {
-    final seenUrls = <String>{};
-
-    return widget.avatars?.where((e) {
-      final url = e.userImage ?? '';
-      if (seenUrls.contains(url)) return false;
-      seenUrls.add(url);
-      return true;
-    }).map((e) => NetworkImage(e.userImage ?? '')).toList() ?? [];
-  }
 }

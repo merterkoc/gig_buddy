@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:bloc/bloc.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
@@ -8,7 +7,6 @@ import 'package:equatable/equatable.dart';
 import 'package:gig_buddy/src/common/manager/location_manager.dart';
 import 'package:gig_buddy/src/http/dio/model/request_state.dart';
 import 'package:gig_buddy/src/repository/event_repository.dart';
-import 'package:gig_buddy/src/service/model/event/event.dart';
 import 'package:gig_buddy/src/service/model/event_detail/event_detail.dart';
 
 part 'event_event.dart';
@@ -46,7 +44,7 @@ class EventBloc extends Bloc<EventEvent, EventState> {
     );
     if (fetchData.isOk) {
       final events = (fetchData.data['data'] as List<dynamic>)
-          .map((e) => EventModel.fromJson(e as Map<String, dynamic>))
+          .map((e) => EventDetail.fromJson(e as Map<String, dynamic>))
           .toList();
       add(EventSuccess(events: events));
     } else {
@@ -76,7 +74,7 @@ class EventBloc extends Bloc<EventEvent, EventState> {
       );
       if (fetchData.isOk) {
         final events = (fetchData.data['data'] as List<dynamic>)
-            .map((e) => EventModel.fromJson(e as Map<String, dynamic>))
+            .map((e) => EventDetail.fromJson(e as Map<String, dynamic>))
             .toList();
         emit(
           state.copyWith(

@@ -83,5 +83,6 @@ class ResponseEntity<T> extends Equatable {
   }
 
   @override
-  List<Object?> get props => [statusCode, message, data, status];
+  List<Object?> get props =>
+      [statusCode, message, data, status, displayMessage, isOk];
 }

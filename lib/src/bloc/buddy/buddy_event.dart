@@ -39,3 +39,23 @@ class AcceptBuddyRequest extends BuddyEvent {
   @override
   List<Object?> get props => [buddyRequestId];
 }
+
+class RejectBuddyRequest extends BuddyEvent {
+  const RejectBuddyRequest({
+    required this.buddyRequestId,
+  });
+
+  final String buddyRequestId;
+
+  @override
+  List<Object?> get props => [buddyRequestId];
+}
+
+class BlockBuddyRequest extends BuddyEvent {
+  const BlockBuddyRequest({ required this.buddyRequestId });
+
+  final String buddyRequestId;
+
+  @override
+  List<Object?> get props => [buddyRequestId];
+}

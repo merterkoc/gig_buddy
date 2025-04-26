@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gig_buddy/src/bloc/event/event_bloc.dart';
 import 'package:gig_buddy/src/common/widgets/avatar_stack_widget/avatar_stack_widget.dart';
-import 'package:gig_buddy/src/service/model/event/event.dart';
+import 'package:gig_buddy/src/service/model/event_detail/event_detail.dart';
 
 class EventDetailView extends StatefulWidget {
   const EventDetailView({
@@ -17,13 +17,13 @@ class EventDetailView extends StatefulWidget {
 }
 
 class _EventDetailViewState extends State<EventDetailView> {
-  late final EventModel? _eventDetail;
+  late final EventDetail? _eventDetail;
 
   @override
   void initState() {
     context.read<EventBloc>().add(FetchEventById(widget.eventId));
     _eventDetail = context.read<EventBloc>().state.allEvents.firstWhere(
-          (element) => element.id == widget.eventId,
+          (element) => element?.id == widget.eventId,
         );
     super.initState();
   }

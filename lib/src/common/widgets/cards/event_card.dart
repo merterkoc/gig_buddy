@@ -1,7 +1,8 @@
-import 'package:avatar_stack/animated_avatar_stack.dart';
+
 import 'package:flutter/material.dart';
+
 import 'package:gig_buddy/src/common/widgets/avatar_stack_widget/avatar_stack_widget.dart';
-import 'package:gig_buddy/src/service/model/event/event.dart';
+import 'package:gig_buddy/src/service/model/event_detail/event_detail.dart';
 
 class EventCard extends StatefulWidget {
   const EventCard({

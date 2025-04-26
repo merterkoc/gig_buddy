@@ -1,5 +1,6 @@
+// ignore_for_file: invalid_annotation_target
+
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:gig_buddy/src/service/model/event/event.dart';
 
 part 'event_detail.freezed.dart';
 
@@ -18,13 +19,13 @@ class EventDetail with _$EventDetail {
     required String? locale,
     required String? city,
     required String? country,
-    @JsonKey(name: 'venue_name')required String? venueName,
+    @JsonKey(name: 'venue_name') required String? venueName,
     @JsonKey(name: 'is_joined') required bool isJoined,
     @JsonKey(name: 'ticket_url') required String ticketUrl,
     required List<Images> images,
     @JsonKey(name: 'participant_avatars')
     required List<EventParticipantModel>? participantAvatars,
-  }) = _EventDetail ;
+  }) = _EventDetail;
 
   factory EventDetail.fromJson(Map<String, dynamic> json) =>
       _$EventDetailFromJson(json);
@@ -41,6 +42,17 @@ class Images with _$Images {
     required bool fallback,
   }) = _Images;
 
-  factory Images.fromJson(Map<String, dynamic> json) =>
-      _$ImagesFromJson(json);
+  factory Images.fromJson(Map<String, dynamic> json) => _$ImagesFromJson(json);
+}
+
+@freezed
+@immutable
+class EventParticipantModel with _$EventParticipantModel {
+  factory EventParticipantModel({
+    @JsonKey(name: 'user_id') required String userId,
+    @JsonKey(name: 'user_image') required String? userImage,
+  }) = _EventParticipantModel;
+
+  factory EventParticipantModel.fromJson(Map<String, dynamic> json) =>
+      _$EventParticipantModelFromJson(json);
 }

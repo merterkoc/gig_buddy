@@ -120,7 +120,7 @@ class _HomeViewState extends State<HomeView> {
           startDateTime: state.events![index].start,
           location: state.events![index].location,
           imageUrl: state.events![index].images.isNotEmpty
-              ? state.events![index].images.first
+              ? state.events![index].images.first.url
               : null,
           distance: state.events![index].distance,
           isJoined: state.events![index].isJoined ?? false,
@@ -154,7 +154,7 @@ class _HomeViewState extends State<HomeView> {
           startDateTime: state.searchEvents![index].start,
           location: state.searchEvents![index].location,
           imageUrl: state.searchEvents![index].images.isNotEmpty
-              ? state.searchEvents![index].images.first
+              ? state.searchEvents![index].images.first.url
               : null,
           distance: state.searchEvents![index].distance,
           isJoined: state.searchEvents![index].isJoined ?? false,

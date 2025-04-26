@@ -155,10 +155,10 @@ class _UserProfileViewState extends State<UserProfileView> {
                 'Interests',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
-              if (state.user!.interests!.isEmpty) const Text('No interests'),
+              if (state.user!.interests.isEmpty) const Text('No interests'),
               Wrap(
                 spacing: 10,
-                children: state.user!.interests!.map((interest) {
+                children: state.user!.interests.map((interest) {
                   return Chip(
                     label: Text(interest.name),
                   );
@@ -222,10 +222,10 @@ class _UserProfileViewState extends State<UserProfileView> {
                     startDateTime: state.events![index].start,
                     location: state.events![index].location,
                     imageUrl: state.events![index].images.isNotEmpty
-                        ? state.events![index].images.first
+                        ? state.events![index].images.first.url
                         : null,
                     distance: state.events![index].distance,
-                    isJoined: state.events![index].isJoined ?? false,
+                    isJoined: state.events![index].isJoined,
                     onTap: () {
                       context.pushNamed(
                         AppRoute.eventDetailView.name,

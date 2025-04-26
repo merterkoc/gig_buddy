@@ -1,14 +1,13 @@
 import 'package:dio/dio.dart';
-import 'package:gig_buddy/src/common/constants/app_constants.dart';
 import 'package:gig_buddy/src/http/dio/model/response_entity.dart';
 import 'package:gig_buddy/src/repository/i_repository.dart';
 import 'package:gig_buddy/src/service/api_provider/buddy_api_provider.dart';
-import 'package:gig_buddy/src/service/api_provider/event_api_provider.dart';
+import 'package:gig_buddy/src/service/model/buddy_requests/buddy_requests.dart';
 
 class BuddyRepository extends IRepository {
   final _buddyApiProvider = BuddyApiProvider();
 
-  Future<ResponseEntity<dynamic>> getBuddyRequests({
+  Future<ResponseEntity<List<BuddyRequests>>> getBuddyRequests({
     CancelToken? cancelToken,
   }) async {
     return _buddyApiProvider.getBuddyRequests(
@@ -28,11 +27,31 @@ class BuddyRepository extends IRepository {
     );
   }
 
-  Future<ResponseEntity<dynamic>> acceptBuddyRequest({
+  Future<ResponseEntity<void>> acceptBuddyRequest({
     required String buddyRequestId,
     CancelToken? cancelToken,
   }) async {
     return _buddyApiProvider.acceptBuddyRequest(
+      buddyRequestId: buddyRequestId,
+      cancelToken: cancelToken,
+    );
+  }
+
+  Future<ResponseEntity<void>> rejectBuddyRequest({
+    required String buddyRequestId,
+    CancelToken? cancelToken,
+  }) async {
+    return _buddyApiProvider.rejectBuddyRequest(
+      buddyRequestId: buddyRequestId,
+      cancelToken: cancelToken,
+    );
+  }
+
+  Future<ResponseEntity<void>> blockBuddyRequest({
+    required String buddyRequestId,
+    CancelToken? cancelToken,
+  }) async {
+    return _buddyApiProvider.blockBuddyRequest(
       buddyRequestId: buddyRequestId,
       cancelToken: cancelToken,
     );

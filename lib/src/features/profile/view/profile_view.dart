@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gig_buddy/src/bloc/event/event_bloc.dart';
 import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
-import 'package:gig_buddy/src/common/widgets/avatar_image/avatar_image.dart';
-import 'package:gig_buddy/src/common/widgets/cards/event_detail_card.dart';
+import 'package:gig_buddy/src/common/widgets/cards/profile_event_detail_card.dart';
 import 'package:gig_buddy/src/common/widgets/user/user_avatar_widget.dart';
+import 'package:gig_buddy/src/features/profile/widgets/user_events.dart';
 import 'package:gig_buddy/src/features/profile/widgets/user_interests.dart';
-import 'package:gig_buddy/src/route/router.dart';
-import 'package:go_router/go_router.dart';
 
 class ProfileView extends StatefulWidget {
   const ProfileView({super.key});
@@ -71,7 +69,7 @@ class _ProfileViewState extends State<ProfileView> {
                     child: CircularProgressIndicator(),
                   );
                 }
-                return buildMyEvents(context.read<EventBloc>().state);
+                return UserEvents(events: state.myEvents!);
               },
             ),
           ],
@@ -137,7 +135,7 @@ ListView buildMyEvents(EventState state) {
     physics: const NeverScrollableScrollPhysics(),
     itemCount: state.myEvents!.length,
     itemBuilder: (context, index) {
-      return EventDetailCard(
+      return ProfileEventDetailCard(
         title: state.myEvents![index].name,
         subtitle: state.myEvents![index].name,
         startDateTime: state.myEvents![index].start,

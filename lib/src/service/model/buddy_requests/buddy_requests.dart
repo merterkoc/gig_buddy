@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_annotation_target
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:gig_buddy/src/service/model/event_detail/event_detail.dart';
 import 'package:gig_buddy/src/service/model/user/user_dto.dart';
@@ -9,12 +11,13 @@ part 'buddy_requests.g.dart';
 @freezed
 @immutable
 class BuddyRequests with _$BuddyRequests {
+  @JsonSerializable(explicitToJson: true,createToJson: true)
   factory BuddyRequests({
     required String id,
     @JsonKey(name: 'sender') required UserDto sender,
     @JsonKey(name: 'receiver') required UserDto receiver,
     @JsonKey(name: 'event') required EventDetail event,
-    required String status,
+    @JsonEnum(alwaysCreate: true) required BuddyRequestStatus status,
   }) = _BuddyRequests;
 
   factory BuddyRequests.fromJson(Map<String, dynamic> json) =>
@@ -22,5 +25,12 @@ class BuddyRequests with _$BuddyRequests {
 }
 
 extension BuddyRequestsExt on BuddyRequests {
-  bool get isAccepted => status == 'accepted';
+  bool get isAccepted => status == BuddyRequestStatus.accepted;
+}
+
+enum BuddyRequestStatus {
+  pending,
+  accepted,
+  blocked,
+  rejected,
 }

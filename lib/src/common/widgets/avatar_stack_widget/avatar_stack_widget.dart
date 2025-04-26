@@ -2,7 +2,8 @@ import 'package:avatar_stack/avatar_stack.dart';
 import 'package:avatar_stack/positions.dart';
 import 'package:flutter/material.dart';
 import 'package:gig_buddy/src/route/router.dart';
-import 'package:gig_buddy/src/service/model/event/event.dart';
+import 'package:gig_buddy/src/service/model/event_detail/event_detail.dart';
+
 import 'package:go_router/go_router.dart';
 
 class AvatarStackWidget extends StatelessWidget {
@@ -12,7 +13,7 @@ class AvatarStackWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final settings =  RestrictedPositions(maxCoverage: 0.3, minCoverage: 0.1);
+    final settings = RestrictedPositions(maxCoverage: 0.3, minCoverage: 0.1);
     return SizedBox(
       height: 50,
       child: WidgetStack(
@@ -21,9 +22,12 @@ class AvatarStackWidget extends StatelessWidget {
           for (final avatar in avatars)
             InkWell(
               onTap: () {
-                context.pushNamed(AppRoute.userProfileView.name, pathParameters: {
-                  'userId': avatar.userId,
-                });
+                context.pushNamed(
+                  AppRoute.userProfileView.name,
+                  pathParameters: {
+                    'userId': avatar.userId,
+                  },
+                );
               },
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(9999),
@@ -44,14 +48,14 @@ class AvatarStackWidget extends StatelessWidget {
                 ),
               ),
             ),
-
         ],
         buildInfoWidget: (int surplus, BuildContext context) {
           return Center(
-              child: Text(
-            '+$surplus',
-            style: Theme.of(context).textTheme.headlineSmall,
-          ));
+            child: Text(
+              '+$surplus',
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+          );
         },
       ),
     );
