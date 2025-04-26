@@ -82,7 +82,22 @@ class ResponseEntity<T> extends Equatable {
     }
   }
 
+  ResponseEntity<T> copyWith({
+    int? statusCode,
+    String? message,
+    T? data,
+    RequestState? status,
+    String? displayMessage,
+  }) {
+    return ResponseEntity(
+      statusCode: statusCode ?? this.statusCode,
+      message: message ?? this.message,
+      data: data ?? this.data,
+      status: status ?? this.status,
+      displayMessage: displayMessage ?? this.displayMessage,
+    );
+  }
+
   @override
-  List<Object?> get props =>
-      [statusCode, message, data, status, displayMessage, isOk];
+  List<Object?> get props => [statusCode, message, data, status, displayMessage, isOk];
 }
