@@ -47,13 +47,13 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     emit(state.copyWith(signInWithGoogleRequest: ResponseEntity.loading()));
     try {
       final response = await _authManager.signInWithGoogle();
-      final credential = GoogleAuthProvider.credential(idToken: response.idToken);
-
+      final credential =
+          GoogleAuthProvider.credential(idToken: response.idToken);
       await FirebaseAuth.instance.signInWithCredential(credential);
-
       await FirebaseAuth.instance.currentUser!.getIdToken().then((value) {
         add(VerifyIDToken(token: value!));
       });
+      emit(state.copyWith(signInWithGoogleRequest: ResponseEntity.success()));
     } on Exception {
       emit(state.copyWith(signInWithGoogleRequest: ResponseEntity.error()));
       rethrow;
