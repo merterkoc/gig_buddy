@@ -23,6 +23,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   LoginBloc(this._authManager, this._identityRepository)
       : super(LoginState.initial()) {
     on<LoginInitState>(_onInit);
+    on<SignInWithGoogle>(_onSignInWithGoogle);
     on<CreateAccount>(_onCreateAccount);
     on<SubmitEmail>(_onSubmitEmail);
     on<VerifyIDToken>(_onVerifyIDToken);
@@ -37,6 +38,26 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
   Future<void> _onInit(LoginInitState event, Emitter<LoginState> emit) async {
     emit(LoginState.initial());
+  }
+
+  Future<void> _onSignInWithGoogle(
+    SignInWithGoogle event,
+    Emitter<LoginState> emit,
+  ) async {
+    emit(state.copyWith(signInWithGoogleRequest: ResponseEntity.loading()));
+    try {
+      final response = await _authManager.signInWithGoogle();
+      final credential = GoogleAuthProvider.credential(idToken: response.idToken);
+
+      await FirebaseAuth.instance.signInWithCredential(credential);
+
+      await FirebaseAuth.instance.currentUser!.getIdToken().then((value) {
+        add(VerifyIDToken(token: value!));
+      });
+    } on Exception {
+      emit(state.copyWith(signInWithGoogleRequest: ResponseEntity.error()));
+      rethrow;
+    }
   }
 
   Future<void> _onCreateAccount(

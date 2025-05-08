@@ -11,6 +11,10 @@ final class LoginInitState extends LoginEvent {
   const LoginInitState();
 }
 
+final class SignInWithGoogle extends LoginEvent {
+  const SignInWithGoogle();
+}
+
 final class CreateAccount extends LoginEvent {
   const CreateAccount(
       {required this.email, required this.password, this.image});

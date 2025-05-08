@@ -1,4 +1,9 @@
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in_android/google_sign_in_android.dart';
+import 'package:google_sign_in_ios/google_sign_in_ios.dart';
+import 'package:google_sign_in_platform_interface/google_sign_in_platform_interface.dart';
 
 class AuthManager {
   factory AuthManager() => _instance;
@@ -23,6 +28,29 @@ class AuthManager {
       email: email,
       password: password,
     );
+  }
+
+  Future<GoogleSignInUserData> signInWithGoogle() async {
+    await GoogleSignInPlatform.instance.initWithParams(
+      const SignInInitParameters(
+
+        scopes: <String>[
+          'email',
+        ],
+      ),
+    );
+
+    late final GoogleSignInPlatform googleSignIn;
+    if (Platform.isIOS) {
+      googleSignIn = GoogleSignInIOS();
+    } else {
+      googleSignIn = GoogleSignInAndroid();
+    }
+    final googleSignInUserData = await googleSignIn.signIn();
+    if (googleSignInUserData == null) {
+      throw Exception('User not signed failed with Google');
+    }
+    return googleSignInUserData;
   }
 
   static Future<void> sendPasswordResetEmail(String email) async {

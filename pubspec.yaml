@@ -63,6 +63,9 @@ dependencies:
   flutter_image_compress: ^2.4.0
   image_picker: ^1.1.2
   logger: ^2.5.0
+  google_sign_in_platform_interface: ^2.5.0
+  google_sign_in_ios: ^5.9.0
+  google_sign_in_android: ^6.2.1
 
 dev_dependencies:
   flutter_test:

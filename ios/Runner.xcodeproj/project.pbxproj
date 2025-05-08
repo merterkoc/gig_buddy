@@ -223,6 +223,7 @@
 				9705A1C41CF9048500538489 /* Embed Frameworks */,
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
 				C95F088877F0B7F53FFAACD8 /* [CP] Embed Pods Frameworks */,
+				7C64B399D5310101ED56B292 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -349,6 +350,23 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "environment=\"default\"\n\nif [[ $CONFIGURATION =~ -([^-]*)$ ]]; then\n  environment=${BASH_REMATCH[1]}\nfi\n\necho \"Environment detected: $environment\"\n\nGOOGLESERVICE_INFO_PLIST=GoogleService-Info.plist\nGOOGLESERVICE_INFO_FILE=${PROJECT_DIR}/config/${environment}/${GOOGLESERVICE_INFO_PLIST}\nPLIST_DESTINATION=${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app\n\necho \"Looking for ${GOOGLESERVICE_INFO_PLIST} in ${GOOGLESERVICE_INFO_FILE}\"\nif [ ! -f $GOOGLESERVICE_INFO_FILE ]; then\n  echo \"No GoogleService-Info.plist found at ${GOOGLESERVICE_INFO_FILE}. Please ensure it's in the proper directory.\"\n  exit 1\nfi\n\necho \"Copying ${GOOGLESERVICE_INFO_PLIST} to ${PLIST_DESTINATION}\"\ncp \"${GOOGLESERVICE_INFO_FILE}\" \"${PLIST_DESTINATION}\"\n\nif [ -f \"${PLIST_DESTINATION}/${GOOGLESERVICE_INFO_PLIST}\" ]; then\n  echo \"File copied successfully!\"\nelse\n  echo \"File copy failed.\"\n  exit 1\nfi\n";
+		};
+		7C64B399D5310101ED56B292 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-resources.sh\"\n";
+			showEnvVarsInLog = 0;
 		};
 		9740EEB61CF901F6004384FC /* Run Script */ = {
 			isa = PBXShellScriptBuildPhase;
