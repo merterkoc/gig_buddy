@@ -22,15 +22,15 @@ class TopSnackBar {
 }
 
 class _AnimatedTopSnackBar extends StatefulWidget {
-  final String message;
-  final Duration duration;
-  final VoidCallback onDismissed;
-
   const _AnimatedTopSnackBar({
     required this.message,
     required this.duration,
     required this.onDismissed,
   });
+
+  final String message;
+  final Duration duration;
+  final VoidCallback onDismissed;
 
   @override
   State<_AnimatedTopSnackBar> createState() => _AnimatedTopSnackBarState();
@@ -95,7 +95,7 @@ class _AnimatedTopSnackBarState extends State<_AnimatedTopSnackBar>
                     color: Theme.of(context).shadowColor,
                     blurRadius: 8,
                     offset: const Offset(0, 2),
-                  )
+                  ),
                 ],
               ),
               child: Text(
