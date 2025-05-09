@@ -28,9 +28,10 @@ class EventLoadMore extends EventEvent {
 }
 
 class EventSearch extends EventEvent {
-  const EventSearch(this.keyword);
+  const EventSearch(this.keyword, this.city);
 
   final String? keyword;
+  final City? city;
 }
 
 class EventSuccess extends EventEvent {
@@ -88,4 +89,18 @@ class GetEventsByUserId extends EventEvent {
 
   @override
   List<Object?> get props => [userId];
+}
+
+class EventLoadNearCity extends EventEvent {
+  const EventLoadNearCity({
+    required this.lat,
+    required this.lng,
+    required this.radius,
+    required this.limit,
+  });
+
+  final num lat;
+  final num lng;
+  final int radius;
+  final int limit;
 }

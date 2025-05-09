@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gig_buddy/src/bloc/event/event_bloc.dart';
 import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
+import 'package:gig_buddy/src/common/manager/location_manager.dart';
 import 'package:gig_buddy/src/common/widgets/cards/event_card.dart';
 import 'package:gig_buddy/src/route/router.dart';
 import 'package:go_router/go_router.dart';
@@ -19,7 +20,14 @@ class _HomeViewState extends State<HomeView> {
   @override
   void initState() {
     context.read<EventBloc>().add(const EventLoad(page: 0));
+    context.read<EventBloc>().add(EventLoadNearCity(
+          lat: LocationManager.position!.latitude,
+          lng: LocationManager.position!.longitude,
+          radius: 1000,
+          limit: 10,
+        ));
     context.read<LoginBloc>().add(const FetchUserInfo());
+
     super.initState();
   }
 
@@ -71,9 +79,13 @@ class _HomeViewState extends State<HomeView> {
             child: SafeArea(
               bottom: false,
               child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Wrap(
                   children: [
+                    if (state.nearCity?.isNotEmpty ?? false)
+                      SizedBox(
+                        height: 50,
+                        child: buildNearCity(state),
+                      ),
                     TextField(
                       controller: _controller,
                       keyboardType: TextInputType.text,
@@ -86,7 +98,7 @@ class _HomeViewState extends State<HomeView> {
                       ),
                       onChanged: (value) {
                         context.read<EventBloc>().add(
-                              EventSearch(value),
+                              EventSearch(value,null,),
                             );
                       },
                     ),
@@ -174,6 +186,23 @@ class _HomeViewState extends State<HomeView> {
             context
                 .read<EventBloc>()
                 .add(LeaveEvent(state.searchEvents![index].id));
+          },
+        );
+      },
+    );
+  }
+
+  Widget buildNearCity(EventState state) {
+    return ListView.builder(
+      scrollDirection: Axis.horizontal,
+      itemCount: state.nearCity!.length,
+      itemBuilder: (context, index) {
+        return ActionChip(
+          label: Text(state.nearCity![index].name),
+          onPressed: () {
+            context.read<EventBloc>().add(
+                  EventSearch(null, state.nearCity![index]),
+                );
           },
         );
       },

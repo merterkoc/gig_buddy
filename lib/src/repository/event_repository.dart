@@ -11,11 +11,13 @@ class EventRepository extends IRepository {
     required int page,
     int? size = AppConstants.limit,
     String? keyword,
+    String? city,
     String? location,
     CancelToken? cancelToken,
   }) async {
     return _eventApiProvider.fetchEvent(
       keyword: keyword,
+      city: city,
       location: location,
       page: page,
       size: size,
@@ -41,5 +43,19 @@ class EventRepository extends IRepository {
 
   Future<ResponseEntity<dynamic>> getEventsByUserId(String userId) {
     return _eventApiProvider.getEventsByUserId(userId);
+  }
+
+  Future<ResponseEntity<dynamic>> getNearCity({
+    required num lat,
+    required num lng,
+    required int radius,
+    required int limit,
+  }) async {
+    return _eventApiProvider.getNearCity(
+      lat: lat,
+      lng: lng,
+      radius: radius,
+      limit: limit,
+    );
   }
 }

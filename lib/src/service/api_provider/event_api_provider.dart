@@ -13,6 +13,7 @@ class EventApiProvider extends ApiProvider {
     required int page,
     required int? size,
     String? keyword,
+    String? city,
     String? location,
     CancelToken? cancelToken,
   }) async {
@@ -21,6 +22,7 @@ class EventApiProvider extends ApiProvider {
       queryParameters: {
         if (keyword != null) 'keyword': keyword,
         if (location != null) 'location': location,
+        if (city != null) 'city': city,
         if (size != null) 'page': page,
         if (size != null) 'size': size,
       },
@@ -45,5 +47,21 @@ class EventApiProvider extends ApiProvider {
 
   Future<ResponseEntity<dynamic>> getEventsByUserId(String userId) async {
     return get(resource: 'user/$userId');
+  }
+
+  Future<ResponseEntity<dynamic>> getNearCity({
+    required num lat,
+    required num lng,
+    required int radius,
+    required int limit,
+  }) async {
+    return post(resource: 'near-city',
+      data: {
+        'lat': lat,
+        'lng': lng,
+        'radius': radius,
+        'limit': limit,
+      },
+    );
   }
 }

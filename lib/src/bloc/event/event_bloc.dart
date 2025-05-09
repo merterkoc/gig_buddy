@@ -7,6 +7,7 @@ import 'package:equatable/equatable.dart';
 import 'package:gig_buddy/src/common/manager/location_manager.dart';
 import 'package:gig_buddy/src/http/dio/model/request_state.dart';
 import 'package:gig_buddy/src/repository/event_repository.dart';
+import 'package:gig_buddy/src/service/model/city/city.dart';
 import 'package:gig_buddy/src/service/model/event_detail/event_detail.dart';
 
 part 'event_event.dart';
@@ -28,6 +29,7 @@ class EventBloc extends Bloc<EventEvent, EventState> {
     on<LeaveEvent>(_onLeave);
     on<GetMyEvents>(_onGetMyEvents);
     on<GetEventsByUserId>(_onGetEventsByUserId);
+    on<EventLoadNearCity>(_onLoadNearCity);
   }
 
   final EventRepository _eventRepository;
@@ -56,17 +58,18 @@ class EventBloc extends Bloc<EventEvent, EventState> {
 
   Future<void> _onSearch(EventSearch event, Emitter<EventState> emit) async {
     _cancelToken?.cancel();
-    if (event.keyword == null || event.keyword!.isEmpty) {
+    if (event.city == null && (event.keyword == null || event.keyword!.isEmpty)) {
       emit(state.copyWith(searchEvents: []));
       return;
     }
-    await Future<void>.delayed(const Duration(milliseconds: 500));
+    await Future<void>.delayed( Duration(milliseconds: event.city != null ? 0 : 500));
     _cancelToken = CancelToken();
     emit(state.copyWith(requestState: RequestState.loading));
 
     try {
       final fetchData = await _eventRepository.fetchData(
         keyword: event.keyword,
+        city: event.city?.name,
         cancelToken: _cancelToken,
         page: 0,
         size: null,
@@ -104,7 +107,9 @@ class EventBloc extends Bloc<EventEvent, EventState> {
   }
 
   FutureOr<void> _onFetchEventById(
-      FetchEventById event, Emitter<EventState> emit) async {
+    FetchEventById event,
+    Emitter<EventState> emit,
+  ) async {
     final fetchData = await _eventRepository.fetchEventById(event.eventId);
     if (fetchData.isOk) {
       final event =
@@ -134,7 +139,9 @@ class EventBloc extends Bloc<EventEvent, EventState> {
   }
 
   Future<void> _onGetMyEvents(
-      GetMyEvents event, Emitter<EventState> emit) async {
+    GetMyEvents event,
+    Emitter<EventState> emit,
+  ) async {
     emit(state.copyWith(requestState: RequestState.loading));
     try {
       final response = await _eventRepository.getMyEvents();
@@ -142,8 +149,12 @@ class EventBloc extends Bloc<EventEvent, EventState> {
         final events = (response.data['data'] as List<dynamic>)
             .map((e) => EventDetail.fromJson(e as Map<String, dynamic>))
             .toList();
-        emit(state.copyWith(
-            myEvents: events, requestState: RequestState.success));
+        emit(
+          state.copyWith(
+            myEvents: events,
+            requestState: RequestState.success,
+          ),
+        );
       } else {
         add(EventFailure(message: response.message));
       }
@@ -154,26 +165,58 @@ class EventBloc extends Bloc<EventEvent, EventState> {
   }
 
   Future<void> _onGetEventsByUserId(
-      GetEventsByUserId event, Emitter<EventState> emit) async {
+    GetEventsByUserId event,
+    Emitter<EventState> emit,
+  ) async {
     emit(
-        state.copyWith(currentProfileEventsRequestState: RequestState.loading));
+      state.copyWith(currentProfileEventsRequestState: RequestState.loading),
+    );
     try {
       final response = await _eventRepository.getEventsByUserId(event.userId);
       if (response.isOk) {
         final events = (response.data['data'] as List<dynamic>)
             .map((e) => EventDetail.fromJson(e as Map<String, dynamic>))
             .toList();
-        emit(state.copyWith(
+        emit(
+          state.copyWith(
             currentProfileEvents: events,
-            currentProfileEventsRequestState: RequestState.success));
+            currentProfileEventsRequestState: RequestState.success,
+          ),
+        );
       } else {
-        emit(state.copyWith(
-            currentProfileEventsRequestState: RequestState.error));
+        emit(
+          state.copyWith(
+            currentProfileEventsRequestState: RequestState.error,
+          ),
+        );
       }
     } catch (e) {
       emit(
-          state.copyWith(currentProfileEventsRequestState: RequestState.error));
+        state.copyWith(currentProfileEventsRequestState: RequestState.error),
+      );
       rethrow;
+    }
+  }
+
+  Future<void> _onLoadNearCity(
+    EventLoadNearCity event,
+    Emitter<EventState> emit,
+  ) async {
+    final response = await _eventRepository.getNearCity(
+      lat: event.lat,
+      lng: event.lng,
+      radius: event.radius,
+      limit: event.limit,
+    );
+    if (response.isOk) {
+      final cities = (response.data['data'] as List<dynamic>)
+          .map((e) => City.fromJson(e as Map<String, dynamic>))
+          .toList();
+      emit(state.copyWith(nearCity: cities));
+    } else {
+      emit(
+        state.copyWith(),
+      );
     }
   }
 }

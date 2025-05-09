@@ -52,7 +52,7 @@ class _SearchViewState extends State<SearchView> {
                     context.goNamed(AppRoute.homeView.name);
                   } else {
                     context.read<EventBloc>().add(
-                          EventSearch(value),
+                          EventSearch(value, null),
                         );
                   }
                 },
