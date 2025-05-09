@@ -16,11 +16,16 @@ final class SignInWithGoogle extends LoginEvent {
 }
 
 final class CreateAccount extends LoginEvent {
-  const CreateAccount(
-      {required this.email, required this.password, this.image});
+  const CreateAccount({
+    required this.email,
+    required this.password,
+    required this.rePassword,
+    this.image,
+  });
 
   final String email;
   final String password;
+  final String rePassword;
   final XFile? image;
 }
 

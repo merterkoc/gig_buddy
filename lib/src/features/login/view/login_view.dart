@@ -61,7 +61,7 @@ class _LoginViewState extends State<LoginView> with LoginViewMixin {
                       builder: (context, state) {
                         return LoginButtons.email(
                           isActive: true,
-                          inProgress: state.submitEmail.isLoading,
+                          inProgress: state.submitEmail.status.isLoading,
                           onPressed: () {
                             context.read<LoginBloc>().add(
                                   SubmitEmail(
@@ -80,14 +80,14 @@ class _LoginViewState extends State<LoginView> with LoginViewMixin {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    const LoginButtons.facebook(),
                     BlocBuilder<LoginBloc, LoginState>(
                       buildWhen: (previous, current) =>
                           previous.signInWithGoogleRequest !=
                           current.signInWithGoogleRequest,
                       builder: (context, state) {
                         return LoginButtons.google(
-                          inProgress: state.signInWithGoogleRequest.status.isLoading,
+                          inProgress:
+                              state.signInWithGoogleRequest.status.isLoading,
                           isActive: true,
                           onPressed: () {
                             context
@@ -97,9 +97,6 @@ class _LoginViewState extends State<LoginView> with LoginViewMixin {
                         );
                       },
                     ),
-                    const LoginButtons.apple(
-                      isActive: true,
-                    ),
                     const Align(
                       child: Text(
                         'or',
@@ -108,7 +105,6 @@ class _LoginViewState extends State<LoginView> with LoginViewMixin {
                     LoginButtons.email(
                       isActive: true,
                       logo: const Icon(Icons.person_add),
-                      inProgress: false,
                       text: 'Sign up with Email',
                       onPressed: () {
                         goRouter.pushNamed(

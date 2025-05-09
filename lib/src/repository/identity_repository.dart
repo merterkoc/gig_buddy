@@ -12,11 +12,13 @@ class IdentityRepository extends IRepository {
   Future<ResponseEntity<dynamic>> create({
     required String email,
     required String password,
+    required String rePassword,
     required Uint8List? image,
   }) async {
     return _identityApiProvider.create(
       email: email,
       password: password,
+      rePassword: rePassword,
       image: image,
     );
   }

@@ -6,7 +6,7 @@ class LoginState extends Equatable {
     required this.verifyIDTokenRequest,
     required this.createAccountRequest,
     required this.signInWithGoogleRequest,
-    this.submitEmail = RequestState.initialized,
+    required this.submitEmail,
     this.verifyEmailOtpRequestState = RequestState.initialized,
     this.user,
     this.interests = const [],
@@ -18,12 +18,13 @@ class LoginState extends Equatable {
       signInWithGoogleRequest: ResponseEntity.initial(),
       createAccountRequest: ResponseEntity.initial(),
       verifyIDTokenRequest: ResponseEntity.initial(),
+      submitEmail: ResponseEntity.initial(),
     );
   }
 
   final ResponseEntity<void> createAccountRequest;
   final ResponseEntity<void> signInWithGoogleRequest;
-  final RequestState submitEmail;
+  final ResponseEntity<void> submitEmail;
   final RequestState verifyEmailOtpRequestState;
   final ResponseEntity<void> verifyIDTokenRequest;
   final UserDto? user;
@@ -33,7 +34,7 @@ class LoginState extends Equatable {
   LoginState copyWith({
     ResponseEntity<void>? createAccountRequest,
     ResponseEntity<void>? signInWithGoogleRequest,
-    RequestState? submitEmail,
+    ResponseEntity<void>? submitEmail,
     RequestState? verifyEmailOtpRequestState,
     ResponseEntity<void>? verifyIDTokenRequest,
     AuthenticationStatus? authenticationStatus,

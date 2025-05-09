@@ -14,6 +14,7 @@ class IdentityApiProvider extends ApiProvider {
   Future<ResponseEntity<dynamic>> create({
     required String email,
     required String password,
+    required String rePassword,
     required Uint8List? image,
   }) async {
     MultipartFile? multipartFile;
@@ -28,6 +29,7 @@ class IdentityApiProvider extends ApiProvider {
     final data = FormData.fromMap({
       'email': email,
       'password': password,
+      're_password': rePassword,
       'username': email,
       if (image != null) 'image': multipartFile,
     });

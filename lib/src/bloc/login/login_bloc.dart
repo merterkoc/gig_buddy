@@ -69,6 +69,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       final response = await _identityRepository.create(
         email: event.email,
         password: event.password,
+        rePassword: event.rePassword,
         image: event.image != null
             ? await ImageHelper.pathToUINT8List(event.image!.path)
             : null,
@@ -76,6 +77,10 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       emit(
         state.copyWith(createAccountRequest: response),
       );
+
+      if (response.isOk) {
+        add(SubmitEmail(email: event.email, password: event.password));
+      }
     } on Exception {
       emit(state.copyWith(createAccountRequest: ResponseEntity.error()));
       rethrow;
@@ -86,7 +91,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     SubmitEmail event,
     Emitter<LoginState> emit,
   ) async {
-    emit(state.copyWith(submitEmail: RequestState.loading));
+    emit(state.copyWith(submitEmail: ResponseEntity.loading()));
     try {
       final response = await _authManager.signInWithEmailAndPassword(
         event.email,
@@ -99,7 +104,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         add(VerifyIDToken(token: value!));
       });
     } on Exception {
-      emit(state.copyWith(submitEmail: RequestState.error));
+      emit(state.copyWith(submitEmail: ResponseEntity.error()));
       rethrow;
     }
   }
@@ -117,14 +122,14 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           .setToken(OAuth2Token(accessToken: response.data!.token));
       emit(
         state.copyWith(
-          submitEmail: RequestState.success,
+          submitEmail: ResponseEntity.success(),
           verifyIDTokenRequest: response,
         ),
       );
     } on Exception {
       emit(
         state.copyWith(
-          submitEmail: RequestState.error,
+          submitEmail: ResponseEntity.error(),
           verifyIDTokenRequest: ResponseEntity.error(
             displayMessage: 'Failed to verify your sign in. Please try again.',
           ),

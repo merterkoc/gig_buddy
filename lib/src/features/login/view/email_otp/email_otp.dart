@@ -18,7 +18,7 @@ class EmailOtpView extends StatelessWidget {
                     current.verifyEmailOtpRequestState,
             builder: (context, state) {
               return TextButton(
-                onPressed: state.submitEmail.isLoading
+                onPressed: state.submitEmail.status.isLoading
                     ? null
                     : () => context.read<LoginBloc>(),
                 style: TextButton.styleFrom(
