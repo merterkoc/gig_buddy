@@ -14,12 +14,13 @@ class AvatarStackWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final settings = RestrictedPositions(maxCoverage: 0.3, minCoverage: 0.1);
+    final newAvatars = avatars.where((e) => e.userImage != null&& e.userImage!.isNotEmpty).toList();
     return SizedBox(
       height: 50,
       child: WidgetStack(
         positions: settings,
         stackedWidgets: [
-          for (final avatar in avatars)
+          for (final avatar in newAvatars)
             InkWell(
               onTap: () {
                 context.pushNamed(

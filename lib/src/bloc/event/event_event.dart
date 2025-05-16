@@ -28,10 +28,15 @@ class EventLoadMore extends EventEvent {
 }
 
 class EventSearch extends EventEvent {
-  const EventSearch(this.keyword, this.city);
+  const EventSearch(this.keyword);
 
   final String? keyword;
-  final City? city;
+}
+
+class OnSelectCity extends EventEvent {
+  const OnSelectCity(this.city);
+
+  final City city;
 }
 
 class EventSuccess extends EventEvent {

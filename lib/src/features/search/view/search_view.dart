@@ -14,7 +14,7 @@ class SearchView extends StatefulWidget {
 }
 
 class _SearchViewState extends State<SearchView> {
-  TextEditingController _controller = TextEditingController();
+  final TextEditingController _controller = TextEditingController();
 
   @override
   void initState() {
@@ -52,7 +52,7 @@ class _SearchViewState extends State<SearchView> {
                     context.goNamed(AppRoute.homeView.name);
                   } else {
                     context.read<EventBloc>().add(
-                          EventSearch(value, null),
+                          EventSearch(value),
                         );
                   }
                 },
@@ -81,13 +81,13 @@ class _SearchViewState extends State<SearchView> {
                           context.watch<EventBloc>().state.searchEvents![index];
                       return ListTile(
                         title: Text(event.name),
-                        subtitle: Text(event.name ?? ''),
+                        subtitle: Text(event.name),
                         onTap: () {},
                       );
                     },
                   );
                 },
-              )
+              ),
             ],
           ),
         ),

@@ -22,6 +22,7 @@ class EventBloc extends Bloc<EventEvent, EventState> {
     on<EventLoad>(_onLoad);
     on<EventLoadMore>(_onLoadMore);
     on<EventSearch>(_onSearch, transformer: restartable());
+    on<OnSelectCity>(_onSelectCity);
     on<EventSuccess>(_onSuccess);
     on<EventFailure>(_onFailure);
     on<FetchEventById>(_onFetchEventById);
@@ -40,6 +41,7 @@ class EventBloc extends Bloc<EventEvent, EventState> {
       emit(const EventState());
 
   Future<void> _onLoad(EventLoad event, Emitter<EventState> emit) async {
+    emit(state.copyWith(requestState: RequestState.loading));
     final fetchData = await _eventRepository.fetchData(
       page: event.page,
       location: LocationManager.currentLocation,
@@ -58,25 +60,29 @@ class EventBloc extends Bloc<EventEvent, EventState> {
 
   Future<void> _onSearch(EventSearch event, Emitter<EventState> emit) async {
     _cancelToken?.cancel();
-    if (event.city == null && (event.keyword == null || event.keyword!.isEmpty)) {
+    if (state.selectedCity == null &&
+        (event.keyword == null || event.keyword!.isEmpty)) {
       emit(state.copyWith(searchEvents: []));
+      add(const EventLoad(page: 0));
       return;
     }
-    await Future<void>.delayed( Duration(milliseconds: event.city != null ? 0 : 500));
+    await Future<void>.delayed(
+      Duration(milliseconds: state.selectedCity != null ? 0 : 500),
+    );
     _cancelToken = CancelToken();
-    emit(state.copyWith(requestState: RequestState.loading));
+    emit(state.copyWith(requestState: RequestState.loading, searchEvents: []));
 
     try {
-      final fetchData = await _eventRepository.fetchData(
+      final response = await _eventRepository.fetchData(
         keyword: event.keyword,
-        city: event.city?.name,
+        city: state.selectedCity?.name,
         cancelToken: _cancelToken,
         page: 0,
         size: null,
         location: LocationManager.currentLocation,
       );
-      if (fetchData.isOk) {
-        final events = (fetchData.data['data'] as List<dynamic>)
+      if (response.isOk) {
+        final events = (response.result as List<dynamic>)
             .map((e) => EventDetail.fromJson(e as Map<String, dynamic>))
             .toList();
         emit(
@@ -86,7 +92,7 @@ class EventBloc extends Bloc<EventEvent, EventState> {
           ),
         );
       } else {
-        add(EventFailure(message: fetchData.message));
+        add(EventFailure(message: response.message));
       }
     } catch (e) {
       add(EventFailure(message: e.toString()));
@@ -94,14 +100,29 @@ class EventBloc extends Bloc<EventEvent, EventState> {
     }
   }
 
+  FutureOr<void> _onSelectCity(OnSelectCity event, Emitter<EventState> emit) {
+    if (state.selectedCity == event.city) {
+      emit(state.setNullSelectCity());
+    } else {
+      emit(state.copyWith(selectedCity: event.city));
+    }
+    add(const EventSearch(null));
+  }
+
   FutureOr<void> _onSuccess(EventSuccess event, Emitter<EventState> emit) {
-    emit(state.copyWith(events: event.events));
+    emit(
+      state.copyWith(
+        events: event.events,
+        requestState: RequestState.success,
+      ),
+    );
   }
 
   FutureOr<void> _onFailure(EventFailure event, Emitter<EventState> emit) {
     emit(
       state.copyWith(
         requestState: RequestState.error,
+        events: [],
       ),
     );
   }
@@ -125,7 +146,6 @@ class EventBloc extends Bloc<EventEvent, EventState> {
     if (joinData.isOk) {
       emit(state.copyWith(requestState: RequestState.success));
     } else {
-      add(EventFailure(message: joinData.message));
     }
   }
 
@@ -134,7 +154,6 @@ class EventBloc extends Bloc<EventEvent, EventState> {
     if (leaveData.isOk) {
       emit(state.copyWith(requestState: RequestState.success));
     } else {
-      add(EventFailure(message: leaveData.message));
     }
   }
 
@@ -218,5 +237,21 @@ class EventBloc extends Bloc<EventEvent, EventState> {
         state.copyWith(),
       );
     }
+  }
+}
+
+extension on EventState {
+  EventState setNullSelectCity() {
+    return EventState(
+      nearCity: nearCity,
+      selectedEventDetail: selectedEventDetail,
+      currentProfileEvents: currentProfileEvents,
+      currentProfileEventsRequestState: currentProfileEventsRequestState,
+      events: events,
+      requestState: requestState,
+      errorMessage: errorMessage,
+      myEvents: myEvents,
+      searchEvents: searchEvents,
+    );
   }
 }

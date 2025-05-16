@@ -66,6 +66,7 @@ dependencies:
   google_sign_in_platform_interface: ^2.5.0
   google_sign_in_ios: ^5.9.0
   google_sign_in_android: ^6.2.1
+  shimmer: ^3.0.0
 
 dev_dependencies:
   flutter_test:

@@ -4,6 +4,7 @@ import 'package:gig_buddy/src/bloc/event/event_bloc.dart';
 import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
 import 'package:gig_buddy/src/common/manager/location_manager.dart';
 import 'package:gig_buddy/src/common/widgets/cards/event_card.dart';
+import 'package:gig_buddy/src/features/home/widgets/shimmer_home.dart';
 import 'package:gig_buddy/src/route/router.dart';
 import 'package:go_router/go_router.dart';
 
@@ -20,12 +21,14 @@ class _HomeViewState extends State<HomeView> {
   @override
   void initState() {
     context.read<EventBloc>().add(const EventLoad(page: 0));
-    context.read<EventBloc>().add(EventLoadNearCity(
-          lat: LocationManager.position!.latitude,
-          lng: LocationManager.position!.longitude,
-          radius: 1000,
-          limit: 10,
-        ));
+    context.read<EventBloc>().add(
+          EventLoadNearCity(
+            lat: LocationManager.position!.latitude,
+            lng: LocationManager.position!.longitude,
+            radius: 1000,
+            limit: 10,
+          ),
+        );
     context.read<LoginBloc>().add(const FetchUserInfo());
 
     super.initState();
@@ -59,7 +62,8 @@ class _HomeViewState extends State<HomeView> {
                   return CircleAvatar(
                     radius: 20,
                     backgroundImage: NetworkImage(
-                        context.read<LoginBloc>().state.user!.userImage),
+                      context.read<LoginBloc>().state.user!.userImage,
+                    ),
                     backgroundColor: Colors.transparent,
                   );
                 },
@@ -86,7 +90,7 @@ class _HomeViewState extends State<HomeView> {
                     if (state.nearCity?.isNotEmpty ?? false)
                       SizedBox(
                         height: 50,
-                        child: buildNearCity(state),
+                        child: buildNearCityList(state),
                       ),
                     TextField(
                       controller: _controller,
@@ -100,17 +104,29 @@ class _HomeViewState extends State<HomeView> {
                       ),
                       onChanged: (value) {
                         context.read<EventBloc>().add(
-                              EventSearch(
-                                value,
-                                null,
-                              ),
+                              EventSearch(value),
                             );
                       },
                     ),
                     BlocBuilder<EventBloc, EventState>(
                       builder: (context, state) {
-                        if (state.searchEvents?.isNotEmpty ?? false) {
+                        if (state.requestState.isLoading) {
+                          return const ShimmerHome();
+                        } else if (state.searchEvents?.isNotEmpty ?? false) {
                           return buildSearch(state);
+                        } else if (state.requestState.isError) {
+                          return const Center(
+                            child: Text(
+                              'Event not found. Please try again later.',
+                            ),
+                          );
+                        } else if (state.requestState.isSuccess &&
+                            state.events!.isEmpty) {
+                          return const Center(
+                            child: Text(
+                              'No events found in the categories you are looking for.',
+                            ),
+                          );
                         }
                         return buildExplore(state);
                       },
@@ -197,17 +213,30 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  Widget buildNearCity(EventState state) {
-    return ListView.builder(
-      scrollDirection: Axis.horizontal,
-      itemCount: state.nearCity!.length,
-      itemBuilder: (context, index) {
-        return ActionChip(
-          label: Text(state.nearCity![index].name),
-          onPressed: () {
-            context.read<EventBloc>().add(
-                  EventSearch(null, state.nearCity![index]),
-                );
+  Widget buildNearCityList(EventState state) {
+    return BlocBuilder<EventBloc, EventState>(
+      buildWhen: (previous, current) =>
+          previous.selectedCity != current.selectedCity,
+      builder: (context, state) {
+        return ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: state.nearCity!.length,
+          itemBuilder: (context, index) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: ChoiceChip.elevated(
+                label: Text(state.nearCity![index].name, style: Theme.of(context).textTheme.bodyMedium),
+                showCheckmark: false,
+                elevation: 0,
+                pressElevation: 0,
+                selected: state.selectedCity == state.nearCity![index],
+                onSelected: (isSelected) {
+                  context.read<EventBloc>().add(
+                        OnSelectCity(state.nearCity![index]),
+                      );
+                },
+              ),
+            );
           },
         );
       },

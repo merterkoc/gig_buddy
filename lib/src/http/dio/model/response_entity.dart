@@ -57,6 +57,7 @@ class ResponseEntity<T> extends Equatable {
 
   final int statusCode;
   final String? message;
+  // TODO(mert): change to private
   final T? data;
   final RequestState status;
   final String? displayMessage;
