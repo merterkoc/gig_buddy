@@ -27,37 +27,8 @@ class _RegisterViewState extends State<RegisterView> {
   @override
   Widget build(BuildContext context) {
     return RegisterListener.listen(
-      child: Scaffold(
-        resizeToAvoidBottomInset: false,
-        extendBodyBehindAppBar: false,
-        extendBody: false,
-        persistentFooterButtons: [
-          BlocBuilder<LoginBloc, LoginState>(
-            buildWhen: (previous, current) =>
-                previous.createAccountRequest != current.createAccountRequest,
-            builder: (context, state) {
-              return LoginButtons.email(
-                text: 'Submit',
-                isActive: true,
-                inProgress: state.createAccountRequest.status.isLoading,
-                onPressed: () {
-                  context.read<LoginBloc>().add(
-                        CreateAccount(
-                          email: _emailController.text,
-                          password: _passwordController.text,
-                          rePassword: _rePasswordController.text,
-                          image: _image,
-                        ),
-                      );
-                },
-              );
-            },
-          ),
-        ],
-        appBar: AppBar(
-          title: const Text('Register', style: TextStyle(fontSize: 18)),
-        ),
-        body: SafeArea(
+      child: Material(
+        child: SafeArea(
           child: SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(18),
@@ -77,7 +48,7 @@ class _RegisterViewState extends State<RegisterView> {
                             await picker
                                 .pickImage(source: ImageSource.gallery)
                                 .then(
-                              (image) {
+                                  (image) {
                                 if (image != null) {
                                   setState(() {
                                     _image = image;
@@ -90,27 +61,27 @@ class _RegisterViewState extends State<RegisterView> {
                             borderRadius: BorderRadius.circular(99999),
                             child: _image?.path.isNotEmpty ?? false
                                 ? Image.file(
-                                    ImageHelper.getImageFromFile(_image!),
-                                    fit: BoxFit.cover,
-                                  )
+                              ImageHelper.getImageFromFile(_image!),
+                              fit: BoxFit.cover,
+                            )
                                 : Container(
-                                    height: 200,
-                                    width: 200,
-                                    decoration: BoxDecoration(
-                                      color: Theme.of(context).primaryColor,
-                                      borderRadius:
-                                          BorderRadius.circular(99999),
-                                    ),
-                                    child: Center(
-                                      child: Icon(
-                                        Icons.add_a_photo,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onPrimary,
-                                        size: 50,
-                                      ),
-                                    ),
-                                  ),
+                              height: 200,
+                              width: 200,
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).primaryColor,
+                                borderRadius:
+                                BorderRadius.circular(99999),
+                              ),
+                              child: Center(
+                                child: Icon(
+                                  Icons.add_a_photo,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onPrimary,
+                                  size: 50,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -165,6 +136,27 @@ class _RegisterViewState extends State<RegisterView> {
                       onChanged: (value) {},
                     ),
                     const SizedBox(height: 10),
+                    BlocBuilder<LoginBloc, LoginState>(
+                      buildWhen: (previous, current) =>
+                      previous.createAccountRequest != current.createAccountRequest,
+                      builder: (context, state) {
+                        return LoginButtons.email(
+                          text: 'Submit',
+                          isActive: true,
+                          inProgress: state.createAccountRequest.status.isLoading,
+                          onPressed: () {
+                            context.read<LoginBloc>().add(
+                              CreateAccount(
+                                email: _emailController.text,
+                                password: _passwordController.text,
+                                rePassword: _rePasswordController.text,
+                                image: _image,
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
                   ],
                 ),
               ),
