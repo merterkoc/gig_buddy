@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
-import 'package:gig_buddy/src/common/modal/action_sheet.dart';
 import 'package:gig_buddy/src/common/util/image_util.dart';
 import 'package:gig_buddy/src/features/login/widgets/login_buttons.dart';
 import 'package:gig_buddy/src/features/register/view/register_listener.dart';

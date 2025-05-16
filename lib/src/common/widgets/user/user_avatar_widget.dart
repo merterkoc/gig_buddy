@@ -3,8 +3,8 @@ import 'package:gig_buddy/src/common/widgets/avatar_image/avatar_image.dart';
 import 'package:go_router/go_router.dart';
 
 class UserAvatarWidget extends StatelessWidget {
-
   const UserAvatarWidget({required this.userImage, super.key});
+
   final String userImage;
 
   @override

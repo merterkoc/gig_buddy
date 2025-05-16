@@ -53,6 +53,8 @@ class _HomeViewState extends State<HomeView> {
                 builder: (context, state) {
                   if (state.user == null) {
                     return const SizedBox();
+                  } else if (state.user!.userImage.isEmpty) {
+                    return const Icon(Icons.person);
                   }
                   return CircleAvatar(
                     radius: 20,
@@ -98,7 +100,10 @@ class _HomeViewState extends State<HomeView> {
                       ),
                       onChanged: (value) {
                         context.read<EventBloc>().add(
-                              EventSearch(value,null,),
+                              EventSearch(
+                                value,
+                                null,
+                              ),
                             );
                       },
                     ),
@@ -135,7 +140,7 @@ class _HomeViewState extends State<HomeView> {
               ? state.events![index].images.first.url
               : null,
           distance: state.events![index].distance,
-          isJoined: state.events![index].isJoined ?? false,
+          isJoined: state.events![index].isJoined,
           onTap: () {
             context.goNamed(
               AppRoute.eventDetailView.name,
@@ -169,7 +174,7 @@ class _HomeViewState extends State<HomeView> {
               ? state.searchEvents![index].images.first.url
               : null,
           distance: state.searchEvents![index].distance,
-          isJoined: state.searchEvents![index].isJoined ?? false,
+          isJoined: state.searchEvents![index].isJoined,
           onTap: () {
             context.goNamed(
               AppRoute.eventDetailView.name,

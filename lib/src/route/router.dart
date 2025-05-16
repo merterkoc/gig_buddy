@@ -1,6 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
 import 'package:gig_buddy/src/features/event_detail/view/event_detail_view.dart';
 import 'package:gig_buddy/src/features/friends/view/firends_view.dart';
 import 'package:gig_buddy/src/features/home/view/home_view.dart';
@@ -8,7 +6,6 @@ import 'package:gig_buddy/src/features/login/view/email_otp/email_otp.dart';
 import 'package:gig_buddy/src/features/login/view/login_view.dart';
 import 'package:gig_buddy/src/features/onboarding/view/onboarding_view.dart';
 import 'package:gig_buddy/src/features/profile/view/profile_view.dart';
-import 'package:gig_buddy/src/features/register/view/register_view.dart';
 import 'package:gig_buddy/src/features/search/view/search_view.dart';
 import 'package:gig_buddy/src/features/settings/helpers/settings_controller.dart';
 import 'package:gig_buddy/src/features/settings/helpers/settings_service.dart';
@@ -33,7 +30,6 @@ enum AppRoute {
   onBoardingView(path: '/onBoardingView'),
   homeView(path: '/homeView'),
   loginView(path: '/loginView'),
-  registerView(path: '/registerView'),
   emailOtpView(path: 'emailOtpView'),
   profileView(path: '/profileView'),
   userProfileView(path: '/userProfileView/:userId'),
@@ -78,12 +74,6 @@ final GoRouter goRouter = GoRouter(
                   const EmailOtpView(),
             ),
           ],
-        ),
-        GoRoute(
-          path: AppRoute.registerView.path,
-          name: AppRoute.registerView.name,
-          builder: (BuildContext context, GoRouterState state) =>
-              const RegisterView(),
         ),
         StatefulShellRoute.indexedStack(
           builder: (

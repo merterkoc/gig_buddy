@@ -140,7 +140,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
   Future<void> _onLogout(Logout event, Emitter<LoginState> emit) async {
     await _identityRepository.logout();
-    _authManager.logout();
+    await _authManager.logout();
   }
 
   Future<void> _onFetchUserInfo(

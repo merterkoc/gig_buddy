@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
-import 'package:gig_buddy/src/common/widgets/logo/logo.dart';
 import 'package:gig_buddy/src/features/login/view/login_listener.dart';
 import 'package:gig_buddy/src/features/login/view/login_view_mixin.dart';
 import 'package:gig_buddy/src/features/login/widgets/login_buttons.dart';
@@ -17,43 +16,45 @@ class _LoginViewState extends State<LoginView> with LoginViewMixin {
   @override
   Widget build(BuildContext context) {
     return LoginListener.listen(
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          image: const DecorationImage(
-            image: AssetImage('assets/images/onboarding/ob_1.jpg'),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset(
+            'assets/images/onboarding/ob_1.jpg',
             fit: BoxFit.cover,
-            opacity: 0.3,
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
+            colorBlendMode: BlendMode.color,
           ),
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Theme.of(context).primaryColor,
-              Colors.transparent,
-            ],
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.bottomCenter,
+                end: Alignment.topCenter,
+                colors: [
+                  Colors.transparent,
+                  Colors.black87,
+                  Colors.black87,
+                ],
+              ),
+            ),
           ),
-        ),
-        child: Scaffold(
-          backgroundColor: Colors.transparent,
-          body: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(18),
+          Scaffold(
+            backgroundColor: Colors.transparent,
+            body: SafeArea(
               child: SingleChildScrollView(
-                child: Form(
+                child: Padding(
+                  padding: const EdgeInsets.all(18),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    spacing: 20,
                     children: [
-                      const Logo(),
-                      const SizedBox(height: 20),
                       const Text(
                         'Sign in',
                         style: TextStyle(
                           fontSize: 38,
                           fontWeight: FontWeight.bold,
                         ),
-                      ),
-                      const SizedBox(
-                        height: 10,
                       ),
                       const Text('Email'),
                       TextFormField(
@@ -62,7 +63,6 @@ class _LoginViewState extends State<LoginView> with LoginViewMixin {
                         keyboardType: TextInputType.emailAddress,
                         onChanged: (value) {},
                       ),
-                      const SizedBox(height: 20),
                       const Text('Password'),
                       TextFormField(
                         autofillHints: const [AutofillHints.password],
@@ -70,7 +70,6 @@ class _LoginViewState extends State<LoginView> with LoginViewMixin {
                         obscureText: true,
                         onChanged: (value) {},
                       ),
-                      const SizedBox(height: 10),
                       BlocBuilder<LoginBloc, LoginState>(
                         buildWhen: (previous, current) =>
                             previous.submitEmail != current.submitEmail,
@@ -89,18 +88,15 @@ class _LoginViewState extends State<LoginView> with LoginViewMixin {
                           );
                         },
                       ),
-                      const SizedBox(height: 20),
-                      const Align(
-                        child: Text(
-                          'or',
-                        ),
+                      const Text(
+                        'or',
+                        style: TextStyle(fontSize: 18),
                       ),
-                      const SizedBox(height: 20),
                       BlocBuilder<LoginBloc, LoginState>(
                         builder: (context, state) {
                           return LoginButtons.google(
-                            inProgress:
-                                state.signInWithGoogleRequest.status.isLoading,
+                            inProgress: state
+                                .signInWithGoogleRequest.status.isLoading,
                             isActive: true,
                             onPressed: () {
                               context
@@ -110,18 +106,11 @@ class _LoginViewState extends State<LoginView> with LoginViewMixin {
                           );
                         },
                       ),
-                      const Align(
-                        child: Text(
-                          'or',
-                        ),
-                      ),
                       LoginButtons.email(
                         isActive: true,
                         logo: const Icon(Icons.person_add),
                         text: 'Sign up with Email',
-                        onPressed: () {
-                          showSignupEmailSheet();
-                        },
+                        onPressed: showSignupEmailSheet,
                       ),
                     ],
                   ),
@@ -129,7 +118,7 @@ class _LoginViewState extends State<LoginView> with LoginViewMixin {
               ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
