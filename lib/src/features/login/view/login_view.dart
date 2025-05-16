@@ -97,9 +97,6 @@ class _LoginViewState extends State<LoginView> with LoginViewMixin {
                       ),
                       const SizedBox(height: 20),
                       BlocBuilder<LoginBloc, LoginState>(
-                        buildWhen: (previous, current) =>
-                            previous.signInWithGoogleRequest !=
-                            current.signInWithGoogleRequest,
                         builder: (context, state) {
                           return LoginButtons.google(
                             inProgress:

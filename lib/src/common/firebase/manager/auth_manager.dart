@@ -16,10 +16,6 @@ class AuthManager {
     await FirebaseAuth.instance.signInAnonymously();
   }
 
-  static Future<void> signOut() async {
-    await FirebaseAuth.instance.signOut();
-  }
-
   Future<UserCredential> signInWithEmailAndPassword(
     String email,
     String password,
@@ -33,7 +29,6 @@ class AuthManager {
   Future<GoogleSignInUserData> signInWithGoogle() async {
     await GoogleSignInPlatform.instance.initWithParams(
       const SignInInitParameters(
-
         scopes: <String>[
           'email',
         ],
@@ -57,7 +52,8 @@ class AuthManager {
     await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
   }
 
-  void logout() {
-    FirebaseAuth.instance.signOut();
+  Future<void> logout() async {
+    await FirebaseAuth.instance.signOut();
+    await GoogleSignInPlatform.instance.signOut();
   }
 }

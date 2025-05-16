@@ -43,3 +43,39 @@ If you are getting an error on M1 processors, try this command.
 ```bash
 sudo arch -x86_64 gem install ffi
 ```
+
+### Android fingerprint 
+
+#### For dev
+```bash
+keytool -genkeypair -v \
+  -keystore android/secrets/gigbuddy-dev-release-key.jks \
+  -keyalg RSA \
+  -keysize 2048 \
+  -validity 10000 \
+  -alias gigbuddy_dev_key_alias
+```
+
+```bash
+keytool -list -v \
+  -keystore android/secrets/gigbuddy-dev-release-key.jks \
+  -alias gigbuddy_dev_key_alias
+```
+
+
+#### For prod
+```bash
+keytool -genkeypair -v \
+  -keystore android/secrets/gigbuddy-prod-release-key.jks \
+  -keyalg RSA \
+  -keysize 2048 \
+  -validity 10000 \
+  -alias gigbuddy_prod_key_alias
+```
+
+```bash
+keytool -list -v \
+  -keystore android/secrets/gigbuddy-prod-release-key.jks \
+  -alias gigbuddy_prod_key_alias    
+```
+
