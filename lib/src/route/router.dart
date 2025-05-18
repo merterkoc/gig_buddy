@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:gig_buddy/src/features/chat/view/chat_view.dart';
 import 'package:gig_buddy/src/features/event_detail/view/event_detail_view.dart';
 import 'package:gig_buddy/src/features/friends/view/firends_view.dart';
 import 'package:gig_buddy/src/features/home/view/home_view.dart';
@@ -32,10 +33,10 @@ enum AppRoute {
   loginView(path: '/loginView'),
   emailOtpView(path: 'emailOtpView'),
   profileView(path: '/profileView'),
+  chatView(path: '/chatView'),
   userProfileView(path: '/userProfileView/:userId'),
   settingsView(path: '/settingsView'),
   friendsView(path: '/friendsView'),
-  searchView(path: 'searchView'),
   eventDetailView(path: '/eventDetailsView/:eventId');
 
   const AppRoute({required this.path});
@@ -105,14 +106,6 @@ final GoRouter goRouter = GoRouter(
                     return null;
                   },
                   routes: [
-                    TransitionFadeGoRoute(
-                      path: AppRoute.searchView.path,
-                      name: AppRoute.searchView.name,
-                      builder: (BuildContext context, GoRouterState state) {
-                        final keywords = state.extra! as String;
-                        return SearchView(keywords: keywords);
-                      },
-                    ),
                     GoRoute(
                       path: AppRoute.userProfileView.path,
                       name: AppRoute.userProfileView.name,
@@ -130,22 +123,15 @@ final GoRouter goRouter = GoRouter(
                           eventId: state.pathParameters['eventId']!,
                         );
                       },
-                    )
+                    ),
+                    GoRoute(
+                      path: AppRoute.chatView.path,
+                      name: AppRoute.chatView.name,
+                      builder: (BuildContext context, GoRouterState state) {
+                        return const ChatView();
+                      },
+                    ),
                   ],
-                ),
-              ],
-            ),
-            StatefulShellBranch(
-              routes: <RouteBase>[
-                GoRoute(
-                  path: AppRoute.profileView.path,
-                  name: AppRoute.profileView.name,
-                  pageBuilder: (BuildContext context, GoRouterState state) =>
-                      CupertinoPage<void>(
-                    key: state.pageKey,
-                    maintainState: false,
-                    child: const ProfileView(),
-                  ),
                 ),
               ],
             ),
@@ -173,6 +159,20 @@ final GoRouter goRouter = GoRouter(
                       CupertinoPage<void>(
                     key: state.pageKey,
                     child: const FriendsView(),
+                  ),
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: <RouteBase>[
+                GoRoute(
+                  path: AppRoute.profileView.path,
+                  name: AppRoute.profileView.name,
+                  pageBuilder: (BuildContext context, GoRouterState state) =>
+                      CupertinoPage<void>(
+                    key: state.pageKey,
+                    maintainState: false,
+                    child: const ProfileView(),
                   ),
                 ),
               ],

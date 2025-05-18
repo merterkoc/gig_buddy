@@ -1,5 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gig_buddy/src/bloc/authentication/auth_bloc.dart';
+import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
+import 'package:gig_buddy/src/bloc/profile/profile_bloc.dart';
+import 'package:gig_buddy/src/common/widgets/user/user_avatar_widget.dart';
 import 'package:gig_buddy/src/features/settings/helpers/settings_controller.dart';
 import 'package:go_router/go_router.dart';
 
@@ -31,33 +36,59 @@ class ScaffoldWithNavBar extends StatelessWidget {
             items: [
               BottomNavigationBarItem(
                 icon: navigationShell.currentIndex == 0
-                    ? const Icon(CupertinoIcons.house_fill)
-                    : const Icon(CupertinoIcons.home),
-                label: 'Home',
+                    ? const Icon(CupertinoIcons.wand_stars)
+                    : const Icon(CupertinoIcons.wand_stars_inverse),
+                label: 'Explore',
               ),
               BottomNavigationBarItem(
                 icon: navigationShell.currentIndex == 1
-                    ? const Icon(CupertinoIcons.person_fill)
-                    : const Icon(CupertinoIcons.person),
-                label: 'Profile',
-              ),
-              BottomNavigationBarItem(
-                icon: navigationShell.currentIndex == 2
-                    ? const Icon(CupertinoIcons.gear_alt_fill)
-                    : const Icon(CupertinoIcons.gear),
+                    ? const Icon(CupertinoIcons.music_mic)
+                    : const Icon(CupertinoIcons.music_mic),
                 label: 'Settings',
               ),
               BottomNavigationBarItem(
-                icon: navigationShell.currentIndex == 3
-                    ? const Icon(CupertinoIcons.person_3_fill)
-                    : const Icon(CupertinoIcons.person_3),
+                icon: navigationShell.currentIndex == 2
+                    ? const Icon(CupertinoIcons.heart_solid)
+                    : const Icon(CupertinoIcons.heart),
                 label: 'Friends',
+              ),
+              BottomNavigationBarItem(
+                icon: buildProfileIcon(context),
+                label: 'Profile',
               ),
             ],
           ),
         ],
       ),
     );
+  }
+
+  Widget buildProfileIcon(BuildContext context) {
+    final authenticationBloc = context.read<AuthBloc>();
+    if (authenticationBloc.state is AuthAuthenticated) {
+      return BlocBuilder<LoginBloc, LoginState>(
+        buildWhen: (previous, current) => previous.user != current.user,
+        builder: (context, state) {
+          if (state.user == null || state.user!.userImage.isEmpty) {
+            return const Icon(Icons.person);
+          }
+          return SizedBox(
+            width: 28,
+            height: 28,
+            child: CircleAvatar(
+              radius: 20,
+              backgroundImage: NetworkImage(
+                context.read<LoginBloc>().state.user!.userImage,
+              ),
+              backgroundColor: Colors.transparent,
+            ),
+          );
+        },
+      );
+    }
+    return navigationShell.currentIndex == 3
+        ? const Icon(CupertinoIcons.person_fill)
+        : const Icon(CupertinoIcons.person);
   }
 
   void _onTap(BuildContext context, int index) {

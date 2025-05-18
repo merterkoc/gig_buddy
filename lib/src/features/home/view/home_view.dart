@@ -1,4 +1,5 @@
-import 'package:flutter/cupertino.dart' show CupertinoSearchTextField;
+import 'package:flutter/cupertino.dart'
+    show CupertinoIcons, CupertinoSearchTextField;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gig_buddy/src/bloc/event/event_bloc.dart';
@@ -52,21 +53,10 @@ class _HomeViewState extends State<HomeView> {
               onTap: () {
                 context.goNamed(AppRoute.profileView.name);
               },
-              child: BlocBuilder<LoginBloc, LoginState>(
-                buildWhen: (previous, current) => previous.user != current.user,
-                builder: (context, state) {
-                  if (state.user == null) {
-                    return const SizedBox();
-                  } else if (state.user!.userImage.isEmpty) {
-                    return const Icon(Icons.person);
-                  }
-                  return CircleAvatar(
-                    radius: 20,
-                    backgroundImage: NetworkImage(
-                      context.read<LoginBloc>().state.user!.userImage,
-                    ),
-                    backgroundColor: Colors.transparent,
-                  );
+              child: IconButton(
+                icon: const Icon(CupertinoIcons.chat_bubble_2_fill),
+                onPressed: () {
+                  context.goNamed(AppRoute.chatView.name);
                 },
               ),
             ),
@@ -185,7 +175,7 @@ class _HomeViewState extends State<HomeView> {
             }
             context.read<EventBloc>().add(LeaveEvent(state.events![index].id));
           },
-          venueName: state.events?[index].venueName??'',
+          venueName: state.events?[index].venueName ?? '',
         );
       },
     );
