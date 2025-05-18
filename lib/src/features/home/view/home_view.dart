@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart' show CupertinoSearchTextField;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gig_buddy/src/bloc/event/event_bloc.dart';
@@ -86,27 +87,32 @@ class _HomeViewState extends State<HomeView> {
               bottom: false,
               child: SingleChildScrollView(
                 child: Wrap(
+                  spacing: 1,
                   children: [
-                    if (state.nearCity?.isNotEmpty ?? false)
-                      SizedBox(
-                        height: 50,
-                        child: buildNearCityList(state),
+                    CupertinoSearchTextField(
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
-                    TextField(
                       controller: _controller,
-                      keyboardType: TextInputType.text,
                       onSubmitted: (_) {
                         FocusScope.of(context).unfocus();
                       },
-                      decoration: const InputDecoration(
-                        border: InputBorder.none,
-                        hintText: 'Search',
-                      ),
                       onChanged: (value) {
                         context.read<EventBloc>().add(
                               EventSearch(value),
                             );
                       },
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    if (state.nearCity?.isNotEmpty ?? false)
+                      SizedBox(
+                        height: 50,
+                        child: buildNearCityList(state),
+                      ),
+                    const SizedBox(
+                      height: 10,
                     ),
                     BlocBuilder<EventBloc, EventState>(
                       builder: (context, state) {
@@ -115,9 +121,17 @@ class _HomeViewState extends State<HomeView> {
                         } else if (state.searchEvents?.isNotEmpty ?? false) {
                           return buildSearch(state);
                         } else if (state.requestState.isError) {
-                          return const Center(
+                          final selectedCity = state.selectedCity;
+                          final query = _controller.text;
+                          return Center(
                             child: Text(
-                              'Event not found. Please try again later.',
+                              selectedCity == null
+                                  ? (query.isNotEmpty
+                                      ? 'No results found for "$query". Please try again later.'
+                                      : 'Event not found. Please try again later.')
+                                  : (query.isNotEmpty
+                                      ? 'No results found for "$query" in ${selectedCity.name}. Please try again later.'
+                                      : 'Event not found in ${selectedCity.name}. Please try again later.'),
                             ),
                           );
                         } else if (state.requestState.isSuccess &&
@@ -225,7 +239,10 @@ class _HomeViewState extends State<HomeView> {
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: ChoiceChip.elevated(
-                label: Text(state.nearCity![index].name, style: Theme.of(context).textTheme.bodyMedium),
+                label: Text(
+                  state.nearCity![index].name,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
                 showCheckmark: false,
                 elevation: 0,
                 pressElevation: 0,
@@ -237,6 +254,26 @@ class _HomeViewState extends State<HomeView> {
                 },
               ),
             );
+          },
+        );
+      },
+    );
+  }
+
+  Widget buildSuggestions(
+    BuildContext context,
+    SearchController controller,
+    EventState state,
+  ) {
+    return ListView.builder(
+      itemCount: state.nearCity!.length,
+      itemBuilder: (context, index) {
+        return ListTile(
+          title: Text(state.nearCity![index].name),
+          onTap: () {
+            controller.clear();
+            controller.text = state.nearCity![index].name;
+            FocusScope.of(context).unfocus();
           },
         );
       },
