@@ -11,7 +11,10 @@ import 'package:gig_buddy/src/repository/buddy_repository.dart';
 import 'package:gig_buddy/src/repository/event_repository.dart';
 import 'package:gig_buddy/src/repository/identity_repository.dart';
 import 'package:gig_buddy/src/route/router.dart';
+import 'package:gig_buddy/src/theme/default/default_theme.dart';
+import 'package:gig_buddy/src/theme/green/green_theme.dart';
 import 'package:gig_buddy/src/theme/material_theme.dart';
+import 'package:gig_buddy/src/theme/orange/orange_theme.dart';
 import 'package:gig_buddy/src/theme/pink/pink_theme.dart';
 import 'package:gig_buddy/src/theme/util.dart';
 
@@ -30,7 +33,7 @@ class GigBuddyApp extends StatelessWidget {
       builder: (BuildContext context, Widget? child) {
         final textTheme = createTextTheme(context, 'Exo', 'Exo 2');
         MaterialTheme theme;
-        theme = PinkMaterialTheme(textTheme);
+        theme = DefaultMaterialTheme(textTheme);
         return MultiBlocProvider(
           providers: [
             BlocProvider(
