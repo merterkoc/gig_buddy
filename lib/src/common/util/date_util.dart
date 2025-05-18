@@ -12,7 +12,11 @@ class DateUtil {
     } else if (difference.inDays == 2) {
       return 'Tomorrow';
     } else {
-      return DateFormat.yMMMMd().format(dateTime);
+      if (dateTime.year != now.year) {
+        return DateFormat('dd MMMM yyyy').format(dateTime);
+      } else {
+        return DateFormat('dd MMMM').format(dateTime);
+      }
     }
   }
 }

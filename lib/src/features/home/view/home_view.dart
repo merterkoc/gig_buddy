@@ -166,6 +166,7 @@ class _HomeViewState extends State<HomeView> {
           subtitle: state.events![index].name,
           startDateTime: state.events![index].start,
           location: state.events![index].location,
+          city: state.events![index].city,
           imageUrl: state.events![index].images.isNotEmpty
               ? state.events![index].images.first.url
               : null,
@@ -184,6 +185,7 @@ class _HomeViewState extends State<HomeView> {
             }
             context.read<EventBloc>().add(LeaveEvent(state.events![index].id));
           },
+          venueName: state.events?[index].venueName??'',
         );
       },
     );
@@ -200,6 +202,7 @@ class _HomeViewState extends State<HomeView> {
           subtitle: state.searchEvents![index].name,
           startDateTime: state.searchEvents![index].start,
           location: state.searchEvents![index].location,
+          city: state.searchEvents![index].city,
           imageUrl: state.searchEvents![index].images.isNotEmpty
               ? state.searchEvents![index].images.first.url
               : null,
@@ -211,6 +214,7 @@ class _HomeViewState extends State<HomeView> {
               pathParameters: {'eventId': state.searchEvents![index].id},
             );
           },
+          venueName: state.searchEvents![index].venueName,
           avatars: state.searchEvents![index].participantAvatars,
           onJoinedChanged: (isJoined) {
             if (isJoined) {
@@ -271,8 +275,9 @@ class _HomeViewState extends State<HomeView> {
         return ListTile(
           title: Text(state.nearCity![index].name),
           onTap: () {
-            controller.clear();
-            controller.text = state.nearCity![index].name;
+            controller
+              ..clear()
+              ..text = state.nearCity![index].name;
             FocusScope.of(context).unfocus();
           },
         );

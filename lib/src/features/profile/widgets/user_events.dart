@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gig_buddy/src/bloc/event/event_bloc.dart';
-import 'package:gig_buddy/src/common/widgets/cards/profile_event_detail_card.dart';
+import 'package:gig_buddy/src/common/widgets/cards/event_card.dart';
 import 'package:gig_buddy/src/route/router.dart';
 import 'package:gig_buddy/src/service/model/event_detail/event_detail.dart';
 import 'package:go_router/go_router.dart';
@@ -22,7 +22,7 @@ class UserEvents extends StatelessWidget {
       itemCount: events.length,
       padding: const EdgeInsets.all(16),
       itemBuilder: (context, index) {
-        return ProfileEventDetailCard(
+        return EventCard(
           title: events[index].name,
           subtitle: events[index].name,
           startDateTime: events[index].start,
@@ -32,7 +32,7 @@ class UserEvents extends StatelessWidget {
           onTap: () {
             context.pushNamed(
               AppRoute.eventDetailView.name,
-              pathParameters: {'eventId': events![index].id},
+              pathParameters: {'eventId': events[index].id},
             );
           },
           avatars: events[index].participantAvatars,
@@ -42,6 +42,7 @@ class UserEvents extends StatelessWidget {
             }
             context.read<EventBloc>().add(LeaveEvent(events[index].id));
           },
+          venueName: events[index].venueName,
         );
       },
     );

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gig_buddy/src/bloc/event/event_bloc.dart';
 import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
-import 'package:gig_buddy/src/common/widgets/cards/profile_event_detail_card.dart';
 import 'package:gig_buddy/src/common/widgets/user/user_avatar_widget.dart';
 import 'package:gig_buddy/src/features/profile/widgets/user_events.dart';
 import 'package:gig_buddy/src/features/profile/widgets/user_interests.dart';
@@ -127,32 +126,4 @@ class _ProfileViewState extends State<ProfileView> {
       },
     );
   }
-}
-
-ListView buildMyEvents(EventState state) {
-  return ListView.builder(
-    shrinkWrap: true,
-    physics: const NeverScrollableScrollPhysics(),
-    itemCount: state.myEvents!.length,
-    itemBuilder: (context, index) {
-      return ProfileEventDetailCard(
-        title: state.myEvents![index].name,
-        subtitle: state.myEvents![index].name,
-        startDateTime: state.myEvents![index].start,
-        location: state.myEvents![index].location,
-        distance: state.myEvents![index].distance,
-        isJoined: state.myEvents![index].isJoined,
-        onTap: () {
-          //context.push(EventDetailRoute(event: state.searchEvents![index]));
-        },
-        avatars: state.myEvents![index].participantAvatars,
-        onJoinedChanged: (isJoined) {
-          if (isJoined) {
-            context.read<EventBloc>().add(JoinEvent(state.myEvents![index].id));
-          }
-          context.read<EventBloc>().add(LeaveEvent(state.myEvents![index].id));
-        },
-      );
-    },
-  );
 }
