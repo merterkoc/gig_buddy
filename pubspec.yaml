@@ -50,6 +50,7 @@ dependencies:
   google_sign_in_android: ^6.2.1
   shimmer: ^3.0.0
   infinite_scroll_pagination: ^5.0.0
+  flutter_launcher_icons: ^0.14.3
 
 dev_dependencies:
   flutter_test:
