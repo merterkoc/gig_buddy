@@ -22,7 +22,6 @@ class EventBloc extends Bloc<EventEvent, EventState> {
     on<EventLoad>(_onLoad);
     on<EventLoadMore>(_onLoadMore);
     on<EventSearch>(_onSearch, transformer: restartable());
-    on<OnSelectCity>(_onSelectCity);
     on<EventSuccess>(_onSuccess);
     on<EventFailure>(_onFailure);
     on<FetchEventById>(_onFetchEventById);
@@ -100,15 +99,6 @@ class EventBloc extends Bloc<EventEvent, EventState> {
     }
   }
 
-  FutureOr<void> _onSelectCity(OnSelectCity event, Emitter<EventState> emit) {
-    if (state.selectedCity == event.city) {
-      emit(state.setNullSelectCity());
-    } else {
-      emit(state.copyWith(selectedCity: event.city));
-    }
-    add(const EventSearch(null));
-  }
-
   FutureOr<void> _onSuccess(EventSuccess event, Emitter<EventState> emit) {
     emit(
       state.copyWith(
@@ -145,16 +135,14 @@ class EventBloc extends Bloc<EventEvent, EventState> {
     final joinData = await _eventRepository.joinEvent(event.eventId);
     if (joinData.isOk) {
       emit(state.copyWith(requestState: RequestState.success));
-    } else {
-    }
+    } else {}
   }
 
   FutureOr<void> _onLeave(LeaveEvent event, Emitter<EventState> emit) async {
     final leaveData = await _eventRepository.leaveEvent(event.eventId);
     if (leaveData.isOk) {
       emit(state.copyWith(requestState: RequestState.success));
-    } else {
-    }
+    } else {}
   }
 
   Future<void> _onGetMyEvents(

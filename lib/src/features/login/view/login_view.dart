@@ -41,78 +41,81 @@ class _LoginViewState extends State<LoginView> with LoginViewMixin {
           Scaffold(
             backgroundColor: Colors.transparent,
             body: SafeArea(
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(18),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    spacing: 20,
-                    children: [
-                      const Text(
-                        'Sign in',
-                        style: TextStyle(
-                          fontSize: 38,
-                          fontWeight: FontWeight.bold,
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(18),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      spacing: 20,
+                      children: [
+                        const Text(
+                          'Sign in',
+                          style: TextStyle(
+                            fontSize: 38,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      const Text('Email'),
-                      TextFormField(
-                        autofillHints: const [AutofillHints.email],
-                        controller: emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        onChanged: (value) {},
-                      ),
-                      const Text('Password'),
-                      TextFormField(
-                        autofillHints: const [AutofillHints.password],
-                        controller: passwordController,
-                        obscureText: true,
-                        onChanged: (value) {},
-                      ),
-                      BlocBuilder<LoginBloc, LoginState>(
-                        buildWhen: (previous, current) =>
-                            previous.submitEmail != current.submitEmail,
-                        builder: (context, state) {
-                          return LoginButtons.email(
-                            isActive: true,
-                            inProgress: state.submitEmail.status.isLoading,
-                            onPressed: () {
-                              context.read<LoginBloc>().add(
-                                    SubmitEmail(
-                                      password: passwordController.text,
-                                      email: emailController.text,
-                                    ),
-                                  );
-                            },
-                          );
-                        },
-                      ),
-                      const Text(
-                        'or',
-                        style: TextStyle(fontSize: 18),
-                      ),
-                      BlocBuilder<LoginBloc, LoginState>(
-                        builder: (context, state) {
-                          return LoginButtons.google(
-                            inProgress: state
-                                .signInWithGoogleRequest.status.isLoading,
-                            isActive: true,
-                            onPressed: () {
-                              context
-                                  .read<LoginBloc>()
-                                  .add(const SignInWithGoogle());
-                            },
-                          );
-                        },
-                      ),
-                      LoginButtons.email(
-                        isActive: true,
-                        logo: const Icon(Icons.person_add),
-                        text: 'Sign up with Email',
-                        onPressed: showSignupEmailSheet,
-                      ),
-                    ],
+                        const Text('Email'),
+                        TextFormField(
+                          autofillHints: const [AutofillHints.email],
+                          controller: emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          onChanged: (value) {},
+                        ),
+                        const Text('Password'),
+                        TextFormField(
+                          autofillHints: const [AutofillHints.password],
+                          controller: passwordController,
+                          obscureText: true,
+                          onChanged: (value) {},
+                        ),
+                        BlocBuilder<LoginBloc, LoginState>(
+                          buildWhen: (previous, current) =>
+                              previous.submitEmail != current.submitEmail,
+                          builder: (context, state) {
+                            return LoginButtons.email(
+                              isActive: true,
+                              inProgress: state.submitEmail.status.isLoading,
+                              onPressed: () {
+                                context.read<LoginBloc>().add(
+                                      SubmitEmail(
+                                        password: passwordController.text,
+                                        email: emailController.text,
+                                      ),
+                                    );
+                              },
+                            );
+                          },
+                        ),
+                        const Text(
+                          'or',
+                          style: TextStyle(fontSize: 18),
+                        ),
+                        BlocBuilder<LoginBloc, LoginState>(
+                          builder: (context, state) {
+                            return LoginButtons.google(
+                              inProgress: state
+                                  .signInWithGoogleRequest.status.isLoading,
+                              isActive: true,
+                              onPressed: () {
+                                context
+                                    .read<LoginBloc>()
+                                    .add(const SignInWithGoogle());
+                              },
+                            );
+                          },
+                        ),
+                        LoginButtons.email(
+                          isActive: true,
+                          logo: const Icon(Icons.person_add),
+                          text: 'Sign up with Email',
+                          onPressed: showSignupEmailSheet,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

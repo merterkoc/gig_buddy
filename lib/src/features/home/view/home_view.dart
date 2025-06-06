@@ -4,11 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gig_buddy/src/bloc/event/event_bloc.dart';
 import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
+import 'package:gig_buddy/src/bloc/pagination_event%20/pagination_event_bloc.dart';
 import 'package:gig_buddy/src/common/manager/location_manager.dart';
 import 'package:gig_buddy/src/common/widgets/cards/event_card.dart';
+import 'package:gig_buddy/src/common/widgets/cards/event_mini_card.dart';
+import 'package:gig_buddy/src/features/home/view/home_view_state_mixin.dart';
 import 'package:gig_buddy/src/features/home/widgets/shimmer_home.dart';
+import 'package:gig_buddy/src/repository/event_repository.dart';
 import 'package:gig_buddy/src/route/router.dart';
+import 'package:gig_buddy/src/service/model/event_detail/event_detail.dart';
 import 'package:go_router/go_router.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -17,7 +23,7 @@ class HomeView extends StatefulWidget {
   State<HomeView> createState() => _HomeViewState();
 }
 
-class _HomeViewState extends State<HomeView> {
+class _HomeViewState extends State<HomeView> with HomeViewMixin {
   final TextEditingController _controller = TextEditingController();
 
   @override
@@ -41,6 +47,7 @@ class _HomeViewState extends State<HomeView> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
+        forceMaterialTransparency: true,
         centerTitle: false,
         title: Text(
           'Events',
@@ -75,68 +82,32 @@ class _HomeViewState extends State<HomeView> {
             padding: const EdgeInsets.only(left: 18, right: 18),
             child: SafeArea(
               bottom: false,
-              child: SingleChildScrollView(
-                child: Wrap(
-                  spacing: 1,
-                  children: [
-                    CupertinoSearchTextField(
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                      controller: _controller,
-                      onSubmitted: (_) {
-                        FocusScope.of(context).unfocus();
-                      },
-                      onChanged: (value) {
-                        context.read<EventBloc>().add(
-                              EventSearch(value),
-                            );
-                      },
+              child: Column(
+                spacing: 1,
+                children: [
+                  CupertinoSearchTextField(
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
-                    const SizedBox(
-                      height: 10,
+                    controller: _controller,
+                    onSubmitted: (_) {
+                      FocusScope.of(context).unfocus();
+                    },
+                    onChanged: onChangeKeyword,
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  if (state.nearCity?.isNotEmpty ?? false)
+                    SizedBox(
+                      height: 50,
+                      child: buildNearCityList(state),
                     ),
-                    if (state.nearCity?.isNotEmpty ?? false)
-                      SizedBox(
-                        height: 50,
-                        child: buildNearCityList(state),
-                      ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    BlocBuilder<EventBloc, EventState>(
-                      builder: (context, state) {
-                        if (state.requestState.isLoading) {
-                          return const ShimmerHome();
-                        } else if (state.searchEvents?.isNotEmpty ?? false) {
-                          return buildSearch(state);
-                        } else if (state.requestState.isError) {
-                          final selectedCity = state.selectedCity;
-                          final query = _controller.text;
-                          return Center(
-                            child: Text(
-                              selectedCity == null
-                                  ? (query.isNotEmpty
-                                      ? 'No results found for "$query". Please try again later.'
-                                      : 'Event not found. Please try again later.')
-                                  : (query.isNotEmpty
-                                      ? 'No results found for "$query" in ${selectedCity.name}. Please try again later.'
-                                      : 'Event not found in ${selectedCity.name}. Please try again later.'),
-                            ),
-                          );
-                        } else if (state.requestState.isSuccess &&
-                            state.events!.isEmpty) {
-                          return const Center(
-                            child: Text(
-                              'No events found in the categories you are looking for.',
-                            ),
-                          );
-                        }
-                        return buildExplore(state);
-                      },
-                    ),
-                  ],
-                ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Expanded(child: buildPaginationSearch(state, context)),
+                ],
               ),
             ),
           );
@@ -181,6 +152,46 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
+  Widget buildPaginationSearch(EventState state, BuildContext context) {
+    return BlocBuilder<PaginationEventBloc, PagingState<int, EventDetail>>(
+      builder: (context, state) => PagedListView<int, EventDetail>(
+        state: state,
+        fetchNextPage: () => context.read<PaginationEventBloc>().add(
+              FetchNextPaginationEvent(
+                keyword: currentKeyword,
+                selectedCity: selectedCity,
+              ),
+            ),
+        builderDelegate: PagedChildBuilderDelegate(
+          itemBuilder: (context, item, index) => EventMiniCard(
+            title: item.name,
+            subtitle: item.name,
+            startDateTime: item.start,
+            location: item.location,
+            city: item.city,
+            imageUrl: item.images.isNotEmpty ? item.images.first.url : null,
+            distance: item.distance,
+            isJoined: item.isJoined,
+            onTap: () {
+              context.goNamed(
+                AppRoute.eventDetailView.name,
+                pathParameters: {'eventId': item.id},
+              );
+            },
+            venueName: item.venueName,
+            avatars: item.participantAvatars,
+            onJoinedChanged: (isJoined) {
+              if (isJoined) {
+                context.read<EventBloc>().add(JoinEvent(item.id));
+              }
+              context.read<EventBloc>().add(LeaveEvent(item.id));
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget buildSearch(EventState state) {
     return ListView.builder(
       shrinkWrap: true,
@@ -222,33 +233,25 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Widget buildNearCityList(EventState state) {
-    return BlocBuilder<EventBloc, EventState>(
-      buildWhen: (previous, current) =>
-          previous.selectedCity != current.selectedCity,
-      builder: (context, state) {
-        return ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: state.nearCity!.length,
-          itemBuilder: (context, index) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: ChoiceChip.elevated(
-                label: Text(
-                  state.nearCity![index].name,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                showCheckmark: false,
-                elevation: 0,
-                pressElevation: 0,
-                selected: state.selectedCity == state.nearCity![index],
-                onSelected: (isSelected) {
-                  context.read<EventBloc>().add(
-                        OnSelectCity(state.nearCity![index]),
-                      );
-                },
-              ),
-            );
-          },
+    return ListView.builder(
+      scrollDirection: Axis.horizontal,
+      itemCount: state.nearCity!.length,
+      itemBuilder: (context, index) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: ChoiceChip.elevated(
+            label: Text(
+              state.nearCity![index].name,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            showCheckmark: false,
+            elevation: 0,
+            pressElevation: 0,
+            selected: selectedCity == state.nearCity![index],
+            onSelected: (isSelected) {
+              onSelectCity(state.nearCity![index]);
+            },
+          ),
         );
       },
     );

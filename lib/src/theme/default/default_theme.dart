@@ -397,7 +397,7 @@ class DefaultMaterialTheme extends MaterialTheme {
           ),
         ),
         primaryTextTheme: textTheme,
-        cardTheme: CardTheme(
+        cardTheme: CardThemeData(
           surfaceTintColor: colorScheme.onSecondaryContainer,
           color: colorScheme.inverseSurface,
           elevation: 0,

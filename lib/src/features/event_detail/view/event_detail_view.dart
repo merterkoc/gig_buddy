@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gig_buddy/src/bloc/event/event_bloc.dart';
+import 'package:gig_buddy/src/bloc/pagination_event%20/pagination_event_bloc.dart';
 import 'package:gig_buddy/src/common/widgets/avatar_stack_widget/avatar_stack_widget.dart';
 import 'package:gig_buddy/src/service/model/event_detail/event_detail.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
 class EventDetailView extends StatefulWidget {
   const EventDetailView({
@@ -22,28 +24,69 @@ class _EventDetailViewState extends State<EventDetailView> {
   @override
   void initState() {
     context.read<EventBloc>().add(FetchEventById(widget.eventId));
-    _eventDetail = context.read<EventBloc>().state.allEvents.firstWhere(
-          (element) => element?.id == widget.eventId,
-        );
+    _eventDetail = context
+        .read<PaginationEventBloc>()
+        .state
+        .pages!
+        .map((e) => e.firstWhere((element) => element.id == widget.eventId))
+        .first;
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(_eventDetail!.name)),
-      body: Padding(
-        padding: const EdgeInsets.all(18),
-        child: Column(
-
-          spacing: 10,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            buildEventImage(),
-            buildParticipantAvatars(),
-            buildEventDetail(),
-          ],
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        forceMaterialTransparency: true,
+        actions: [
+          IconButton(
+            style: IconButton.styleFrom(
+              backgroundColor: Theme.of(context)
+                  .colorScheme
+                  .surfaceContainerHighest
+                  .withValues(alpha: 0.5),
+              foregroundColor: Theme.of(context).colorScheme.onSurface,
+              shape: const CircleBorder(),
+            ),
+            icon: const Icon(
+              Icons.share,
+            ),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+        leading: IconButton(
+          style: IconButton.styleFrom(
+            backgroundColor: Theme.of(context)
+                .colorScheme
+                .surfaceContainerHighest
+                .withValues(alpha: 0.5),
+            foregroundColor: Theme.of(context).colorScheme.onSurface,
+            shape: const CircleBorder(),
+          ),
+          icon: const Icon(
+            Icons.arrow_back_rounded,
+          ),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
         ),
+        elevation: 0,
+      ),
+      body: Column(
+        spacing: 10,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          buildEventImage(),
+          buildParticipantAvatars(),
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: buildEventDetail(),
+          ),
+        ],
       ),
     );
   }
@@ -61,14 +104,7 @@ class _EventDetailViewState extends State<EventDetailView> {
         }
         final eventDetail = state.selectedEventDetail!;
         return Expanded(
-          child: CarouselView(
-            itemExtent: 380,
-            itemSnapping: true,
-            children: [
-              for (var i = 0; i < eventDetail.images.length; i++)
-                Image.network(eventDetail.images[i].url, fit: BoxFit.cover),
-            ],
-          ),
+          child: Image.network(eventDetail.images[0].url, fit: BoxFit.cover),
         );
       },
     );
@@ -130,7 +166,7 @@ class _EventDetailViewState extends State<EventDetailView> {
             const SizedBox(height: 10),
             Text(
               state.selectedEventDetail!.city ?? '',
-              style: Theme.of(context).textTheme.bodyMedium,
+              style: Theme.of(context).textTheme.headlineLarge,
             ),
             const SizedBox(height: 10),
             Text(

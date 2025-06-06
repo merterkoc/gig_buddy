@@ -217,35 +217,35 @@ class _UserProfileViewState extends State<UserProfileView> {
                 itemCount: state.currentProfileEvents!.length,
                 itemBuilder: (context, index) {
                   return EventCardProfile(
-                    title: state.events![index].name,
-                    subtitle: state.events![index].name,
-                    startDateTime: state.events![index].start,
-                    location: state.events![index].location,
-                    imageUrl: state.events![index].images.isNotEmpty
-                        ? state.events![index].images.first.url
+                    title: state.currentProfileEvents![index].name,
+                    subtitle: state.currentProfileEvents![index].name,
+                    startDateTime: state.currentProfileEvents![index].start,
+                    location: state.currentProfileEvents![index].location,
+                    imageUrl: state.currentProfileEvents![index].images.isNotEmpty
+                        ? state.currentProfileEvents![index].images.first.url
                         : null,
-                    distance: state.events![index].distance,
-                    isJoined: state.events![index].isJoined,
+                    distance: state.currentProfileEvents![index].distance,
+                    isJoined: state.currentProfileEvents![index].isJoined,
                     onTap: () {
                       context.pushNamed(
                         AppRoute.eventDetailView.name,
-                        pathParameters: {'eventId': state.events![index].id},
+                        pathParameters: {'eventId': state.currentProfileEvents![index].id},
                       );
                     },
                     onJoinedChanged: (isJoined) {
                       if (isJoined) {
                         context
                             .read<EventBloc>()
-                            .add(JoinEvent(state.events![index].id));
+                            .add(JoinEvent(state.currentProfileEvents![index].id));
                       }
                       context
                           .read<EventBloc>()
-                          .add(LeaveEvent(state.events![index].id));
+                          .add(LeaveEvent(state.currentProfileEvents![index].id));
                     },
                     onMatchChanged: (isMatched) {
                       context.read<BuddyBloc>().add(
                             CreateBuddyRequest(
-                              eventId: state.events![index].id,
+                              eventId: state.currentProfileEvents![index].id,
                               receiverId: widget.userId,
                             ),
                           );

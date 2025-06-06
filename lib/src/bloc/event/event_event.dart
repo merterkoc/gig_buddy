@@ -33,11 +33,6 @@ class EventSearch extends EventEvent {
   final String? keyword;
 }
 
-class OnSelectCity extends EventEvent {
-  const OnSelectCity(this.city);
-
-  final City city;
-}
 
 class EventSuccess extends EventEvent {
   const EventSuccess({required this.events});
