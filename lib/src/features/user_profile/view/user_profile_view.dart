@@ -45,7 +45,7 @@ class _UserProfileViewState extends State<UserProfileView> {
             }
             if (state.requestState.isSuccess) {
               return Padding(
-                padding: const EdgeInsets.only(top: 20, left: 20, right: 20),
+                padding: const EdgeInsets.only(top: 8, left: 8, right: 20),
                 child: Center(
                   child: Column(
                     spacing: 20,
@@ -175,35 +175,12 @@ class _UserProfileViewState extends State<UserProfileView> {
   BlocBuilder<EventBloc, EventState> buildUserEvents() {
     return BlocBuilder<EventBloc, EventState>(
       builder: (context, state) {
-        if (state.currentProfileEventsRequestState.isLoading) {
-          return const SizedBox(
-            width: 210,
-            height: 210,
-            child: Center(child: CircularProgressIndicator()),
-          );
-        } else if (state.currentProfileEventsRequestState.isError) {
-          return Center(
-            child: Column(
-              children: [
-                const Text('Error'),
-                const SizedBox(height: 8),
-                GigElevatedButton(
-                  onPressed: () {
-                    context
-                        .read<EventBloc>()
-                        .add(GetEventsByUserId(widget.userId));
-                  },
-                  child: const Text('Retry'),
-                ),
-              ],
-            ),
-          );
-        }
-        return SurfaceContainer(
-          isExpanded: true,
+        return Padding(
+          padding: const EdgeInsets.only(top: 8, left: 8, right: 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             spacing: 20,
+
             children: [
               const Text(
                 'Users going to this event',
@@ -215,9 +192,10 @@ class _UserProfileViewState extends State<UserProfileView> {
               ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: state.currentProfileEvents!.length,
+                itemCount: state.currentProfileEvents?.length ?? 0,
                 itemBuilder: (context, index) {
                   return EventCardProfile(
+                    userId: widget.userId,
                     id: state.currentProfileEvents![index].id,
                     title: state.currentProfileEvents![index].name,
                     subtitle: state.currentProfileEvents![index].name,
@@ -229,6 +207,9 @@ class _UserProfileViewState extends State<UserProfileView> {
                         : null,
                     distance: state.currentProfileEvents![index].distance,
                     isJoined: state.currentProfileEvents![index].isJoined,
+                    isMatched: state.currentProfileEvents![index].isMatched!,
+                    buddyRequestStatus:
+                        state.currentProfileEvents![index].buddyRequestStatus,
                     onTap: () {
                       context.pushNamed(
                         AppRoute.eventDetailView.name,

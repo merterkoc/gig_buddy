@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:gig_buddy/src/http/dio/model/response_entity.dart';
 import 'package:gig_buddy/src/repository/buddy_repository.dart';
 import 'package:gig_buddy/src/service/model/buddy_requests/buddy_requests.dart';
+import 'package:gig_buddy/src/service/model/enum/buddy_request_status.dart';
 
 part 'buddy_event.dart';
 
@@ -54,13 +55,21 @@ class BuddyBloc extends Bloc<BuddyEvent, BuddyState> {
     Emitter<BuddyState> emit,
   ) async {
     try {
-      emit(state.copyWith(currentCreateBuddyRequestEventId: event.eventId));
+      emit(
+        state.copyWith(
+          createBuddyRequest: ResponseEntity.loading(),
+          currentCreateBuddyRequestEventId: event.eventId,
+        ),
+      );
       final responseEntity = await _buddyRepository.createBuddyRequest(
         eventId: event.eventId,
         receiverId: event.receiverId,
       );
       if (responseEntity.isOk) {
-      } else {}
+        emit(state.copyWith(createBuddyRequest: ResponseEntity.success()));
+      } else {
+        emit(state.copyWith(createBuddyRequest: responseEntity));
+      }
     } catch (e) {
       emit(state.copyWith(buddyRequests: ResponseEntity.error()));
       rethrow;

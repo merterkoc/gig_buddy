@@ -6,6 +6,7 @@ import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
 import 'package:gig_buddy/src/common/widgets/user/user_avatar_widget.dart';
 import 'package:gig_buddy/src/features/profile/widgets/user_events.dart';
 import 'package:gig_buddy/src/features/profile/widgets/user_interests.dart';
+import 'package:swipe_refresh/swipe_refresh.dart';
 
 class ProfileView extends StatefulWidget {
   const ProfileView({super.key});
@@ -36,44 +37,45 @@ class _ProfileViewState extends State<ProfileView> {
           )
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          spacing: 20,
-          children: [
-            buildUserImage(),
-            buildUserName(),
-            buildUserInterests(),
-            BlocBuilder<EventBloc, EventState>(
-              buildWhen: (previous, current) =>
-                  previous.myEvents != current.myEvents ||
-                  previous.requestState != current.requestState,
-              builder: (context, state) {
-                if (state.requestState.isError) {
-                  return Center(
-                    child: Column(
-                      children: [
-                        const Text('You have not joined any events yet.'),
-                        const SizedBox(height: 20),
-                        GigElevatedButton(
-                          onPressed: () {
-                            context.read<EventBloc>().add(const GetMyEvents());
-                          },
-                          child: const Text('Try again'),
-                        ),
-                      ],
+      body: SwipeRefresh.cupertino(
+      stateStream: const Stream.empty(),
+      onRefresh: () {
+        //
+      },
+      children: [
+        buildUserImage(),
+        buildUserName(),
+        buildUserInterests(),
+        BlocBuilder<EventBloc, EventState>(
+          buildWhen: (previous, current) =>
+          previous.myEvents != current.myEvents ||
+              previous.requestState != current.requestState,
+          builder: (context, state) {
+            if (state.requestState.isError) {
+              return Center(
+                child: Column(
+                  children: [
+                    const Text('You have not joined any events yet.'),
+                    const SizedBox(height: 20),
+                    GigElevatedButton(
+                      onPressed: () {
+                        context.read<EventBloc>().add(const GetMyEvents());
+                      },
+                      child: const Text('Try again'),
                     ),
-                  );
-                }
-                if (state.myEvents == null) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
-                return UserEvents(events: state.myEvents!);
-              },
-            ),
-          ],
+                  ],
+                ),
+              );
+            }
+            if (state.myEvents == null) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+            return UserEvents(events: state.myEvents!);
+          },
         ),
+      ],
       ),
     );
   }

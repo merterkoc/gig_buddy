@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gig_buddy/src/common/widgets/containers/surface_container.dart';
 import 'package:gig_buddy/src/service/model/buddy_requests/buddy_requests.dart';
+import 'package:gig_buddy/src/service/model/enum/buddy_request_status.dart';
 
 class BuddyRequestCard extends StatefulWidget {
   const BuddyRequestCard({

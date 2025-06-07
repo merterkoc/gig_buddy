@@ -1,6 +1,7 @@
 // ignore_for_file: invalid_annotation_target
 
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:gig_buddy/src/service/model/enum/buddy_request_status.dart';
 
 part 'event_detail.freezed.dart';
 
@@ -22,6 +23,8 @@ class EventDetail with _$EventDetail {
     @JsonKey(name: 'venue_name') required String? venueName,
     @JsonKey(name: 'is_joined') required bool isJoined,
     @JsonKey(name: 'is_matched') bool? isMatched,
+    @JsonKey(name: 'buddy_request_status',required: false)
+    BuddyRequestStatus? buddyRequestStatus,
     @JsonKey(name: 'ticket_url') required String ticketUrl,
     required List<Images> images,
     @JsonKey(name: 'participant_avatars')
