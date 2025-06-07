@@ -173,7 +173,6 @@ final GoRouter goRouter = GoRouter(
                   pageBuilder: (BuildContext context, GoRouterState state) =>
                       CupertinoPage<void>(
                     key: state.pageKey,
-                    maintainState: false,
                     child: const ProfileView(),
                   ),
                 ),

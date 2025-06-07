@@ -21,6 +21,7 @@ class EventDetail with _$EventDetail {
     required String? country,
     @JsonKey(name: 'venue_name') required String? venueName,
     @JsonKey(name: 'is_joined') required bool isJoined,
+    @JsonKey(name: 'is_matched') bool? isMatched,
     @JsonKey(name: 'ticket_url') required String ticketUrl,
     required List<Images> images,
     @JsonKey(name: 'participant_avatars')
