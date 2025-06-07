@@ -7,6 +7,7 @@ class BuddyState extends Equatable {
     required this.acceptBuddyRequest,
     required this.rejectBuddyRequest,
     required this.blockBuddyRequest,
+    required this.currentCreateBuddyRequestEventId,
   });
 
   factory BuddyState.initial() {
@@ -15,6 +16,7 @@ class BuddyState extends Equatable {
       acceptBuddyRequest: const {},
       rejectBuddyRequest: const {},
       blockBuddyRequest: const {},
+      currentCreateBuddyRequestEventId: '',
     );
   }
 
@@ -22,18 +24,22 @@ class BuddyState extends Equatable {
   final Map<String, ResponseEntity<void>> acceptBuddyRequest;
   final Map<String, ResponseEntity<void>> rejectBuddyRequest;
   final Map<String, ResponseEntity<void>> blockBuddyRequest;
+  final String currentCreateBuddyRequestEventId;
 
   BuddyState copyWith({
     ResponseEntity<List<BuddyRequests>>? buddyRequests,
     Map<String, ResponseEntity<void>>? acceptBuddyRequest,
     Map<String, ResponseEntity<void>>? rejectBuddyRequest,
     Map<String, ResponseEntity<void>>? blockBuddyRequest,
+    String? currentCreateBuddyRequestEventId,
   }) {
     return BuddyState(
       buddyRequests: buddyRequests ?? this.buddyRequests,
       acceptBuddyRequest: acceptBuddyRequest ?? this.acceptBuddyRequest,
       rejectBuddyRequest: rejectBuddyRequest ?? this.rejectBuddyRequest,
       blockBuddyRequest: blockBuddyRequest ?? this.blockBuddyRequest,
+      currentCreateBuddyRequestEventId: currentCreateBuddyRequestEventId ??
+          this.currentCreateBuddyRequestEventId,
     );
   }
 
@@ -43,5 +49,6 @@ class BuddyState extends Equatable {
         acceptBuddyRequest,
         rejectBuddyRequest,
         blockBuddyRequest,
+        currentCreateBuddyRequestEventId,
       ];
 }

@@ -16,7 +16,7 @@ class AvatarStackWidget extends StatelessWidget {
     final settings = RestrictedPositions(maxCoverage: 0.3, minCoverage: 0.1);
     final newAvatars = avatars.where((e) => e.userImage != null&& e.userImage!.isNotEmpty).toList();
     return SizedBox(
-      height: 50,
+      height: 42,
       child: WidgetStack(
         positions: settings,
         stackedWidgets: [

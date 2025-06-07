@@ -18,3 +18,15 @@ final class OnFiltered extends PaginationEvent {
   final String? keyword;
   final CancelToken? cancelToken;
 }
+
+class JoinedTriggerEvent extends PaginationEvent {
+  JoinedTriggerEvent(this.eventId);
+
+  final String eventId;
+}
+
+class LeaveTriggerEvent extends PaginationEvent {
+  LeaveTriggerEvent(this.eventId);
+
+  final String eventId;
+}

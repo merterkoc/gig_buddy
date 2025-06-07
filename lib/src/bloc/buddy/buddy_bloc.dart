@@ -54,14 +54,19 @@ class BuddyBloc extends Bloc<BuddyEvent, BuddyState> {
     Emitter<BuddyState> emit,
   ) async {
     try {
+      emit(state.copyWith(currentCreateBuddyRequestEventId: event.eventId));
       final responseEntity = await _buddyRepository.createBuddyRequest(
         eventId: event.eventId,
         receiverId: event.receiverId,
       );
-      if (responseEntity.isOk) {}
+      if (responseEntity.isOk) {
+      } else {}
     } catch (e) {
+      emit(state.copyWith(buddyRequests: ResponseEntity.error()));
       rethrow;
-    } finally {}
+    } finally {
+      emit(state.copyWith(currentCreateBuddyRequestEventId: ''));
+    }
   }
 
   Future<void> _onAcceptBuddyRequest(

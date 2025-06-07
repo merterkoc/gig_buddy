@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gig_buddy/src/app_ui/widgets/buttons/gig_elevated_button.dart';
 import 'package:gig_buddy/src/bloc/buddy/buddy_bloc.dart';
 import 'package:gig_buddy/src/bloc/event/event_bloc.dart';
 import 'package:gig_buddy/src/bloc/profile/profile_bloc.dart';
@@ -186,7 +187,7 @@ class _UserProfileViewState extends State<UserProfileView> {
               children: [
                 const Text('Error'),
                 const SizedBox(height: 8),
-                ElevatedButton(
+                GigElevatedButton(
                   onPressed: () {
                     context
                         .read<EventBloc>()
@@ -217,11 +218,13 @@ class _UserProfileViewState extends State<UserProfileView> {
                 itemCount: state.currentProfileEvents!.length,
                 itemBuilder: (context, index) {
                   return EventCardProfile(
+                    id: state.currentProfileEvents![index].id,
                     title: state.currentProfileEvents![index].name,
                     subtitle: state.currentProfileEvents![index].name,
                     startDateTime: state.currentProfileEvents![index].start,
                     location: state.currentProfileEvents![index].location,
-                    imageUrl: state.currentProfileEvents![index].images.isNotEmpty
+                    imageUrl: state
+                            .currentProfileEvents![index].images.isNotEmpty
                         ? state.currentProfileEvents![index].images.first.url
                         : null,
                     distance: state.currentProfileEvents![index].distance,
@@ -229,18 +232,11 @@ class _UserProfileViewState extends State<UserProfileView> {
                     onTap: () {
                       context.pushNamed(
                         AppRoute.eventDetailView.name,
-                        pathParameters: {'eventId': state.currentProfileEvents![index].id},
+                        extra: state.currentProfileEvents![index],
+                        pathParameters: {
+                          'eventId': state.currentProfileEvents![index].id,
+                        },
                       );
-                    },
-                    onJoinedChanged: (isJoined) {
-                      if (isJoined) {
-                        context
-                            .read<EventBloc>()
-                            .add(JoinEvent(state.currentProfileEvents![index].id));
-                      }
-                      context
-                          .read<EventBloc>()
-                          .add(LeaveEvent(state.currentProfileEvents![index].id));
                     },
                     onMatchChanged: (isMatched) {
                       context.read<BuddyBloc>().add(

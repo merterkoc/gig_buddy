@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gig_buddy/src/app_ui/widgets/buttons/gig_elevated_button.dart';
 import 'package:gig_buddy/src/bloc/buddy/buddy_bloc.dart';
 import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
 import 'package:gig_buddy/src/features/friends/widgets/buddy_request_card.dart';
@@ -58,7 +59,7 @@ class _FriendsViewState extends State<FriendsView> {
                                   'Failed to get buddy requests',
                                 ),
                                 const SizedBox(height: 10),
-                                ElevatedButton(
+                                GigElevatedButton(
                                   onPressed: () {
                                     context
                                         .read<BuddyBloc>()
@@ -129,7 +130,7 @@ class _FriendsViewState extends State<FriendsView> {
                                   'Failed to get buddy requests',
                                 ),
                                 const SizedBox(height: 10),
-                                ElevatedButton(
+                                GigElevatedButton(
                                   onPressed: () {
                                     context
                                         .read<BuddyBloc>()

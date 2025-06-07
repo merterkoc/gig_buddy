@@ -12,6 +12,7 @@ import 'package:gig_buddy/src/repository/buddy_repository.dart';
 import 'package:gig_buddy/src/repository/event_repository.dart';
 import 'package:gig_buddy/src/repository/identity_repository.dart';
 import 'package:gig_buddy/src/route/router.dart';
+import 'package:gig_buddy/src/theme/blue/blue_theme.dart';
 import 'package:gig_buddy/src/theme/default/default_theme.dart';
 import 'package:gig_buddy/src/theme/green/green_theme.dart';
 import 'package:gig_buddy/src/theme/material_theme.dart';
@@ -34,7 +35,7 @@ class GigBuddyApp extends StatelessWidget {
       builder: (BuildContext context, Widget? child) {
         final textTheme = createTextTheme(context, 'Exo', 'Exo 2');
         MaterialTheme theme;
-        theme = DefaultMaterialTheme(textTheme);
+        theme = BlueMaterialTheme(textTheme);
         return MultiBlocProvider(
           providers: [
             BlocProvider(
@@ -52,11 +53,15 @@ class GigBuddyApp extends StatelessWidget {
                   LoginBloc(AuthManager(), IdentityRepository()),
             ),
             BlocProvider(
-              create: (context) => EventBloc(EventRepository()),
-            ),
-            BlocProvider(
               create: (context) => PaginationEventBloc(
                 eventRepository: EventRepository(),
+                loginBloc: context.read<LoginBloc>(),
+              ),
+            ),
+            BlocProvider(
+              create: (context) => EventBloc(
+                EventRepository(),
+                context.read<PaginationEventBloc>(),
               ),
             ),
           ],

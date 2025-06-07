@@ -16,6 +16,7 @@ import 'package:gig_buddy/src/http/dio/interface/i_dio_client.dart';
 import 'package:gig_buddy/src/route/authentication_listener.dart';
 import 'package:gig_buddy/src/route/nav_bar.dart';
 import 'package:gig_buddy/src/route/sheel_route.dart';
+import 'package:gig_buddy/src/service/model/event_detail/event_detail.dart';
 import 'package:go_router/go_router.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -119,8 +120,9 @@ final GoRouter goRouter = GoRouter(
                       path: AppRoute.eventDetailView.path,
                       name: AppRoute.eventDetailView.name,
                       builder: (BuildContext context, GoRouterState state) {
+                        final extra = state.extra! as EventDetail;
                         return EventDetailView(
-                          eventId: state.pathParameters['eventId']!,
+                          eventDetail: extra,
                         );
                       },
                     ),

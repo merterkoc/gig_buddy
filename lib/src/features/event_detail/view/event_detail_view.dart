@@ -1,35 +1,37 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gig_buddy/src/app_ui/widgets/buttons/gig_elevated_button.dart';
 import 'package:gig_buddy/src/bloc/event/event_bloc.dart';
-import 'package:gig_buddy/src/bloc/pagination_event%20/pagination_event_bloc.dart';
+import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
+import 'package:gig_buddy/src/common/constants/app_size.dart';
+import 'package:gig_buddy/src/common/util/date_util.dart';
 import 'package:gig_buddy/src/common/widgets/avatar_stack_widget/avatar_stack_widget.dart';
+import 'package:gig_buddy/src/common/widgets/buttons/join_leave_button.dart';
 import 'package:gig_buddy/src/service/model/event_detail/event_detail.dart';
-import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class EventDetailView extends StatefulWidget {
   const EventDetailView({
-    required this.eventId,
+    required this.eventDetail,
     super.key,
   });
 
-  final String eventId;
+  final EventDetail eventDetail;
 
   @override
   State<EventDetailView> createState() => _EventDetailViewState();
 }
 
 class _EventDetailViewState extends State<EventDetailView> {
-  late final EventDetail? _eventDetail;
+  late List<EventParticipantModel> avatars;
+  late bool isJoined;
 
   @override
   void initState() {
-    context.read<EventBloc>().add(FetchEventById(widget.eventId));
-    _eventDetail = context
-        .read<PaginationEventBloc>()
-        .state
-        .pages!
-        .map((e) => e.firstWhere((element) => element.id == widget.eventId))
-        .first;
+    context.read<EventBloc>().add(FetchEventById(widget.eventDetail.id));
+    avatars = widget.eventDetail.participantAvatars ?? [];
+    isJoined = widget.eventDetail.isJoined;
     super.initState();
   }
 
@@ -77,14 +79,30 @@ class _EventDetailViewState extends State<EventDetailView> {
         elevation: 0,
       ),
       body: Column(
-        spacing: 10,
-        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: AppSpacing.lg,
         children: [
           buildEventImage(),
-          buildParticipantAvatars(),
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: buildEventDetail(),
+          Expanded(
+            flex: 2,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+              child: Column(
+                spacing: 12,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildEventDateAndLocation(),
+                  buildEventLinks(),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Expanded(child: buildParticipantAvatars()),
+                    ],
+                  ),
+                  buildEventDetail(),
+                  const SizedBox(height: AppSpacing.lg),
+                ],
+              ),
+            ),
           ),
         ],
       ),
@@ -92,95 +110,139 @@ class _EventDetailViewState extends State<EventDetailView> {
   }
 
   Widget buildEventImage() {
-    return BlocBuilder<EventBloc, EventState>(
-      buildWhen: (previous, current) =>
-          previous.selectedEventDetail != current.selectedEventDetail ||
-          previous.requestState != current.requestState,
-      builder: (context, state) {
-        if (state.selectedEventDetail == null) {
-          return const SizedBox();
-        } else if (state.requestState.isLoading) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        final eventDetail = state.selectedEventDetail!;
-        return Expanded(
-          child: Image.network(eventDetail.images[0].url, fit: BoxFit.cover),
-        );
-      },
+    return Expanded(
+      child: Hero(
+        tag: widget.eventDetail.id,
+        child: Image.network(
+          widget.eventDetail.images[0].url,
+          width: double.infinity,
+          fit: BoxFit.cover,
+        ),
+      ),
     );
   }
 
   Widget buildParticipantAvatars() {
-    return BlocBuilder<EventBloc, EventState>(
-      buildWhen: (previous, current) =>
-          previous.selectedEventDetail != current.selectedEventDetail ||
-          previous.requestState != current.requestState,
-      builder: (context, state) {
-        if (state.selectedEventDetail == null) {
-          return const SizedBox();
-        }
-        final eventDetail = state.selectedEventDetail!;
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Participants',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            const SizedBox(height: 10),
-            if (eventDetail.participantAvatars != null)
-              AvatarStackWidget(
-                avatars: eventDetail.participantAvatars!,
-              ),
-          ],
-        );
-      },
+    if (avatars.isEmpty) {
+      return const SizedBox(
+        height: 42,
+        child: Text('No participants'),
+      );
+    }
+    return AvatarStackWidget(
+      avatars: avatars,
     );
   }
 
   Widget buildEventDetail() {
-    return BlocBuilder<EventBloc, EventState>(
-      buildWhen: (previous, current) =>
-          previous.selectedEventDetail != current.selectedEventDetail ||
-          previous.requestState != current.requestState,
-      builder: (context, state) {
-        if (state.selectedEventDetail == null) {
-          return const SizedBox();
-        }
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              state.selectedEventDetail!.name,
-              style: Theme.of(context).textTheme.headlineLarge,
-            ),
-            Text(
-              state.selectedEventDetail!.location ?? '',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 10),
-            Text(
-              state.selectedEventDetail!.distance ?? '',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 10),
-            Text(
-              state.selectedEventDetail!.city ?? '',
-              style: Theme.of(context).textTheme.headlineLarge,
-            ),
-            const SizedBox(height: 10),
-            Text(
-              state.selectedEventDetail!.country ?? '',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            if (state.selectedEventDetail!.venueName != null)
-              Text(
-                state.selectedEventDetail!.venueName!,
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-          ],
-        );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          widget.eventDetail.name,
+          style: Theme.of(context).textTheme.headlineLarge,
+        ),
+        Text(
+          widget.eventDetail.location ?? '',
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+        const SizedBox(height: 10),
+        Text(
+          widget.eventDetail.distance ?? '',
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+        const SizedBox(height: 10),
+        Text(
+          widget.eventDetail.city ?? '',
+          style: Theme.of(context).textTheme.headlineLarge,
+        ),
+        const SizedBox(height: 10),
+        Text(
+          widget.eventDetail.country ?? '',
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+        if (widget.eventDetail.venueName != null)
+          Text(
+            widget.eventDetail.venueName!,
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+      ],
+    );
+  }
+
+  JoinLeaveButton buildJoinButton() {
+    return JoinLeaveButton(
+      isJoined: isJoined,
+      onChanged: (isJoined) {
+        setState(() {
+          final userProfile = context.read<LoginBloc>().state.user;
+
+          if (isJoined) {
+            avatars = List.of(avatars)
+              ..add(
+                EventParticipantModel(
+                  userId: userProfile!.id,
+                  userImage: userProfile.userImage,
+                ),
+              );
+            context.read<EventBloc>().add(JoinEvent(widget.eventDetail.id));
+          } else {
+            avatars = List.of(avatars)
+              ..removeWhere((element) => element.userId == userProfile!.id);
+            context.read<EventBloc>().add(LeaveEvent(widget.eventDetail.id));
+          }
+        });
       },
+    );
+  }
+
+  Widget buildEventDateAndLocation() {
+    return Row(
+      children: [
+        Text(
+          DateUtil.getDate(widget.eventDetail.start),
+          style: Theme.of(context).textTheme.headlineSmall,
+        ),
+        const Spacer(),
+        Text(
+          widget.eventDetail.city ?? '',
+          style: Theme.of(context).textTheme.headlineSmall,
+        ),
+      ],
+    );
+  }
+
+  Row buildEventLinks() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        buildTicketButton(),
+        buildJoinButton(),
+      ],
+    );
+  }
+
+  GigElevatedButton buildTicketButton() {
+    return GigElevatedButton(
+      onPressed: () {
+        final parse = Uri.parse(widget.eventDetail.ticketUrl);
+        launchUrl(parse);
+      },
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 8,
+        children: [
+          const Icon(
+            CupertinoIcons.tickets,
+            size: 20,
+          ),
+          Text(
+            'Tickets',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+        ],
+      ),
     );
   }
 }

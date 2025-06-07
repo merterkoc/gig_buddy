@@ -4,6 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
+import 'package:gig_buddy/src/bloc/pagination_event%20/pagination_event_bloc.dart';
 import 'package:gig_buddy/src/common/manager/location_manager.dart';
 import 'package:gig_buddy/src/http/dio/model/request_state.dart';
 import 'package:gig_buddy/src/repository/event_repository.dart';
@@ -17,6 +18,7 @@ part 'event_state.dart';
 class EventBloc extends Bloc<EventEvent, EventState> {
   EventBloc(
     this._eventRepository,
+    this._paginationEventBloc,
   ) : super(const EventState()) {
     on<EventInitState>(_onInit);
     on<EventLoad>(_onLoad);
@@ -29,10 +31,11 @@ class EventBloc extends Bloc<EventEvent, EventState> {
     on<LeaveEvent>(_onLeave);
     on<GetMyEvents>(_onGetMyEvents);
     on<GetEventsByUserId>(_onGetEventsByUserId);
-    on<EventLoadNearCity>(_onLoadNearCity);
+    on<EventLoadNearCity>(_onLoadNearCity,transformer: concurrent());
   }
 
   final EventRepository _eventRepository;
+  final PaginationEventBloc _paginationEventBloc;
 
   CancelToken? _cancelToken;
 
@@ -132,6 +135,7 @@ class EventBloc extends Bloc<EventEvent, EventState> {
   }
 
   FutureOr<void> _onJoin(JoinEvent event, Emitter<EventState> emit) async {
+    _paginationEventBloc.add(JoinedTriggerEvent(event.eventId));
     final joinData = await _eventRepository.joinEvent(event.eventId);
     if (joinData.isOk) {
       emit(state.copyWith(requestState: RequestState.success));
@@ -139,6 +143,8 @@ class EventBloc extends Bloc<EventEvent, EventState> {
   }
 
   FutureOr<void> _onLeave(LeaveEvent event, Emitter<EventState> emit) async {
+    _paginationEventBloc.add(LeaveTriggerEvent(event.eventId));
+
     final leaveData = await _eventRepository.leaveEvent(event.eventId);
     if (leaveData.isOk) {
       emit(state.copyWith(requestState: RequestState.success));

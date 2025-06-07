@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:gig_buddy/src/app_ui/widgets/text/scroll_if_overflow_text.dart';
 import 'package:gig_buddy/src/common/util/date_util.dart';
 
 import 'package:gig_buddy/src/common/widgets/avatar_stack_widget/avatar_stack_widget.dart';
+import 'package:gig_buddy/src/common/widgets/buttons/join_leave_button.dart';
 import 'package:gig_buddy/src/service/model/event_detail/event_detail.dart';
 
 class EventMiniCard extends StatefulWidget {
   const EventMiniCard({
     required this.isJoined,
+    required this.id,
     super.key,
     this.title,
     this.subtitle,
@@ -23,6 +26,7 @@ class EventMiniCard extends StatefulWidget {
     this.venueName,
   });
 
+  final String id;
   final String? title;
   final String? subtitle;
   final String? imageUrl;
@@ -44,11 +48,25 @@ class EventMiniCard extends StatefulWidget {
 
 class _EventCardState extends State<EventMiniCard> {
   late bool isJoined;
+  late List<EventParticipantModel>? avatars;
 
   @override
   void initState() {
     isJoined = widget.isJoined;
+    avatars = widget.avatars;
     super.initState();
+  }
+
+  @override
+  void didUpdateWidget(covariant EventMiniCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isJoined != oldWidget.isJoined ||
+        widget.avatars != oldWidget.avatars) {
+      setState(() {
+        avatars = widget.avatars;
+        isJoined = widget.isJoined;
+      });
+    }
   }
 
   @override
@@ -87,20 +105,16 @@ class _EventCardState extends State<EventMiniCard> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      widget.subtitle ?? '',
-                      maxLines: 2,
-                      overflow: TextOverflow.clip,
-                      softWrap: false,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(fontWeight: FontWeight.bold),
+                    ScrollIfOverflowText(
+                      text: widget.subtitle ?? '',
+                      duration: const Duration(seconds: 2),
+                      style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     Text(
                       widget.venueName ?? ' ',
                       softWrap: false,
-                      maxLines: 1,overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
@@ -131,9 +145,9 @@ class _EventCardState extends State<EventMiniCard> {
           Row(
             children: [
               Expanded(
-                child: widget.avatars != null
+                child: avatars != null && avatars!.isNotEmpty
                     ? AvatarStackWidget(
-                        avatars: widget.avatars ?? [],
+                        avatars: avatars ?? [],
                       )
                     : Text(
                         'No participants',
@@ -141,15 +155,7 @@ class _EventCardState extends State<EventMiniCard> {
                       ),
               ),
               const SizedBox(width: 8),
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    isJoined = !isJoined;
-                  });
-                  widget.onJoinedChanged?.call(isJoined);
-                },
-                child: Text(isJoined ? 'Leave' : 'Join'),
-              ),
+              buildElevatedButton(context),
             ],
           ),
         ],
@@ -157,60 +163,34 @@ class _EventCardState extends State<EventMiniCard> {
     );
   }
 
+  JoinLeaveButton buildElevatedButton(BuildContext context) {
+    return JoinLeaveButton(
+      isJoined: isJoined,
+      onChanged: (value) {
+        setState(() {
+          isJoined = value;
+        });
+        widget.onJoinedChanged?.call(isJoined);
+      },
+    );
+  }
+
   Widget buildEventImage(BuildContext context) {
     return widget.imageUrl != null
-        ? Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(6),
-              image: DecorationImage(
-                image: NetworkImage(widget.imageUrl ?? ''),
-                fit: BoxFit.cover,
+        ? Hero(
+            tag: widget.id,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(6),
+                image: DecorationImage(
+                  image: NetworkImage(widget.imageUrl ?? ''),
+                  fit: BoxFit.cover,
+                ),
               ),
+              height: 80,
+              width: double.infinity,
             ),
-            height: 80,
-            width: double.infinity,
           )
         : const SizedBox.shrink();
   }
 }
-
-//        if (widget.startDateTime != null)
-//           Row(
-//             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               Container(
-//                 decoration: BoxDecoration(
-//                   color: Theme.of(context).colorScheme.onPrimary,
-//                   borderRadius: BorderRadius.circular(6),
-//                 ),
-//                 padding: const EdgeInsets.all(8),
-//                 child: Text(
-//                   DateUtil.getDate(widget.startDateTime!),
-//                   textAlign: TextAlign.right,
-//                 ),
-//               ),
-//               const SizedBox(width: 38),
-//               Flexible(
-//                 child: Container(
-//                   decoration: BoxDecoration(
-//                     color: Theme.of(context)
-//                         .colorScheme
-//                         .primaryContainer
-//                         .withValues(alpha: 0.6),
-//                     borderRadius: BorderRadius.circular(6),
-//                   ),
-//                   padding: const EdgeInsets.all(8),
-//                   child: Text(
-//                     widget.venueName ?? ' ',
-//                     softWrap: true,
-//                     maxLines: 2,
-//                     overflow: TextOverflow.ellipsis,
-//                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-//                           fontWeight: FontWeight.bold,
-//                         ),
-//                   ),
-//                 ),
-//               ),
-//             ],
-//           )

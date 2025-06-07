@@ -9,6 +9,7 @@ part 'user_dto.g.dart';
 @immutable
 class UserDto with _$UserDto {
   factory UserDto({
+    required String id,
     required String email,
     required String username,
     @JsonKey(name: 'created_at') required String createdAt,

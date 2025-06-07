@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gig_buddy/src/app_ui/widgets/buttons/gig_elevated_button.dart';
+import 'package:gig_buddy/src/bloc/buddy/buddy_bloc.dart';
+import 'package:gig_buddy/src/common/util/date_util.dart';
 import 'package:gig_buddy/src/common/widgets/containers/surface_container.dart';
 
 class EventCardProfile extends StatefulWidget {
   const EventCardProfile({
     required this.isJoined,
+    required this.id,
     super.key,
     this.title,
     this.subtitle,
@@ -14,10 +19,10 @@ class EventCardProfile extends StatefulWidget {
     this.type,
     this.distance,
     this.onTap,
-    this.onJoinedChanged,
     this.onMatchChanged,
   });
 
+  final String id;
   final String? title;
   final String? subtitle;
   final String? imageUrl;
@@ -28,7 +33,6 @@ class EventCardProfile extends StatefulWidget {
   final String? distance;
   final VoidCallback? onTap;
   final bool isJoined;
-  final ValueChanged<bool>? onJoinedChanged;
   final ValueChanged<bool>? onMatchChanged;
 
   @override
@@ -99,54 +103,40 @@ class _EventCardProfileState extends State<EventCardProfile> {
           const SizedBox(height: 8),
           Row(
             children: [
-              if (widget.location != null && widget.location!.isNotEmpty)
-                Text(
-                  widget.location!,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
               Text(
-                widget.startDateTime ?? '',
+                DateUtil.getDate(widget.startDateTime!),
                 style: Theme.of(context).textTheme.bodySmall,
               ),
-              const SizedBox(width: 8),
-              Text(
-                widget.endDate ?? '',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  widget.title ?? '',
-                  style: Theme.of(context).textTheme.bodySmall,
+              const Spacer(),
+              Align(
+                alignment: Alignment.centerRight,
+                child: BlocBuilder<BuddyBloc, BuddyState>(
+                  builder: (context, state) {
+                    return GigElevatedButton(
+                      onPressed:
+                          state.currentCreateBuddyRequestEventId == widget.id
+                              ? null
+                              : () {
+                                  setState(() {
+                                    isMatched = !isMatched;
+                                  });
+                                  widget.onMatchChanged?.call(isMatched);
+                                },
+                      child: state.currentCreateBuddyRequestEventId != ''
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator.adaptive(),
+                            )
+                          : Text(
+                              isMatched ? 'Leave' : 'Match',
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                    );
+                  },
                 ),
               ),
-              const SizedBox(width: 8),
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    isJoined = !isJoined;
-                  });
-                  widget.onJoinedChanged?.call(isJoined);
-                },
-                child: Text(isJoined ? 'Leave' : 'Join'),
-              ),
             ],
-          ),
-          Align(
-            alignment: Alignment.centerRight,
-            child: OutlinedButton(
-              onPressed: () {
-                setState(() {
-                  isMatched = !isMatched;
-                });
-                widget.onMatchChanged?.call(isMatched);
-              },
-              child: const Text('Match'),
-            ),
           ),
         ],
       ),

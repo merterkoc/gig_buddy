@@ -28,63 +28,101 @@ class SettingsView extends StatelessWidget {
           //
           // When a user selects a theme from the dropdown list, the
           // SettingsController is updated, which rebuilds the MaterialApp.
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Theme'),
-                  CupertinoButton(
-                    onPressed: () {
-                      CupertinoAction.showModalPopup(
-                        context,
-                        cancelButton: CupertinoActionSheetAction(
-                          onPressed: goRouter.pop,
-                          child: const Text('Cancel'),
-                        ),
-                        actions: [
-                          CupertinoActionSheetAction(
-                            onPressed: () {
-                              settingsController
-                                  .updateThemeMode(Brightness.light);
-                              goRouter.pop();
-                            },
-                            child: const Text('Light'),
-                          ),
-                          CupertinoActionSheetAction(
-                            onPressed: () {
-                              settingsController
-                                  .updateThemeMode(Brightness.dark);
-                              goRouter.pop();
-                            },
-                            child: const Text('Dark'),
-                          ),
-                          CupertinoActionSheetAction(
-                            onPressed: () {
-                              settingsController.setDefaultThemeMode();
-                              goRouter.pop();
-                            },
-                            child: const Text('System'),
-                          ),
-                        ],
-                        title: const Text('Select Theme'),
-                      );
-                    },
-                    child: const Text('Change '),
-                  ),
-                ],
+          child: CupertinoFormSection(
+            backgroundColor: Theme.of(context).colorScheme.background,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.background,
+              border: Border(
+                top: BorderSide(
+                  color: Theme.of(context).colorScheme.outline,
+                  width: 0.5,
+                ),
               ),
-              const Spacer(),
-              CupertinoButton(
-                onPressed: () {
-                  context.read<LoginBloc>().add(const Logout());
-                },
-                child: const Text('Logout'),
+            ),
+            header: Text('Settings',
+                style: Theme.of(context).textTheme.headlineSmall),
+            margin: const EdgeInsets.only(top: 10),
+            children: <Widget>[
+              CupertinoFormRow(
+                prefix: PrefixWidget(
+                  icon: settingsController.themeMode == Brightness.light
+                      ? CupertinoIcons.sun_max
+                      : CupertinoIcons.moon_stars_fill,
+                  title: 'Theme',
+                  color: settingsController.themeMode == Brightness.light
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context).colorScheme.onPrimary,
+                ),
+                child: CupertinoButton(
+                  onPressed: () {
+                    CupertinoAction.showModalPopup(
+                      context,
+                      cancelButton: CupertinoActionSheetAction(
+                        onPressed: goRouter.pop,
+                        child: const Text('Cancel'),
+                      ),
+                      actions: [
+                        CupertinoActionSheetAction(
+                          onPressed: () {
+                            settingsController
+                                .updateThemeMode(Brightness.light);
+                            goRouter.pop();
+                          },
+                          child: const Text('Light'),
+                        ),
+                        CupertinoActionSheetAction(
+                          onPressed: () {
+                            settingsController.updateThemeMode(Brightness.dark);
+                            goRouter.pop();
+                          },
+                          child: const Text('Dark'),
+                        ),
+                        CupertinoActionSheetAction(
+                          onPressed: () {
+                            settingsController.setDefaultThemeMode();
+                            goRouter.pop();
+                          },
+                          child: const Text('System'),
+                        ),
+                      ],
+                      title: const Text('Select Theme'),
+                    );
+                  },
+                  child: const Text('Change '),
+                ),
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+class PrefixWidget extends StatelessWidget {
+  const PrefixWidget(
+      {super.key,
+      required this.icon,
+      required this.title,
+      required this.color});
+
+  final IconData icon;
+  final String title;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: <Widget>[
+        Container(
+          padding: const EdgeInsets.all(4.0),
+          decoration: BoxDecoration(
+              color: color, borderRadius: BorderRadius.circular(4.0)),
+          child: Icon(icon, color: CupertinoColors.white),
+        ),
+        const SizedBox(width: 15),
+        Text(title),
+      ],
     );
   }
 }

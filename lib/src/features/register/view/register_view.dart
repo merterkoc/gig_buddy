@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gig_buddy/src/app_ui/widgets/buttons/gig_elevated_button.dart';
 import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
 import 'package:gig_buddy/src/common/util/image_util.dart';
 import 'package:gig_buddy/src/features/login/widgets/login_buttons.dart';
@@ -86,7 +87,7 @@ class _RegisterViewState extends State<RegisterView> {
                       ),
                     ),
                     if (_image != null)
-                      ElevatedButton(
+                      GigElevatedButton(
                           onPressed: () {
                             setState(() {
                               _image = null;
