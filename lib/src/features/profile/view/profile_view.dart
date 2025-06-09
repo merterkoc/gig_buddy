@@ -110,6 +110,7 @@ class _ProfileViewState extends State<ProfileView> {
           );
         }
         return UserAvatarWidget(
+          userId: state.user!.id,
           userImage: state.user!.userImage,
         );
       },

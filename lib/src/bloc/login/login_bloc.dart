@@ -152,6 +152,9 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       final user =
           UserDto.fromJson(responseEntity.data as Map<String, dynamic>);
       emit(state.copyWith(user: user));
+      unawaited(
+        AuthManager.setupPresence(uid: user.id),
+      );
     }
   }
 
