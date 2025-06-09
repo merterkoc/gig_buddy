@@ -7,8 +7,10 @@ import 'package:gig_buddy/src/bloc/profile/profile_bloc.dart';
 import 'package:gig_buddy/src/common/widgets/cards/event_card_profile.dart';
 import 'package:gig_buddy/src/common/widgets/containers/surface_container.dart';
 import 'package:gig_buddy/src/common/widgets/user/user_avatar_widget.dart';
+import 'package:gig_buddy/src/features/user_profile/view/user_profile_listener.dart';
 import 'package:gig_buddy/src/route/router.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
 class UserProfileView extends StatefulWidget {
   const UserProfileView({required this.userId, super.key});
@@ -20,47 +22,58 @@ class UserProfileView extends StatefulWidget {
 }
 
 class _UserProfileViewState extends State<UserProfileView> {
+  late final RefreshController _refreshController;
+
   @override
   void initState() {
+    _refreshController = RefreshController();
     context.read<ProfileBloc>().add(FetchUserProfile(widget.userId));
     context.read<EventBloc>().add(GetEventsByUserId(widget.userId));
-
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: buildUserName()),
-      body: SingleChildScrollView(
-        child: BlocBuilder<ProfileBloc, ProfileState>(
-          buildWhen: (previous, current) =>
-              previous.requestState != current.requestState,
-          builder: (BuildContext context, ProfileState state) {
-            if (state.requestState.isLoading) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (state.requestState.isError) {
-              return const Center(child: Text('Error'));
-            }
-            if (state.requestState.isSuccess) {
-              return Padding(
-                padding: const EdgeInsets.only(top: 8, left: 8, right: 20),
-                child: Center(
-                  child: Column(
-                    spacing: 20,
-                    children: [
-                      buildUserImage(),
-                      buildUserLocation(),
-                      buildUserInterests(),
-                      buildUserEvents(),
-                    ],
-                  ),
-                ),
-              );
-            }
-            return const Center(child: Text('Unknown'));
+    return UserProfileListener.listen(
+      refreshController: _refreshController,
+      child: Scaffold(
+        appBar: AppBar(title: buildUserName()),
+        body: SmartRefresher(
+          physics: const ClampingScrollPhysics(),
+          onRefresh: () async {
+            context.read<ProfileBloc>().add(FetchUserProfile(widget.userId));
           },
+          controller: _refreshController,
+          child: SingleChildScrollView(
+            child: BlocBuilder<ProfileBloc, ProfileState>(
+              buildWhen: (previous, current) =>
+                  previous.requestState != current.requestState,
+              builder: (BuildContext context, ProfileState state) {
+                if (state.requestState.isSuccess) {
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 8, left: 8, right: 20),
+                    child: Center(
+                      child: Column(
+                        spacing: 20,
+                        children: [
+                          buildUserImage(),
+                          buildUserLocation(),
+                          buildUserInterests(),
+                          buildUserEvents(),
+                        ],
+                      ),
+                    ),
+                  );
+                } else if (state.requestState.isLoading && state.user == null) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (state.requestState.isError) {
+                  return const Center(child: Text('Error'));
+                }
+                return const Center(child: CircularProgressIndicator.adaptive());
+
+              },
+            ),
+          ),
         ),
       ),
     );
@@ -180,7 +193,6 @@ class _UserProfileViewState extends State<UserProfileView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             spacing: 20,
-
             children: [
               const Text(
                 'Users going to this event',

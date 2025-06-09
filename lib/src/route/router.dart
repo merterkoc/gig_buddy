@@ -1,4 +1,6 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
 import 'package:gig_buddy/src/features/chat/view/chat_view.dart';
 import 'package:gig_buddy/src/features/event_detail/view/event_detail_view.dart';
 import 'package:gig_buddy/src/features/friends/view/firends_view.dart';
@@ -110,6 +112,13 @@ final GoRouter goRouter = GoRouter(
                     GoRoute(
                       path: AppRoute.userProfileView.path,
                       name: AppRoute.userProfileView.name,
+                      redirect: (BuildContext context, GoRouterState state) {
+                        final userId = context.read<LoginBloc>().state.user?.id;
+                        if (state.pathParameters['userId'] == userId) {
+                          return AppRoute.profileView.path;
+                        }
+                        return null;
+                      },
                       builder: (BuildContext context, GoRouterState state) {
                         return UserProfileView(
                           userId: state.pathParameters['userId']!,
