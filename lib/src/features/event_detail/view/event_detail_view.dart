@@ -3,12 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gig_buddy/src/app_ui/widgets/buttons/gig_elevated_button.dart';
 import 'package:gig_buddy/src/bloc/event/event_bloc.dart';
+import 'package:gig_buddy/src/bloc/event_avatars/event_avatars_cubit.dart';
 import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
 import 'package:gig_buddy/src/common/constants/app_size.dart';
 import 'package:gig_buddy/src/common/util/date_util.dart';
 import 'package:gig_buddy/src/common/widgets/avatar_stack_widget/avatar_stack_widget.dart';
 import 'package:gig_buddy/src/common/widgets/buttons/join_leave_button.dart';
+import 'package:gig_buddy/src/route/router.dart';
 import 'package:gig_buddy/src/service/model/event_detail/event_detail.dart';
+import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class EventDetailView extends StatefulWidget {
@@ -29,7 +32,7 @@ class _EventDetailViewState extends State<EventDetailView> {
 
   @override
   void initState() {
-    context.read<EventBloc>().add(FetchEventById(widget.eventDetail.id));
+    // context.read<EventBloc>().add(FetchEventById(widget.eventDetail.id));
     avatars = widget.eventDetail.participantAvatars ?? [];
     isJoined = widget.eventDetail.isJoined;
     super.initState();
@@ -95,7 +98,28 @@ class _EventDetailViewState extends State<EventDetailView> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Expanded(child: buildParticipantAvatars()),
+                      Expanded(
+                        child:
+                            BlocBuilder<EventAvatarsCubit, EventAvatarsState>(
+                          buildWhen: (previous, current) =>
+                              previous.seenImages != current.seenImages,
+                          builder: (context, state) {
+                            avatars = [
+                              ...state.seenImages[widget.eventDetail.id] ?? [],
+                              ...(widget.eventDetail.participantAvatars?.where(
+                                      (element) =>
+                                          element.userId !=
+                                          context
+                                              .read<LoginBloc>()
+                                              .state
+                                              .user!
+                                              .id) ??
+                                  [])
+                            ];
+                            return buildParticipantAvatars();
+                          },
+                        ),
+                      ),
                     ],
                   ),
                   buildEventDetail(),
@@ -156,42 +180,64 @@ class _EventDetailViewState extends State<EventDetailView> {
           widget.eventDetail.city ?? '',
           style: Theme.of(context).textTheme.headlineLarge,
         ),
-        const SizedBox(height: 10),
         Text(
           widget.eventDetail.country ?? '',
           style: Theme.of(context).textTheme.bodyMedium,
         ),
-        if (widget.eventDetail.venueName != null)
-          Text(
-            widget.eventDetail.venueName!,
-            style: Theme.of(context).textTheme.bodyMedium,
+        const SizedBox(height: 10),
+        if (widget.eventDetail.venue.name.isNotEmpty)
+          GigElevatedButton(
+            onPressed: () {
+              context.pushNamed(
+                AppRoute.venueDetailView.name,
+                extra: widget.eventDetail.venue,
+              );
+            },
+            child: Text(
+              widget.eventDetail.venue.name,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
           ),
       ],
     );
   }
 
-  JoinLeaveButton buildJoinButton() {
-    return JoinLeaveButton(
-      isJoined: isJoined,
-      onChanged: (isJoined) {
-        setState(() {
-          final userProfile = context.read<LoginBloc>().state.user;
+  Widget buildJoinButton() {
+    return BlocBuilder<EventAvatarsCubit, EventAvatarsState>(
+      buildWhen: (previous, current) =>
+          previous.seenImages != current.seenImages,
+      builder: (context, state) {
+        isJoined = (state.seenImages[widget.eventDetail.id] ?? []).any(
+          (participantAvatars) =>
+              participantAvatars.userId ==
+              context.read<LoginBloc>().state.user!.id,
+        );
+        return JoinLeaveButton(
+          isJoined: isJoined,
+          onChanged: (isJoined) {
+            setState(() {
+              final userProfile = context.read<LoginBloc>().state.user;
 
-          if (isJoined) {
-            avatars = List.of(avatars)
-              ..add(
-                EventParticipantModel(
-                  userId: userProfile!.id,
-                  userImage: userProfile.userImage,
-                ),
-              );
-            context.read<EventBloc>().add(JoinEvent(widget.eventDetail.id));
-          } else {
-            avatars = List.of(avatars)
-              ..removeWhere((element) => element.userId == userProfile!.id);
-            context.read<EventBloc>().add(LeaveEvent(widget.eventDetail.id));
-          }
-        });
+              if (isJoined) {
+                avatars = List.of(avatars)
+                  ..add(
+                    EventParticipantModel(
+                      userId: userProfile!.id,
+                      userImage: userProfile.userImage,
+                    ),
+                  );
+                context
+                    .read<EventBloc>()
+                    .add(JoinEvent('homepage', eventId: widget.eventDetail.id));
+              } else {
+                avatars = List.of(avatars)
+                  ..removeWhere((element) => element.userId == userProfile!.id);
+                context.read<EventBloc>().add(
+                    LeaveEvent('homepage', eventId: widget.eventDetail.id));
+              }
+            });
+          },
+        );
       },
     );
   }

@@ -33,7 +33,6 @@ class EventSearch extends EventEvent {
   final String? keyword;
 }
 
-
 class EventSuccess extends EventEvent {
   const EventSuccess({required this.events});
 
@@ -60,19 +59,30 @@ class FetchEventById extends EventEvent {
   List<Object?> get props => [eventId];
 }
 
+class FetchEventByVenueId extends EventEvent {
+  const FetchEventByVenueId(this.venueId);
+
+  final String venueId;
+
+  @override
+  List<Object?> get props => [venueId];
+}
+
 class JoinEvent extends EventEvent {
-  const JoinEvent(this.eventId);
+  const JoinEvent(this.pageKey, {required this.eventId});
 
   final String eventId;
+  final PageKey pageKey;
 
   @override
   List<Object?> get props => [eventId];
 }
 
 class LeaveEvent extends EventEvent {
-  const LeaveEvent(this.eventId);
+  const LeaveEvent(this.pageKey, {required this.eventId});
 
   final String eventId;
+  final PageKey pageKey;
 
   @override
   List<Object?> get props => [eventId];
@@ -103,4 +113,14 @@ class EventLoadNearCity extends EventEvent {
   final num lng;
   final int radius;
   final int limit;
+}
+
+class Suggests extends EventEvent {
+  const Suggests({
+    required this.lat,
+    required this.lng,
+  });
+
+  final num lat;
+  final num lng;
 }

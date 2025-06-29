@@ -13,12 +13,14 @@ class EventRepository extends IRepository {
     String? keyword,
     String? city,
     String? location,
+    String? venueId,
     CancelToken? cancelToken,
   }) async {
     return _eventApiProvider.fetchEvent(
       keyword: keyword,
       city: city,
       location: location,
+      venueId: venueId,
       page: page,
       size: size,
       cancelToken: cancelToken,
@@ -56,6 +58,16 @@ class EventRepository extends IRepository {
       lng: lng,
       radius: radius,
       limit: limit,
+    );
+  }
+
+  Future<ResponseEntity<dynamic>> suggests({
+    required num lat,
+    required num lng,
+  }) async {
+    return _eventApiProvider.suggests(
+      lat: lat,
+      lng: lng,
     );
   }
 }

@@ -54,6 +54,7 @@ dependencies:
   url_launcher: ^6.3.1
   pull_to_refresh_flutter3: ^2.0.2
   firebase_database: ^11.3.6
+  flutter_dotenv: ^5.2.1
 
 
 dev_dependencies:
@@ -80,6 +81,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    - env/ #  dev.env and prod.env (Please don't commit your keys)
     - assets/images/
     - assets/images/onboarding/
     - assets/svg/

@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:avatar_stack/avatar_stack.dart';
 import 'package:avatar_stack/positions.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
 import 'package:gig_buddy/src/common/firebase/service/presence_service.dart';
 import 'package:gig_buddy/src/route/router.dart';
 import 'package:gig_buddy/src/service/model/event_detail/event_detail.dart';
@@ -45,9 +47,10 @@ class _AvatarStackWidgetState extends State<AvatarStackWidget> {
   @override
   Widget build(BuildContext context) {
     final settings = RestrictedPositions(maxCoverage: 0.3, minCoverage: 0.1);
-    final newAvatars = widget.avatars
-        .where((e) => e.userImage != null && e.userImage!.isNotEmpty)
-        .toList();
+    final newAvatars = {
+      for (final e in widget.avatars)
+        if (e.userImage != null && e.userImage!.isNotEmpty) e.userId: e
+    }.values.toList();
     return SizedBox(
       height: 42,
       child: WidgetStack(
@@ -64,7 +67,7 @@ class _AvatarStackWidgetState extends State<AvatarStackWidget> {
                 );
               },
               child: Container(
-                decoration: BoxDecoration(
+                decoration:  avatar.userId != context.read<LoginBloc>().state.user!.id ? BoxDecoration(
                   border: Border.all(
                     color: _userStates[avatar.userId] == 'online'
                         ? Colors.greenAccent.shade400
@@ -72,7 +75,7 @@ class _AvatarStackWidgetState extends State<AvatarStackWidget> {
                     width: 3,
                   ),
                   borderRadius: BorderRadius.circular(9999),
-                ),
+                ) : null,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(9999),
                   child: Image.network(

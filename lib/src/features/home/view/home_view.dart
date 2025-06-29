@@ -2,7 +2,10 @@ import 'package:flutter/cupertino.dart'
     show CupertinoIcons, CupertinoSearchTextField;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gig_buddy/src/app_ui/widgets/buttons/gig_elevated_button.dart';
 import 'package:gig_buddy/src/bloc/event/event_bloc.dart';
+import 'package:gig_buddy/src/bloc/event_avatars/event_avatars_cubit.dart';
+import 'package:gig_buddy/src/bloc/event_avatars/event_avatars_cubit.dart';
 import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
 import 'package:gig_buddy/src/bloc/pagination_event%20/pagination_event_bloc.dart';
 import 'package:gig_buddy/src/common/manager/location_manager.dart';
@@ -35,7 +38,12 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
           ),
         );
     context.read<LoginBloc>().add(const FetchUserInfo());
-
+    context.read<EventBloc>().add(
+          Suggests(
+            lat: LocationManager.position!.latitude,
+            lng: LocationManager.position!.longitude,
+          ),
+        );
     super.initState();
   }
 
@@ -79,31 +87,120 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
             padding: const EdgeInsets.only(left: 18, right: 18),
             child: SafeArea(
               bottom: false,
-              child: Column(
-                spacing: 1,
-                children: [
-                  CupertinoSearchTextField(
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface,
+              child: CustomScrollView(
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
+                slivers: [
+                  SliverToBoxAdapter(
+                    child: Column(
+                      spacing: 8,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CupertinoSearchTextField(
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                          controller: _controller,
+                          onSubmitted: (_) {
+                            FocusScope.of(context).unfocus();
+                          },
+                          onChanged: onChangeKeyword,
+                        ),
+                        if (state.nearCity?.isNotEmpty ?? false)
+                          SizedBox(
+                            height: 50,
+                            child: buildNearCityList(state),
+                          ),
+                        Text(
+                          'Yakınındaki Mekanlar',
+                          style: Theme.of(context).textTheme.headlineMedium,
+                        ),
+                        buildVenueSuggests(state, context),
+                        Text(
+                          'Etkinlikler',
+                          style: Theme.of(context).textTheme.headlineSmall,
+                        ),
+                        const SizedBox(height: 10),
+                      ],
                     ),
-                    controller: _controller,
-                    onSubmitted: (_) {
-                      FocusScope.of(context).unfocus();
+                  ),
+                  BlocBuilder<HomePagePaginationBloc,
+                      Map<String, PagingState<int, EventDetail>>>(
+                    builder: (context, pageState) {
+                      return PagedSliverList<int, EventDetail>(
+                        builderDelegate: PagedChildBuilderDelegate<EventDetail>(
+                          itemBuilder: (context, item, index) {
+                            return BlocBuilder<EventAvatarsCubit,
+                                EventAvatarsState>(
+                              buildWhen: (previous, current) =>
+                                  previous.seenImages != current.seenImages,
+                              builder: (context, eventAvatarsState) {
+                                return EventMiniCard(
+                                  id: item.id,
+                                  title: item.name,
+                                  subtitle: item.name,
+                                  startDateTime: item.start,
+                                  location: item.location,
+                                  city: item.city,
+                                  imageUrl: item.images.isNotEmpty
+                                      ? item.images.first.url
+                                      : null,
+                                  distance: item.distance,
+                                  isJoined:
+                                      (eventAvatarsState.seenImages[item.id] ??
+                                              [])
+                                          .any(
+                                    (participantAvatars) =>
+                                        participantAvatars.userId ==
+                                        context
+                                            .read<LoginBloc>()
+                                            .state
+                                            .user!
+                                            .id,
+                                  ),
+                                  onTap: () {
+                                    context.goNamed(
+                                      AppRoute.eventDetailView.name,
+                                      extra: item,
+                                      pathParameters: {'eventId': item.id},
+                                    );
+                                  },
+                                  venueName: item.venue.name,
+                                  avatars: [
+                                    ...eventAvatarsState.seenImages[item.id] ?? [],
+                                    ...(item.participantAvatars ?? [])
+                                  ],
+                                  onJoinedChanged: (isJoined) {
+                                    if (isJoined) {
+                                      context.read<EventBloc>().add(JoinEvent(
+                                          'homepage',
+                                          eventId: item.id));
+                                    } else {
+                                      context.read<EventBloc>().add(LeaveEvent(
+                                          'homepage',
+                                          eventId: item.id));
+                                    }
+                                  },
+                                );
+                              },
+                            );
+                          },
+                        ),
+                        state: pageState['homepage'] ??
+                            PagingState<int, EventDetail>(),
+                        fetchNextPage: () {
+                          context.read<HomePagePaginationBloc>().add(
+                                FetchNextPaginationEvent<
+                                    HomePagePaginationBloc>(
+                                  'homepage',
+                                  selectedCity: selectedCity,
+                                  keyword: currentKeyword,
+                                ),
+                              );
+                        },
+                      );
                     },
-                    onChanged: onChangeKeyword,
                   ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  if (state.nearCity?.isNotEmpty ?? false)
-                    SizedBox(
-                      height: 50,
-                      child: buildNearCityList(state),
-                    ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Expanded(child: buildPaginationSearch(state, context)),
                 ],
               ),
             ),
@@ -113,58 +210,12 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
     );
   }
 
-  Widget buildPaginationSearch(EventState state, BuildContext context) {
-    return BlocBuilder<PaginationEventBloc, PagingState<int, EventDetail>>(
-      builder: (context, state) => PagedListView<int, EventDetail>(
-        state: state,
-        fetchNextPage: () => context.read<PaginationEventBloc>().add(
-              FetchNextPaginationEvent(
-                keyword: currentKeyword,
-                selectedCity: selectedCity,
-              ),
-            ),
-        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        physics: const ClampingScrollPhysics(),
-        builderDelegate: PagedChildBuilderDelegate(
-          itemBuilder: (context, item, index) {
-            return EventMiniCard(
-              id: item.id,
-              title: item.name,
-              subtitle: item.name,
-              startDateTime: item.start,
-              location: item.location,
-              city: item.city,
-              imageUrl: item.images.isNotEmpty ? item.images.first.url : null,
-              distance: item.distance,
-              isJoined: item.isJoined,
-              onTap: () {
-                context.goNamed(
-                  AppRoute.eventDetailView.name,
-                  extra: item,
-                  pathParameters: {
-                    'eventId': item.id,
-                  },
-                );
-              },
-              venueName: item.venueName,
-              avatars: item.participantAvatars,
-              onJoinedChanged: (isJoined) {
-                if (isJoined) {
-                  context.read<EventBloc>().add(JoinEvent(item.id));
-                } else {
-                  context.read<EventBloc>().add(LeaveEvent(item.id));
-                }
-              },
-            );
-          },
-        ),
-      ),
-    );
-  }
-
   Widget buildNearCityList(EventState state) {
-    return BlocBuilder<PaginationEventBloc, PagingState<int, EventDetail>>(
-      builder: (context, pagingState) {
+    return BlocBuilder<HomePagePaginationBloc,
+        Map<String, PagingState<int, EventDetail>>>(
+      builder: (context, pageState) {
+        final pagingState =
+            pageState['homepage'] ?? PagingState<int, EventDetail>();
         return Opacity(
           opacity: pagingState.isLoading ? 0.5 : 1,
           child: ListView.builder(
@@ -178,7 +229,8 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
                           selectedCity == state.nearCity![index]
                       ? const SizedBox(
                           width: 50,
-                          child: CircularProgressIndicator.adaptive())
+                          child: CircularProgressIndicator.adaptive(),
+                        )
                       : Text(
                           state.nearCity![index].name,
                           style: Theme.of(context).textTheme.bodyMedium,
@@ -197,6 +249,79 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
               );
             },
           ),
+        );
+      },
+    );
+  }
+
+  Widget buildVenueSuggests(EventState state, BuildContext context) {
+    return BlocBuilder<EventBloc, EventState>(
+      buildWhen: (previous, current) => previous.suggest != current.suggest,
+      builder: (context, state) {
+        final items = state.suggest?.embedded.venues ?? [];
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 12),
+            SizedBox(
+              height: 170,
+              child: ListView.separated(
+                shrinkWrap: true,
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
+                scrollDirection: Axis.horizontal,
+                itemCount: items.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 0),
+                itemBuilder: (context, index) {
+                  final item = items[index];
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 2),
+                    child: Card(
+                      color: Theme.of(context).colorScheme.surfaceContainer,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          spacing: 4,
+                          children: [
+                            Text(
+                              item.name,
+                              style: Theme.of(context).textTheme.titleLarge,
+                            ),
+                            Text(
+                              item.city.name,
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                            Text(
+                              '${item.distance?.toStringAsFixed(1)} km',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                            Text(
+                              'Yaklaşan Etkinlikler: ${item.upcomingEvents?.total}',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                            GigElevatedButton(
+                              onPressed: () {
+                                context.goNamed(
+                                  AppRoute.venueDetailView.name,
+                                  extra: item,
+                                );
+                              },
+                              child: const Text('Detay Gör'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
         );
       },
     );

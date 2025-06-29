@@ -7,12 +7,15 @@ class GigElevatedButton extends StatelessWidget {
     required this.onPressed,
     required this.child,
     this.isExpanded = false,
+    this.padding,
+
   });
 
   final bool isLoading;
   final VoidCallback? onPressed;
   final Widget child;
   final bool isExpanded;
+  final EdgeInsetsGeometry? padding;
 
   @override
   Widget build(BuildContext context) {
@@ -21,6 +24,7 @@ class GigElevatedButton extends StatelessWidget {
     final  button = ElevatedButton(
       onPressed: isLoading ? null : onPressed,
       style: ElevatedButton.styleFrom(
+        padding: padding ?? const EdgeInsets.symmetric(horizontal: 20),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),

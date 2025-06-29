@@ -5,8 +5,11 @@ import 'package:gig_buddy/src/common/firebase/service/presence_service.dart';
 import 'dart:async';
 
 class UserAvatarWidget extends StatefulWidget {
-  const UserAvatarWidget(
-      {required this.userId, required this.userImage, super.key});
+  const UserAvatarWidget({
+    required this.userId,
+    required this.userImage,
+    super.key,
+  });
 
   final String userId;
   final String userImage;

@@ -15,18 +15,23 @@ class EventApiProvider extends ApiProvider {
     String? keyword,
     String? city,
     String? location,
+    String? venueId,
     CancelToken? cancelToken,
   }) async {
-    return get(
-      cancelToken: cancelToken,
-      queryParameters: {
-        if (keyword != null) 'keyword': keyword,
-        if (location != null) 'location': location,
-        if (city != null) 'city': city,
-        if (size != null) 'page': page,
-        if (size != null) 'size': size,
-      },
-    );
+    final queryParameters = venueId != null
+        ? {
+            'venue_id': venueId,
+            'page': page,
+            if (size != null) 'size': size,
+          }
+        : {
+            if (keyword != null) 'keyword': keyword,
+            if (location != null) 'location': location,
+            if (city != null) 'city': city,
+            'page': page,
+            if (size != null) 'size': size,
+          };
+    return get(cancelToken: cancelToken, queryParameters: queryParameters);
   }
 
   Future<ResponseEntity<dynamic>> fetchEventById(String eventId) async {
@@ -55,12 +60,25 @@ class EventApiProvider extends ApiProvider {
     required int radius,
     required int limit,
   }) async {
-    return post(resource: 'near-city',
+    return post(
+      resource: 'near-city',
       data: {
         'lat': lat,
         'lng': lng,
         'radius': radius,
         'limit': limit,
+      },
+    );
+  }
+
+  Future<ResponseEntity<dynamic>> suggests({
+    required num lat,
+    required num lng,
+  }) async {
+    return get(
+      resource: 'suggest',
+      queryParameters: {
+        'location': '$lat,$lng',
       },
     );
   }

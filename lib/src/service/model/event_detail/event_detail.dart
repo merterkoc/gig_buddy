@@ -2,6 +2,7 @@
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:gig_buddy/src/service/model/enum/buddy_request_status.dart';
+import 'package:gig_buddy/src/service/model/suggest/suggest_dto.dart';
 
 part 'event_detail.freezed.dart';
 
@@ -20,7 +21,7 @@ class EventDetail with _$EventDetail {
     required String? locale,
     required String? city,
     required String? country,
-    @JsonKey(name: 'venue_name') required String? venueName,
+    @JsonKey(name: 'venue') required Venue venue,
     @JsonKey(name: 'is_joined') required bool isJoined,
     @JsonKey(name: 'is_matched') bool? isMatched,
     @JsonKey(name: 'buddy_request_status',required: false)

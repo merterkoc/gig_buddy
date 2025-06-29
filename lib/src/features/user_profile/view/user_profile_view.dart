@@ -51,10 +51,11 @@ class _UserProfileViewState extends State<UserProfileView> {
               builder: (BuildContext context, ProfileState state) {
                 if (state.requestState.isSuccess) {
                   return Padding(
-                    padding: const EdgeInsets.only(top: 8, left: 8, right: 20),
+                    padding: const EdgeInsets.only(top: 8, left: 8, right: 8),
                     child: Center(
                       child: Column(
                         spacing: 20,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           buildUserImage(),
                           buildUserLocation(),
@@ -127,7 +128,7 @@ class _UserProfileViewState extends State<UserProfileView> {
               child: Center(child: CircularProgressIndicator()),
             );
           }
-          return const Row(
+          return  Row(
             children: [
               Icon(
                 Icons.location_on,

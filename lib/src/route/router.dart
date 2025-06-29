@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
+import 'package:gig_buddy/src/bloc/pagination_event%20/pagination_event_bloc.dart';
 import 'package:gig_buddy/src/common/firebase/manager/auth_manager.dart';
 import 'package:gig_buddy/src/features/chat/view/chat_view.dart';
 import 'package:gig_buddy/src/features/event_detail/view/event_detail_view.dart';
@@ -15,11 +16,14 @@ import 'package:gig_buddy/src/features/settings/helpers/settings_controller.dart
 import 'package:gig_buddy/src/features/settings/helpers/settings_service.dart';
 import 'package:gig_buddy/src/features/settings/view/settings_view.dart';
 import 'package:gig_buddy/src/features/user_profile/view/user_profile_view.dart';
+import 'package:gig_buddy/src/features/venue_detail/view/venue_detail_view.dart';
 import 'package:gig_buddy/src/http/dio/interface/i_dio_client.dart';
+import 'package:gig_buddy/src/repository/event_repository.dart';
 import 'package:gig_buddy/src/route/authentication_listener.dart';
 import 'package:gig_buddy/src/route/nav_bar.dart';
 import 'package:gig_buddy/src/route/sheel_route.dart';
 import 'package:gig_buddy/src/service/model/event_detail/event_detail.dart';
+import 'package:gig_buddy/src/service/model/suggest/suggest_dto.dart';
 import 'package:go_router/go_router.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -41,7 +45,8 @@ enum AppRoute {
   userProfileView(path: '/userProfileView/:userId'),
   settingsView(path: '/settingsView'),
   friendsView(path: '/friendsView'),
-  eventDetailView(path: '/eventDetailsView/:eventId');
+  eventDetailView(path: '/eventDetailsView/:eventId'),
+  venueDetailView(path: '/venueDetailsView');
 
   const AppRoute({required this.path});
 
@@ -100,7 +105,7 @@ final GoRouter goRouter = GoRouter(
                   pageBuilder: (BuildContext context, GoRouterState state) =>
                       CupertinoPage<void>(
                     key: state.pageKey,
-                    child: const HomeView(),
+                    child:const HomeView(),
                   ),
                   redirect: (BuildContext context, GoRouterState state) {
                     if (!AuthenticationRouterListener
@@ -133,6 +138,16 @@ final GoRouter goRouter = GoRouter(
                         final extra = state.extra! as EventDetail;
                         return EventDetailView(
                           eventDetail: extra,
+                        );
+                      },
+                    ),
+                    GoRoute(
+                      path: AppRoute.venueDetailView.path,
+                      name: AppRoute.venueDetailView.name,
+                      builder: (BuildContext context, GoRouterState state) {
+                        final extra = state.extra! as Venue;
+                        return VenueDetailView(
+                          venue: extra,
                         );
                       },
                     ),

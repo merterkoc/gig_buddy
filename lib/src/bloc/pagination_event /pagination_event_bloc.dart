@@ -5,7 +5,6 @@ import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
-import 'package:gig_buddy/src/common/constants/app_constants.dart';
 import 'package:gig_buddy/src/common/manager/location_manager.dart';
 import 'package:gig_buddy/src/repository/event_repository.dart';
 import 'package:gig_buddy/src/service/model/city/city.dart';
@@ -14,14 +13,30 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
 part 'pagination_event_event.dart';
 
+typedef PageKey = String;
+
+class HomePagePaginationBloc extends PaginationEventBloc {
+  HomePagePaginationBloc({
+    required super.eventRepository,
+    required super.loginBloc,
+  });
+}
+
+class VenueDetailPaginationBloc extends PaginationEventBloc {
+  VenueDetailPaginationBloc({
+    required super.eventRepository,
+    required super.loginBloc,
+  });
+}
+
 class PaginationEventBloc
-    extends Bloc<PaginationEvent, PagingState<int, EventDetail>> {
+    extends Bloc<PaginationEvent, Map<PageKey, PagingState<int, EventDetail>>> {
   PaginationEventBloc({
     required EventRepository eventRepository,
     required this.loginBloc,
   })  : _eventRepository = eventRepository,
-        super(PagingState()) {
-    on<FetchNextPaginationEvent>(
+        super({}) {
+    on<FetchNextPaginationEvent<PaginationEventBloc>>(
       _onFetchNextPaginationEvent,
       transformer: sequential(),
     );
@@ -34,54 +49,75 @@ class PaginationEventBloc
   late final LoginBloc loginBloc;
 
   Future<void> _onFetchNextPaginationEvent(
-    FetchNextPaginationEvent event,
-    Emitter<PagingState<int, EventDetail>> emit,
+    FetchNextPaginationEvent<PaginationEventBloc> event,
+    Emitter<Map<PageKey, PagingState<int, EventDetail>>> emit,
   ) async {
-    if (state.isLoading) return;
+    if (state[event.pageKey]?.isLoading == true) return;
 
-    emit(state.copyWith(isLoading: true, error: null));
+    final currentVenueState = state[event.pageKey] ?? PagingState<int, EventDetail>();
+
+// Step 1: loading flag true yap
+    emit({
+      ...state,
+      event.pageKey: currentVenueState.copyWith(
+        isLoading: true,
+        error: null,
+      )
+    });
 
     try {
-      final newKey = (state.keys?.last ?? 0) + 1;
+      final newKey = (currentVenueState.keys?.last ?? 0) + 1;
+
       final response = await _eventRepository.fetchData(
         page: newKey - 1,
         location: LocationManager.currentLocation,
         city: event.selectedCity?.name,
         keyword: event.keyword,
         cancelToken: event.cancelToken,
+        venueId: event.venueId,
       );
 
       final events = (response.data['data'] as List<dynamic>)
           .map((e) => EventDetail.fromJson(e as Map<String, dynamic>))
           .toList();
+
       final isLastPage = events.isEmpty;
 
-      emit(
-        state.copyWith(
-          pages: [...?state.pages, events],
-          keys: [...?state.keys, newKey],
+      emit({
+        ...state,
+        event.pageKey: PagingState<int, EventDetail>(
+          pages: [...?currentVenueState.pages, events],
+          keys: [...?currentVenueState.keys, newKey],
           hasNextPage: !isLastPage,
           isLoading: false,
+          error: null,
         ),
-      );
+      });
     } catch (error) {
-      emit(
-        state.copyWith(
-          error: error,
+      emit({
+        ...state,
+        event.pageKey: currentVenueState.copyWith(
           isLoading: false,
-        ),
-      );
+          error: error,
+        )
+      });
+
       rethrow;
     }
   }
 
   FutureOr<void> _onOnFiltered(
     OnFiltered event,
-    Emitter<PagingState<int, EventDetail>> emit,
+    Emitter<Map<PageKey, PagingState<int, EventDetail>>> emit,
   ) {
-    emit(PagingState());
+    emit({
+      ...state,
+      'homepage': PagingState(),
+      'venue': PagingState(),
+    });
     add(
-      FetchNextPaginationEvent(
+      FetchNextPaginationEvent<PaginationEventBloc>(
+        event.pageKey,
         selectedCity: event.city,
         keyword: event.keyword,
         cancelToken: event.cancelToken,
@@ -91,9 +127,10 @@ class PaginationEventBloc
 
   FutureOr<void> _onJoinedEvent(
     JoinedTriggerEvent event,
-    Emitter<PagingState<int, EventDetail>> emit,
+    Emitter<Map<PageKey, PagingState<int, EventDetail>>> emit,
   ) {
-    final updatedPages = state.pages!.map((page) {
+    final currentStateByKey = state[event.pageKey] ?? PagingState<int, EventDetail>();
+    final updatedPages = currentStateByKey.pages!.map((page) {
       return page.map((pageEvent) {
         if (pageEvent.id == event.eventId) {
           return pageEvent.copyWith(
@@ -111,16 +148,20 @@ class PaginationEventBloc
       }).toList();
     }).toList();
 
-    emit(state.copyWith(pages: updatedPages));
+    emit({
+      ...state,
+      event.pageKey: currentStateByKey.copyWith(pages: updatedPages),
+    });
   }
 
   FutureOr<void> _onLeaveEvent(
-      LeaveTriggerEvent event,
-      Emitter<PagingState<int, EventDetail>> emit,
-      ) {
+    LeaveTriggerEvent event,
+    Emitter<Map<PageKey, PagingState<int, EventDetail>>> emit,
+  ) {
+    final currentStateByKey = state[event.pageKey] ?? PagingState<int, EventDetail>();
     final userId = loginBloc.state.user!.id;
 
-    final updatedPages = state.pages!.map((page) {
+    final updatedPages = currentStateByKey.pages!.map((page) {
       return page.map((pageEvent) {
         if (pageEvent.id == event.eventId) {
           return pageEvent.copyWith(
@@ -134,7 +175,9 @@ class PaginationEventBloc
       }).toList();
     }).toList();
 
-    emit(state.copyWith(pages: updatedPages));
+    emit({
+      ...state,
+      event.pageKey: currentStateByKey.copyWith(pages: updatedPages),
+    });
   }
-
 }

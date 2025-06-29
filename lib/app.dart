@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gig_buddy/src/bloc/authentication/auth_bloc.dart';
 import 'package:gig_buddy/src/bloc/buddy/buddy_bloc.dart';
 import 'package:gig_buddy/src/bloc/event/event_bloc.dart';
+import 'package:gig_buddy/src/bloc/event_avatars/event_avatars_cubit.dart';
 import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
 import 'package:gig_buddy/src/bloc/pagination_event%20/pagination_event_bloc.dart';
 import 'package:gig_buddy/src/bloc/profile/profile_bloc.dart';
@@ -60,9 +61,25 @@ class GigBuddyApp extends StatelessWidget {
               ),
             ),
             BlocProvider(
+              create: (context) => HomePagePaginationBloc(
+                eventRepository: EventRepository(),
+                loginBloc: context.read<LoginBloc>(),
+              ),
+            ),
+            BlocProvider(
+              create: (context) => VenueDetailPaginationBloc(
+                eventRepository: EventRepository(),
+                loginBloc: context.read<LoginBloc>(),
+              ),
+            ),
+            BlocProvider(create: (context) => EventAvatarsCubit()),
+            BlocProvider(
               create: (context) => EventBloc(
                 EventRepository(),
-                context.read<PaginationEventBloc>(),
+                context.read<HomePagePaginationBloc>(),
+                context.read<VenueDetailPaginationBloc>(),
+                context.read<EventAvatarsCubit>(),
+                context.read<LoginBloc>(),
               ),
             ),
           ],

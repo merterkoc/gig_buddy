@@ -12,6 +12,7 @@ class EventState extends Equatable {
     this.selectedEventDetail,
     this.nearCity,
     this.selectedCity,
+    this.suggest,
   });
 
   final List<EventDetail>? events;
@@ -22,8 +23,9 @@ class EventState extends Equatable {
   final List<EventDetail>? currentProfileEvents;
   final RequestState currentProfileEventsRequestState;
   final EventDetail? selectedEventDetail;
-  final List<City>? nearCity;
-  final City? selectedCity;
+  final List<city.City>? nearCity;
+  final city.City? selectedCity;
+  final SuggestDTO? suggest;
 
   EventState copyWith({
     List<EventDetail>? events,
@@ -34,8 +36,9 @@ class EventState extends Equatable {
     List<EventDetail>? currentProfileEvents,
     RequestState? currentProfileEventsRequestState,
     EventDetail? selectedEventDetail,
-    List<City>? nearCity,
-    City? selectedCity,
+    List<city.City>? nearCity,
+    city.City? selectedCity,
+    SuggestDTO? suggest,
   }) {
     return EventState(
       events: events ?? this.events,
@@ -49,6 +52,7 @@ class EventState extends Equatable {
       selectedEventDetail: selectedEventDetail ?? this.selectedEventDetail,
       nearCity: nearCity ?? this.nearCity,
       selectedCity: selectedCity ?? this.selectedCity,
+      suggest: suggest ?? this.suggest,
     );
   }
 
@@ -67,5 +71,6 @@ class EventState extends Equatable {
         selectedEventDetail,
         nearCity,
         selectedCity,
+        suggest,
       ];
 }

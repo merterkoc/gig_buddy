@@ -6,6 +6,7 @@ import 'package:gig_buddy/src/bloc/event/event_bloc.dart';
 import 'package:gig_buddy/src/common/util/date_util.dart';
 import 'package:gig_buddy/src/common/widgets/containers/surface_container.dart';
 import 'package:gig_buddy/src/service/model/enum/buddy_request_status.dart';
+import 'package:go_router/go_router.dart';
 
 class EventCardProfile extends StatefulWidget {
   const EventCardProfile({
@@ -129,33 +130,41 @@ class _EventCardProfileState extends State<EventCardProfile> {
                           .add(GetEventsByUserId(widget.userId));
                     }
                   },
-                  child: BlocBuilder<BuddyBloc, BuddyState>(
-                    builder: (context, state) {
-                      return GigElevatedButton(
-                        isLoading:
-                            state.currentCreateBuddyRequestEventId == widget.id,
-                        onPressed: state.currentCreateBuddyRequestEventId ==
-                                    widget.id ||
-                                widget.buddyRequestStatus ==
-                                    BuddyRequestStatus.accepted ||
-                                widget.buddyRequestStatus ==
-                                    BuddyRequestStatus.rejected ||
-                                widget.buddyRequestStatus ==
-                                    BuddyRequestStatus.pending
-                            ? null
-                            : () {
-                                setState(() {
-                                  isMatched = !isMatched;
-                                });
-                                widget.onMatchChanged?.call(isMatched);
-                              },
-                        child: state.currentCreateBuddyRequestEventId != ''
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator.adaptive(),
-                              )
-                            : buildBuddyShipButton(context),
+                  child: BlocBuilder<EventBloc, EventState>(
+                    buildWhen: (previous, current) =>
+                        previous.currentProfileEventsRequestState !=
+                        current.currentProfileEventsRequestState,
+                    builder: (context, eventState) {
+                      return BlocBuilder<BuddyBloc, BuddyState>(
+                        builder: (context, buddyState) {
+                          return GigElevatedButton(
+                            isLoading: eventState
+                                    .currentProfileEventsRequestState
+                                    .isLoading ||
+                                buddyState.currentCreateBuddyRequestEventId ==
+                                    widget.id,
+                            onPressed:
+                                buddyState.currentCreateBuddyRequestEventId ==
+                                            widget.id ||
+                                        widget.buddyRequestStatus ==
+                                            BuddyRequestStatus.accepted ||
+                                        widget.buddyRequestStatus ==
+                                            BuddyRequestStatus.rejected ||
+                                        widget.buddyRequestStatus ==
+                                            BuddyRequestStatus.pending
+                                    ? null
+                                    : matchButtonPressed,
+                            child: buddyState
+                                        .currentCreateBuddyRequestEventId !=
+                                    ''
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator.adaptive(),
+                                  )
+                                : buildBuddyShipButton(context),
+                          );
+                        },
                       );
                     },
                   ),
@@ -165,6 +174,37 @@ class _EventCardProfileState extends State<EventCardProfile> {
           ),
         ],
       ),
+    );
+  }
+
+  void matchButtonPressed() {
+    showAdaptiveDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Are you sure?'),
+          content: const Text('You will not be able to join this event.'),
+          actions: [
+            GigElevatedButton(
+              onPressed: () {
+                context.pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            GigElevatedButton(
+              onPressed: () {
+                setState(() {
+                  isMatched = !isMatched;
+                });
+                widget.onMatchChanged?.call(isMatched);
+                context.pop();
+              },
+              child: const Text('Yes'),
+            ),
+          ],
+        );
+      },
     );
   }
 
