@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gig_buddy/core/localization/gig_buddy_localizations.dart';
 import 'package:gig_buddy/src/bloc/authentication/auth_bloc.dart';
 import 'package:gig_buddy/src/bloc/buddy/buddy_bloc.dart';
 import 'package:gig_buddy/src/bloc/event/event_bloc.dart';
@@ -88,7 +89,17 @@ class GigBuddyApp extends StatelessWidget {
             routeInformationProvider: goRouter.routeInformationProvider,
             routeInformationParser: goRouter.routeInformationParser,
             routerDelegate: goRouter.routerDelegate,
-            title: 'Space',
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            localeResolutionCallback: (locale, supportedLocales) {
+              final languageCode = supportedLocales.firstWhere(
+                (l) => l.languageCode == locale?.languageCode,
+                orElse: () => supportedLocales.first,
+              );
+              return languageCode;
+            },
+            onGenerateTitle: (BuildContext context) =>
+                AppLocalizations.of(context)!.app_title,
             color: Colors.blue,
             theme: settingsController.themeMode == Brightness.light
                 ? theme.light()

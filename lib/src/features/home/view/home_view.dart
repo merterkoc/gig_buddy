@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart'
     show CupertinoIcons, CupertinoSearchTextField;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:gig_buddy/core/ui/app_ui.dart';
 import 'package:gig_buddy/src/app_ui/widgets/buttons/gig_elevated_button.dart';
 import 'package:gig_buddy/src/bloc/event/event_bloc.dart';
 import 'package:gig_buddy/src/bloc/event_avatars/event_avatars_cubit.dart';
@@ -55,7 +57,7 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
         forceMaterialTransparency: true,
         centerTitle: false,
         title: Text(
-          'Events',
+          AppLocalizations.of(context)!.app_title,
           style: Theme.of(context).textTheme.headlineSmall,
         ),
         actions: [
@@ -112,7 +114,7 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
                             child: buildNearCityList(state),
                           ),
                         Text(
-                          'Yakınındaki Mekanlar',
+                          'Hop! Yakındaki Sahneler',
                           style: Theme.of(context).textTheme.headlineMedium,
                         ),
                         buildVenueSuggests(state, context),

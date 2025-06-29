@@ -1,0 +1,3 @@
+arb-dir: lib/core/localization
+template-arb-file: app_tr.arb
+output-localization-file: gig_buddy_localizations.dart

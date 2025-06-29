@@ -51,4 +51,5 @@ app.*.map.json
 **.g.dart
 **/GoogleService-Info.plist
 **/google-services.json
+lib/core/localization/**_localizations**.dart
 
