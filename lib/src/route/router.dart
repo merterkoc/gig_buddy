@@ -10,11 +10,14 @@ import 'package:gig_buddy/src/features/home/view/home_view.dart';
 import 'package:gig_buddy/src/features/login/view/email_otp/email_otp.dart';
 import 'package:gig_buddy/src/features/login/view/login_view.dart';
 import 'package:gig_buddy/src/features/onboarding/view/onboarding_view.dart';
+import 'package:gig_buddy/src/features/profile/features/profil_user_detail_interests_edit/view/profil_user_detail_interests_edit_view.dart';
+import 'package:gig_buddy/src/features/profile/features/profile_user_detail_edit/view/profile_user_detail_edit_view.dart';
 import 'package:gig_buddy/src/features/profile/view/profile_view.dart';
 import 'package:gig_buddy/src/features/search/view/search_view.dart';
 import 'package:gig_buddy/src/features/settings/helpers/settings_controller.dart';
 import 'package:gig_buddy/src/features/settings/helpers/settings_service.dart';
 import 'package:gig_buddy/src/features/settings/view/settings_view.dart';
+import 'package:gig_buddy/src/features/user_attributes/view/user_details_view.dart';
 import 'package:gig_buddy/src/features/user_profile/view/user_profile_view.dart';
 import 'package:gig_buddy/src/features/venue_detail/view/venue_detail_view.dart';
 import 'package:gig_buddy/src/http/dio/interface/i_dio_client.dart';
@@ -39,8 +42,11 @@ enum AppRoute {
   onBoardingView(path: '/onBoardingView'),
   homeView(path: '/homeView'),
   loginView(path: '/loginView'),
+  userDetailsView(path: '/userDetailsView'),
   emailOtpView(path: 'emailOtpView'),
   profileView(path: '/profileView'),
+  profileUserDetailEditView(path: 'profileUserDetailsEditView'),
+  profileUserInterestsView(path: 'profileUserInterestsView'),
   chatView(path: '/chatView'),
   userProfileView(path: '/userProfileView/:userId'),
   settingsView(path: '/settingsView'),
@@ -85,6 +91,12 @@ final GoRouter goRouter = GoRouter(
             ),
           ],
         ),
+        GoRoute(
+          path: AppRoute.userDetailsView.path,
+          name: AppRoute.userDetailsView.name,
+          builder: (BuildContext context, GoRouterState state) =>
+              UserDetailsView(user: context.read<LoginBloc>().state.user!),
+        ),
         StatefulShellRoute.indexedStack(
           builder: (
             BuildContext context,
@@ -105,7 +117,7 @@ final GoRouter goRouter = GoRouter(
                   pageBuilder: (BuildContext context, GoRouterState state) =>
                       CupertinoPage<void>(
                     key: state.pageKey,
-                    child:const HomeView(),
+                    child: const HomeView(),
                   ),
                   redirect: (BuildContext context, GoRouterState state) {
                     if (!AuthenticationRouterListener
@@ -200,6 +212,22 @@ final GoRouter goRouter = GoRouter(
                     key: state.pageKey,
                     child: const ProfileView(),
                   ),
+                  routes: [
+                    GoRoute(
+                      path: AppRoute.profileUserDetailEditView.path,
+                      name: AppRoute.profileUserDetailEditView.name,
+                      builder: (BuildContext context, GoRouterState state) {
+                        return const ProfileUserDetailEditView();
+                      },
+                    ),
+                    GoRoute(
+                      path: AppRoute.profileUserInterestsView.path,
+                      name: AppRoute.profileUserInterestsView.name,
+                      builder: (BuildContext context, GoRouterState state) {
+                        return const ProfileUserDetailInterestsEditView();
+                      },
+                    ),
+                  ],
                 ),
               ],
             ),

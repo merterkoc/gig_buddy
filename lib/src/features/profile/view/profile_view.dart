@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gig_buddy/src/app_ui/widgets/buttons/gig_elevated_button.dart';
 import 'package:gig_buddy/src/bloc/event/event_bloc.dart';
 import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
-import 'package:gig_buddy/src/common/widgets/user/user_avatar_widget.dart';
+import 'package:gig_buddy/src/common/util/date_util.dart';
 import 'package:gig_buddy/src/features/profile/view/profile_listener.dart';
 import 'package:gig_buddy/src/features/profile/widgets/user_events.dart';
-import 'package:gig_buddy/src/features/profile/widgets/user_interests.dart';
+import 'package:gig_buddy/src/route/router.dart';
+import 'package:gig_buddy/src/service/model/enum/gender.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
 class ProfileView extends StatefulWidget {
@@ -29,6 +32,7 @@ class _ProfileViewState extends State<ProfileView> {
 
   void refreshEvent() {
     context.read<EventBloc>().add(const GetMyEvents());
+    context.read<LoginBloc>().add(const FetchUserInfo());
   }
 
   @override
@@ -36,29 +40,37 @@ class _ProfileViewState extends State<ProfileView> {
     return ProfileListener.listen(
       refreshController: _refreshController,
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Profile'),
-          actions: [
-            IconButton(
-              onPressed: () {
-                context.read<LoginBloc>().add(const Logout());
-              },
-              icon: const Icon(Icons.logout),
-            )
-          ],
-        ),
         body: SmartRefresher(
           physics: const ClampingScrollPhysics(),
           onRefresh: refreshEvent,
           controller: _refreshController,
-          child: Padding(
-            padding: const EdgeInsets.only(top: 12),
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  buildUserImage(),
-                  buildUserName(),
-                  buildUserInterests(),
+          child: CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                floating: true,
+                pinned: true,
+                actionsPadding:
+                    const EdgeInsets.only(right: 16, top: 8, bottom: 8),
+                surfaceTintColor: Colors.transparent,
+                leadingWidth: 90,
+                leading: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: buildUserImage(),
+                ),
+                title: Text(context.read<LoginBloc>().state.user!.username),
+                actions: [
+                  IconButton(
+                    onPressed: () {
+                      context.read<LoginBloc>().add(const Logout());
+                    },
+                    icon: const Icon(Icons.logout),
+                  )
+                ],
+              ),
+              SliverList(
+                delegate: SliverChildListDelegate([
+                  const SizedBox(height: 10),
+                  buildUserDetails(),
                   BlocBuilder<EventBloc, EventState>(
                     buildWhen: (previous, current) =>
                         previous.myEvents != current.myEvents ||
@@ -83,16 +95,14 @@ class _ProfileViewState extends State<ProfileView> {
                         );
                       }
                       if (state.myEvents == null) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
+                        return const Center(child: CircularProgressIndicator());
                       }
                       return UserEvents(events: state.myEvents!);
                     },
                   ),
-                ],
+                ]),
               ),
-            ),
+            ],
           ),
         ),
       ),
@@ -109,9 +119,10 @@ class _ProfileViewState extends State<ProfileView> {
             child: Center(child: CircularProgressIndicator()),
           );
         }
-        return UserAvatarWidget(
-          userId: state.user!.id,
-          userImage: state.user!.userImage,
+        return CircleAvatar(
+          backgroundImage: NetworkImage(state.user!.userImage),
+          radius: 48,
+          backgroundColor: Colors.transparent,
         );
       },
     );
@@ -133,18 +144,168 @@ class _ProfileViewState extends State<ProfileView> {
     );
   }
 
-  BlocBuilder<LoginBloc, LoginState> buildUserInterests() {
+  BlocBuilder<LoginBloc, LoginState> buildUserDetails() {
     return BlocBuilder<LoginBloc, LoginState>(
       buildWhen: (previous, current) =>
           previous.user != current.user ||
-          previous.interests != current.interests,
+          previous.user!.birthdate != current.user!.birthdate,
       builder: (context, state) {
-        if (state.interests.isEmpty) {
-          return const CircularProgressIndicator();
+        if (state.user == null) {
+          return const Center(child: CircularProgressIndicator());
         }
-        return UserInterests(
-          interests: state.interests,
-          userInterests: state.user?.interests ?? [],
+
+        final birthdate = state.user!.birthdate != null
+            ? DateUtil.getBirthDate(state.user!.birthdate!)
+            : 'Not set';
+
+        final gender =
+            state.user!.gender != null ? state.user!.gender!.value : 'Not set';
+
+        return Column(
+          children: [
+            ListTile(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              subtitle: Wrap(
+                children: [
+                  Chip(
+                    avatar: const Icon(Icons.cake),
+                    label: Text(
+                      birthdate,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Chip(
+                    avatar: state.user!.gender == Gender.male
+                        ? const Icon(Icons.male)
+                        : state.user!.gender == Gender.other
+                            ? const Icon(Icons.transgender)
+                            : const Icon(Icons.female),
+                    label: Text('Gender: $gender',
+                        style: Theme.of(context).textTheme.bodySmall),
+                  ),
+                ],
+              ),
+              title: Text(context.read<LoginBloc>().state.user!.username),
+              dense: true,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+              minLeadingWidth: 0,
+              leadingAndTrailingTextStyle:
+                  Theme.of(context).textTheme.bodySmall,
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              onTap: () {
+                context.goNamed(
+                  AppRoute.profileUserDetailEditView.name,
+                );
+              },
+            ),
+            ListTile(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              leading: const Icon(Icons.account_circle),
+              title: Text(
+                'Gig Buddy ID',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              subtitle: Text(
+                state.user!.id,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              dense: true,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+              minLeadingWidth: 0,
+              leadingAndTrailingTextStyle:
+                  Theme.of(context).textTheme.bodySmall,
+              trailing: const Icon(Icons.content_copy_sharp, size: 16),
+              onTap: () {
+                Clipboard.setData(ClipboardData(text: state.user!.id));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Copied to clipboard'),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                    ),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              leading: const Icon(Icons.email),
+              title: Text(
+                'Email',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              subtitle: Text(
+                state.user!.email,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              dense: true,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+              minLeadingWidth: 0,
+              leadingAndTrailingTextStyle:
+                  Theme.of(context).textTheme.bodySmall,
+            ),
+            ListTile(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              leading: const Icon(Icons.calendar_today),
+              title: Text(
+                'Creation Date',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              subtitle: Text(
+                DateUtil.getDate(state.user!.createdAt),
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              dense: true,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+              minLeadingWidth: 0,
+              leadingAndTrailingTextStyle:
+                  Theme.of(context).textTheme.bodySmall,
+            ),
+            ListTile(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              leading: const Icon(Icons.person),
+              title: Text(
+                'Interests',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              subtitle: Wrap(
+                spacing: 4,
+                children: state.user!.interests!
+                    .map(
+                      (e) => Chip(
+                        padding: EdgeInsets.zero,
+                        label: Text(
+                          e.name,
+                          style: Theme.of(context).textTheme.labelSmall,
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ),
+              dense: true,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+              minLeadingWidth: 0,
+              leadingAndTrailingTextStyle:
+                  Theme.of(context).textTheme.bodySmall,
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              onTap: () {
+                context.goNamed(
+                  AppRoute.profileUserInterestsView.name,
+                );
+              },
+            ),
+          ],
         );
       },
     );

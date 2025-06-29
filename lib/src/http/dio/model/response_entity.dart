@@ -34,9 +34,9 @@ class ResponseEntity<T> extends Equatable {
     );
   }
 
-  factory ResponseEntity.loading({T? data, int statusCode = 200}) {
+  factory ResponseEntity.loading({T? data}) {
     return ResponseEntity(
-      statusCode: statusCode,
+      statusCode: 000,
       data: data,
       status: RequestState.loading,
     );
@@ -57,6 +57,7 @@ class ResponseEntity<T> extends Equatable {
 
   final int statusCode;
   final String? message;
+
   // TODO(mert): change to private
   final T? data;
   final RequestState status;
@@ -100,5 +101,6 @@ class ResponseEntity<T> extends Equatable {
   }
 
   @override
-  List<Object?> get props => [statusCode, message, data, status, displayMessage, isOk];
+  List<Object?> get props =>
+      [statusCode, message, data, status, displayMessage, isOk];
 }

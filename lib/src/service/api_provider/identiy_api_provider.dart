@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:gig_buddy/src/http/const/http_const.dart';
 import 'package:gig_buddy/src/http/dio/model/response_entity.dart';
 import 'package:gig_buddy/src/service/api_provider/i_api_provider.dart';
+import 'package:gig_buddy/src/service/model/update_user_request/update_user_request.dart';
 
 class IdentityApiProvider extends ApiProvider {
   IdentityApiProvider()
@@ -76,6 +77,15 @@ class IdentityApiProvider extends ApiProvider {
   Future<ResponseEntity<dynamic>> fetchUserProfile(String userId) {
     return get(
       resource: 'profile/$userId',
+    );
+  }
+
+  Future<ResponseEntity<dynamic>> updateUserDetails(
+    UpdateUserRequestDTO updateUserRequestDTO,
+  ) {
+    return patch(
+      resource: 'userinfo/details',
+      data: updateUserRequestDTO.toJson(),
     );
   }
 }

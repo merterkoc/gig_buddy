@@ -19,4 +19,7 @@ class DateUtil {
       }
     }
   }
+  static String getBirthDate(DateTime date) {
+    return DateFormat('dd MMMM yyyy').format(date);
+  }
 }

@@ -167,7 +167,7 @@ class EventBloc extends Bloc<EventEvent, EventState> {
   }
 
   FutureOr<void> _onJoin(JoinEvent event, Emitter<EventState> emit) async {
-     unawaited(HapticFeedback.mediumImpact());
+    unawaited(HapticFeedback.mediumImpact());
     _homePagePaginationBloc.add(JoinedTriggerEvent('homepage', event.eventId));
     _venueDetailPaginationBloc
         .add(JoinedTriggerEvent(event.pageKey, event.eventId));
@@ -210,6 +210,14 @@ class EventBloc extends Bloc<EventEvent, EventState> {
         final events = (response.data['data'] as List<dynamic>)
             .map((e) => EventDetail.fromJson(e as Map<String, dynamic>))
             .toList();
+        for (final event in events) {
+          _eventAvatarsCubit.addSeenImage({
+            event.id: EventParticipantModel(
+              userId: _loginBloc.state.user!.id,
+              userImage: _loginBloc.state.user!.userImage,
+            ),
+          });
+        }
         emit(
           state.copyWith(
             myEvents: events,

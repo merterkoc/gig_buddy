@@ -17,7 +17,7 @@ class Shared {
     await _preferences.setInt(key, value);
   }
 
-  Future<int?> getInt(String key) async {
+  int? getInt(String key) {
     return _preferences.getInt(key);
   }
 

@@ -5,6 +5,7 @@ import 'package:gig_buddy/src/http/dio/model/response_entity.dart';
 import 'package:gig_buddy/src/repository/i_repository.dart';
 import 'package:gig_buddy/src/service/api_provider/identiy_api_provider.dart';
 import 'package:gig_buddy/src/service/model/token/token_dto.dart';
+import 'package:gig_buddy/src/service/model/update_user_request/update_user_request.dart';
 
 class IdentityRepository extends IRepository {
   final _identityApiProvider = IdentityApiProvider();
@@ -57,5 +58,9 @@ class IdentityRepository extends IRepository {
 
   Future<ResponseEntity<dynamic>> fetchUserProfile(String userId) async {
     return _identityApiProvider.fetchUserProfile(userId);
+  }
+
+  Future<ResponseEntity<dynamic>> updateUserDetails(UpdateUserRequestDTO updateUserRequestDTO) async {
+    return _identityApiProvider.updateUserDetails(updateUserRequestDTO);
   }
 }

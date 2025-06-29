@@ -8,6 +8,15 @@ sealed class ProfileEvent extends Equatable {
   List<Object> get props => [];
 }
 
+class UpdateUserDetails extends ProfileEvent {
+  const UpdateUserDetails(this.userAttributes);
+
+  final UpdateUserRequestDTO userAttributes;
+
+  @override
+  List<Object> get props => [userAttributes];
+}
+
 class FetchUserProfile extends ProfileEvent {
   const FetchUserProfile(this.userId);
 

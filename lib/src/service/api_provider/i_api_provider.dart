@@ -47,16 +47,19 @@ abstract class ApiProvider {
     return response;
   }
 
-  Future<ResponseEntity<dynamic>> put([
+  Future<ResponseEntity<dynamic>> put({
     String? resource,
-    Map<String, dynamic>? data,
+    dynamic data,
     Map<String, dynamic>? queryParameters,
     CancelToken? cancelToken,
-  ]) async {
+    Options? options,
+  }) async {
     final response = await _dio.put<Map<String, dynamic>>(
       '$_path/$resource',
       queryParameters: queryParameters,
       data: data,
+      options: options,
+      cancelToken: cancelToken,
     );
     return response;
   }
