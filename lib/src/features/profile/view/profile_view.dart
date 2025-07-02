@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -41,69 +42,66 @@ class _ProfileViewState extends State<ProfileView> {
     return ProfileListener.listen(
       refreshController: _refreshController,
       child: Scaffold(
+        appBar: AppBar(
+          forceMaterialTransparency: true,
+          centerTitle: true,
+          actionsPadding:
+          const EdgeInsets.only(right: 16, top: 8, bottom: 8),
+          surfaceTintColor: Colors.transparent,
+          leadingWidth: 90,
+          leading: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: buildUserImage(),
+          ),
+          title: Text(context.read<LoginBloc>().state.user!.username),
+          actions: [
+            IconButton(
+              onPressed: () {
+                context.read<LoginBloc>().add(const Logout());
+              },
+              icon: const Icon(Icons.logout),
+            )
+          ],
+        ),
         body: SmartRefresher(
-          physics: const ClampingScrollPhysics(),
+
+
           onRefresh: refreshEvent,
           controller: _refreshController,
-          child: CustomScrollView(
-            slivers: [
-              SliverAppBar(
-                floating: true,
-                pinned: true,
-                actionsPadding:
-                    const EdgeInsets.only(right: 16, top: 8, bottom: 8),
-                surfaceTintColor: Colors.transparent,
-                leadingWidth: 90,
-                leading: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: buildUserImage(),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                const SizedBox(height: 10),
+                buildUserDetails(),
+                BlocBuilder<EventBloc, EventState>(
+                  buildWhen: (previous, current) =>
+                  previous.myEvents != current.myEvents ||
+                      previous.requestState != current.requestState,
+                  builder: (context, state) {
+                    if (state.requestState.isError) {
+                      return Center(
+                        child: Column(
+                          children: [
+                            const Text('You have not joined any events yet.'),
+                            const SizedBox(height: 20),
+                            GigElevatedButton(
+                              onPressed: () {
+                                context.read<EventBloc>().add(const GetMyEvents());
+                              },
+                              child: const Text('Try again'),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                    if (state.myEvents == null) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    return UserEvents(events: state.myEvents!);
+                  },
                 ),
-                title: Text(context.read<LoginBloc>().state.user!.username),
-                actions: [
-                  IconButton(
-                    onPressed: () {
-                      context.read<LoginBloc>().add(const Logout());
-                    },
-                    icon: const Icon(Icons.logout),
-                  )
-                ],
-              ),
-              SliverList(
-                delegate: SliverChildListDelegate([
-                  const SizedBox(height: 10),
-                  buildUserDetails(),
-                  BlocBuilder<EventBloc, EventState>(
-                    buildWhen: (previous, current) =>
-                        previous.myEvents != current.myEvents ||
-                        previous.requestState != current.requestState,
-                    builder: (context, state) {
-                      if (state.requestState.isError) {
-                        return Center(
-                          child: Column(
-                            children: [
-                              const Text('You have not joined any events yet.'),
-                              const SizedBox(height: 20),
-                              GigElevatedButton(
-                                onPressed: () {
-                                  context
-                                      .read<EventBloc>()
-                                      .add(const GetMyEvents());
-                                },
-                                child: const Text('Try again'),
-                              ),
-                            ],
-                          ),
-                        );
-                      }
-                      if (state.myEvents == null) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-                      return UserEvents(events: state.myEvents!);
-                    },
-                  ),
-                ]),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

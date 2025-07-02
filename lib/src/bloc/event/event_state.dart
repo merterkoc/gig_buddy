@@ -2,6 +2,7 @@ part of 'event_bloc.dart';
 
 class EventState extends Equatable {
   const EventState({
+    required this.suggest,
     this.events,
     this.searchEvents,
     this.requestState = RequestState.notInitialized,
@@ -12,8 +13,13 @@ class EventState extends Equatable {
     this.selectedEventDetail,
     this.nearCity,
     this.selectedCity,
-    this.suggest,
   });
+
+  factory EventState.initial() {
+    return EventState(
+      suggest: ResponseEntity.initial(),
+    );
+  }
 
   final List<EventDetail>? events;
   final List<EventDetail>? searchEvents;
@@ -25,7 +31,7 @@ class EventState extends Equatable {
   final EventDetail? selectedEventDetail;
   final List<city.City>? nearCity;
   final city.City? selectedCity;
-  final SuggestDTO? suggest;
+  final ResponseEntity<SuggestDTO?> suggest;
 
   EventState copyWith({
     List<EventDetail>? events,
@@ -38,7 +44,7 @@ class EventState extends Equatable {
     EventDetail? selectedEventDetail,
     List<city.City>? nearCity,
     city.City? selectedCity,
-    SuggestDTO? suggest,
+    ResponseEntity<SuggestDTO?>? suggest,
   }) {
     return EventState(
       events: events ?? this.events,

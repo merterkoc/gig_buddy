@@ -10,6 +10,7 @@ import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
 import 'package:gig_buddy/src/bloc/pagination_event/pagination_event_bloc.dart';
 import 'package:gig_buddy/src/common/manager/location_manager.dart';
 import 'package:gig_buddy/src/http/dio/model/request_state.dart';
+import 'package:gig_buddy/src/http/dio/model/response_entity.dart';
 import 'package:gig_buddy/src/repository/event_repository.dart';
 import 'package:gig_buddy/src/service/model/city/city.dart' as city;
 import 'package:gig_buddy/src/service/model/event_detail/event_detail.dart';
@@ -26,7 +27,7 @@ class EventBloc extends Bloc<EventEvent, EventState> {
     this._venueDetailPaginationBloc,
     this._eventAvatarsCubit,
     this._loginBloc,
-  ) : super(const EventState()) {
+  ) : super(EventState.initial()) {
     on<EventInitState>(_onInit);
     on<EventLoad>(_onLoad);
     on<EventLoadMore>(_onLoadMore);
@@ -52,7 +53,7 @@ class EventBloc extends Bloc<EventEvent, EventState> {
   CancelToken? _cancelToken;
 
   void _onInit(EventInitState event, Emitter<EventState> emit) =>
-      emit(const EventState());
+      emit(EventState.initial());
 
   Future<void> _onLoad(EventLoad event, Emitter<EventState> emit) async {
     emit(state.copyWith(requestState: RequestState.loading));
@@ -294,7 +295,7 @@ class EventBloc extends Bloc<EventEvent, EventState> {
     Suggests event,
     Emitter<EventState> emit,
   ) async {
-    emit(state.copyWith(requestState: RequestState.loading));
+    emit(state.copyWith(suggest: ResponseEntity.loading()));
     try {
       final response = await _eventRepository.suggests(
         lat: event.lat,
@@ -303,15 +304,25 @@ class EventBloc extends Bloc<EventEvent, EventState> {
       if (response.isOk) {
         final suggest =
             SuggestDTO.fromJson(response.data as Map<String, dynamic>);
-        emit(state.copyWith(suggest: suggest));
+        emit(state.copyWith(suggest: ResponseEntity.success(data: suggest)));
       } else {
         emit(
-          state.copyWith(),
+          state.copyWith(
+            suggest: ResponseEntity.error(
+              message: response.message,
+              displayMessage: response.message,
+            ),
+          ),
         );
       }
     } catch (e) {
       emit(
-        state.copyWith(),
+        state.copyWith(
+          suggest: ResponseEntity.error(
+            message: e.toString(),
+            displayMessage: e.toString(),
+          ),
+        ),
       );
       rethrow;
     }
@@ -328,21 +339,5 @@ class EventBloc extends Bloc<EventEvent, EventState> {
         }
       }
     }
-  }
-}
-
-extension on EventState {
-  EventState setNullSelectCity() {
-    return EventState(
-      nearCity: nearCity,
-      selectedEventDetail: selectedEventDetail,
-      currentProfileEvents: currentProfileEvents,
-      currentProfileEventsRequestState: currentProfileEventsRequestState,
-      events: events,
-      requestState: requestState,
-      errorMessage: errorMessage,
-      myEvents: myEvents,
-      searchEvents: searchEvents,
-    );
   }
 }

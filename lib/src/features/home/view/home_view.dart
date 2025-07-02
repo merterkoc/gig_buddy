@@ -6,6 +6,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gig_buddy/core/extensions/context_extensions.dart';
 import 'package:gig_buddy/core/ui/app_ui.dart';
 import 'package:gig_buddy/src/app_ui/widgets/buttons/gig_elevated_button.dart';
+import 'package:gig_buddy/src/app_ui/widgets/other/try_again.dart';
 import 'package:gig_buddy/src/bloc/event/event_bloc.dart';
 import 'package:gig_buddy/src/bloc/event_avatars/event_avatars_cubit.dart';
 import 'package:gig_buddy/src/bloc/event_avatars/event_avatars_cubit.dart';
@@ -40,6 +41,7 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
             limit: 10,
           ),
         );
+
     context.read<LoginBloc>().add(const FetchUserInfo());
     context.read<EventBloc>().add(
           Suggests(
@@ -173,17 +175,23 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
                                   avatars: [
                                     ...eventAvatarsState.seenImages[item.id] ??
                                         [],
-                                    ...(item.participantAvatars ?? [])
+                                    ...(item.participantAvatars ?? []),
                                   ],
                                   onJoinedChanged: (isJoined) {
                                     if (isJoined) {
-                                      context.read<EventBloc>().add(JoinEvent(
-                                          'homepage',
-                                          eventId: item.id));
+                                      context.read<EventBloc>().add(
+                                            JoinEvent(
+                                              'homepage',
+                                              eventId: item.id,
+                                            ),
+                                          );
                                     } else {
-                                      context.read<EventBloc>().add(LeaveEvent(
-                                          'homepage',
-                                          eventId: item.id));
+                                      context.read<EventBloc>().add(
+                                            LeaveEvent(
+                                              'homepage',
+                                              eventId: item.id,
+                                            ),
+                                          );
                                     }
                                   },
                                 );
@@ -263,7 +271,20 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
     return BlocBuilder<EventBloc, EventState>(
       buildWhen: (previous, current) => previous.suggest != current.suggest,
       builder: (context, state) {
-        final items = state.suggest?.embedded.venues ?? [];
+        final items = state.suggest.data?.embedded.venues ?? [];
+        if (state.suggest.status.isLoading || state.suggest.status.isError) {
+          return TryAgain(
+            isLoading: state.suggest.status.isLoading,
+            onPressed: () {
+              context.read<EventBloc>().add(
+                    Suggests(
+                      lat: LocationManager.position!.latitude,
+                      lng: LocationManager.position!.longitude,
+                    ),
+                  );
+            },
+          );
+        }
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -316,7 +337,10 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
                                   extra: item,
                                 );
                               },
-                              child: Text(context.localizations.venue_suggests_detail_button),
+                              child: Text(
+                                context
+                                    .localizations.venue_suggests_detail_button,
+                              ),
                             ),
                           ],
                         ),

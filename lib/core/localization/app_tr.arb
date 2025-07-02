@@ -32,6 +32,9 @@
 
   "tickets" : "Biletler",
 
+  "something_went_wrong": "Bir şeyler ters gitti, lütfen tekrar deneyin.",
+  "try_again": "Tekrar dene",
+
   "change": "Değiştir",
   "cancel": "İptal"
 }
