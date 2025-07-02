@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gig_buddy/src/bloc/pagination_event%20/pagination_event_bloc.dart';
+import 'package:gig_buddy/src/bloc/pagination_event/pagination_event_bloc.dart';
 import 'package:gig_buddy/src/features/home/view/home_view.dart';
 import 'package:gig_buddy/src/service/model/city/city.dart' as city;
 

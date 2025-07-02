@@ -6,7 +6,7 @@ import 'package:gig_buddy/src/bloc/buddy/buddy_bloc.dart';
 import 'package:gig_buddy/src/bloc/event/event_bloc.dart';
 import 'package:gig_buddy/src/bloc/event_avatars/event_avatars_cubit.dart';
 import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
-import 'package:gig_buddy/src/bloc/pagination_event%20/pagination_event_bloc.dart';
+import 'package:gig_buddy/src/bloc/pagination_event/pagination_event_bloc.dart';
 import 'package:gig_buddy/src/bloc/profile/profile_bloc.dart';
 import 'package:gig_buddy/src/common/firebase/manager/auth_manager.dart';
 import 'package:gig_buddy/src/features/settings/helpers/settings_controller.dart';

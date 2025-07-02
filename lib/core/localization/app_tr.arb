@@ -1,5 +1,37 @@
 {
   "app_title": "Gig Buddy",
   "app_name": "Gig Buddy",
-  "home_view_title_1": "Hop! Yakındaki Sahneler"
+
+  "nav_nar_home": "Ana Sayfa",
+  "nav_nar_profile": "Profil",
+  "nav_nar_settings": "Ayarlar",
+  "nav_nar_friends": "Arkadaşlar",
+
+  "home_view_title_1": "Hop! Yakındaki Sahneler",
+  "home_view_title_2": "Hop! Konserler",
+
+  "search_placeholder": "Konserleri Ara",
+
+  "venue_suggests_upcoming_events": "Yaklaşan Etkinlikler",
+  "venue_suggests_detail_button": "Sahne Arkasına Bak",
+
+  "event_mini_card_join_button": "Katıl",
+  "event_mini_card_leave_button": "Ayrıl",
+  "event_mini_card_no_participants": "Katılımcı Aranıyor!",
+
+  "settings_view_title": "Ayarlar",
+  "settings_view_theme": "Tema",
+  "settings_view_theme_light": "Açık",
+  "settings_view_theme_dark": "Koyu",
+  "settings_view_theme_system": "Sistem",
+  "settings_view_theme_select": "Tema Seç",
+
+  "profile_view_creation_date": "Katılma Tarihi",
+  "profile_view_interests": "İlgi",
+  "profile_view_email": "E-posta",
+
+  "tickets" : "Biletler",
+
+  "change": "Değiştir",
+  "cancel": "İptal"
 }

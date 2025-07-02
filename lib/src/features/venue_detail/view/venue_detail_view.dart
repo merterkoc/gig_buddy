@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gig_buddy/src/bloc/event/event_bloc.dart';
 import 'package:gig_buddy/src/bloc/event_avatars/event_avatars_cubit.dart';
 import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
-import 'package:gig_buddy/src/bloc/pagination_event%20/pagination_event_bloc.dart';
+import 'package:gig_buddy/src/bloc/pagination_event/pagination_event_bloc.dart';
 import 'package:gig_buddy/src/common/constants/app_size.dart';
 import 'package:gig_buddy/src/common/widgets/cards/event_mini_card.dart';
 import 'package:gig_buddy/src/route/router.dart';

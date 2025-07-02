@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:gig_buddy/core/extensions/context_extensions.dart';
 import 'package:gig_buddy/src/app_ui/widgets/buttons/gig_elevated_button.dart';
 import 'package:gig_buddy/src/service/model/event_detail/event_detail.dart';
 
@@ -55,7 +56,7 @@ class _JoinLeaveButtonState extends State<JoinLeaveButton> {
             size: 20,
           ),
           Text(
-            isJoined ? 'Leave' : 'Join',
+            isJoined ? context.localizations.event_mini_card_leave_button : context.localizations.event_mini_card_join_button,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
         ],

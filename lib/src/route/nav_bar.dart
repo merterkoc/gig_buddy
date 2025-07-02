@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gig_buddy/core/extensions/context_extensions.dart';
 import 'package:gig_buddy/src/bloc/authentication/auth_bloc.dart';
 import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
 import 'package:gig_buddy/src/bloc/profile/profile_bloc.dart';
@@ -38,23 +39,23 @@ class ScaffoldWithNavBar extends StatelessWidget {
                 icon: navigationShell.currentIndex == 0
                     ? const Icon(CupertinoIcons.wand_stars)
                     : const Icon(CupertinoIcons.wand_stars_inverse),
-                label: 'Explore',
+                label: context.localizations.nav_nar_home,
               ),
               BottomNavigationBarItem(
                 icon: navigationShell.currentIndex == 1
                     ? const Icon(CupertinoIcons.music_mic)
                     : const Icon(CupertinoIcons.music_mic),
-                label: 'Settings',
+                label: context.localizations.nav_nar_settings,
               ),
               BottomNavigationBarItem(
                 icon: navigationShell.currentIndex == 2
                     ? const Icon(CupertinoIcons.heart_solid)
                     : const Icon(CupertinoIcons.heart),
-                label: 'Friends',
+                label: context.localizations.nav_nar_friends,
               ),
               BottomNavigationBarItem(
                 icon: buildProfileIcon(context),
-                label: 'Profile',
+                label: context.localizations.nav_nar_profile,
               ),
             ],
           ),

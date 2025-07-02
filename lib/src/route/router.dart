@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
-import 'package:gig_buddy/src/bloc/pagination_event%20/pagination_event_bloc.dart';
 import 'package:gig_buddy/src/common/firebase/manager/auth_manager.dart';
 import 'package:gig_buddy/src/features/chat/view/chat_view.dart';
 import 'package:gig_buddy/src/features/event_detail/view/event_detail_view.dart';
@@ -13,7 +12,6 @@ import 'package:gig_buddy/src/features/onboarding/view/onboarding_view.dart';
 import 'package:gig_buddy/src/features/profile/features/profil_user_detail_interests_edit/view/profil_user_detail_interests_edit_view.dart';
 import 'package:gig_buddy/src/features/profile/features/profile_user_detail_edit/view/profile_user_detail_edit_view.dart';
 import 'package:gig_buddy/src/features/profile/view/profile_view.dart';
-import 'package:gig_buddy/src/features/search/view/search_view.dart';
 import 'package:gig_buddy/src/features/settings/helpers/settings_controller.dart';
 import 'package:gig_buddy/src/features/settings/helpers/settings_service.dart';
 import 'package:gig_buddy/src/features/settings/view/settings_view.dart';

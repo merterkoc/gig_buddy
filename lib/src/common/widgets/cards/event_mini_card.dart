@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gig_buddy/core/extensions/context_extensions.dart';
 import 'package:gig_buddy/src/app_ui/widgets/text/scroll_if_overflow_text.dart';
 import 'package:gig_buddy/src/common/util/date_util.dart';
 
@@ -150,7 +151,7 @@ class _EventCardState extends State<EventMiniCard> {
                         avatars: avatars ?? [],
                       )
                     : Text(
-                        'No participants',
+                        context.localizations.event_mini_card_no_participants,
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
               ),

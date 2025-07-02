@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gig_buddy/core/extensions/context_extensions.dart';
 import 'package:gig_buddy/src/app_ui/widgets/buttons/gig_elevated_button.dart';
 import 'package:gig_buddy/src/bloc/event/event_bloc.dart';
 import 'package:gig_buddy/src/bloc/event_avatars/event_avatars_cubit.dart';
@@ -148,9 +149,9 @@ class _EventDetailViewState extends State<EventDetailView> {
 
   Widget buildParticipantAvatars() {
     if (avatars.isEmpty) {
-      return const SizedBox(
+      return  SizedBox(
         height: 42,
-        child: Text('No participants'),
+        child: Text(context.localizations.event_mini_card_no_participants),
       );
     }
     return AvatarStackWidget(
@@ -284,7 +285,7 @@ class _EventDetailViewState extends State<EventDetailView> {
             size: 20,
           ),
           Text(
-            'Tickets',
+            context.localizations.tickets,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
         ],

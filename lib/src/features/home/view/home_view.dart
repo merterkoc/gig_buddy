@@ -3,13 +3,14 @@ import 'package:flutter/cupertino.dart'
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gig_buddy/core/extensions/context_extensions.dart';
 import 'package:gig_buddy/core/ui/app_ui.dart';
 import 'package:gig_buddy/src/app_ui/widgets/buttons/gig_elevated_button.dart';
 import 'package:gig_buddy/src/bloc/event/event_bloc.dart';
 import 'package:gig_buddy/src/bloc/event_avatars/event_avatars_cubit.dart';
 import 'package:gig_buddy/src/bloc/event_avatars/event_avatars_cubit.dart';
 import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
-import 'package:gig_buddy/src/bloc/pagination_event%20/pagination_event_bloc.dart';
+import 'package:gig_buddy/src/bloc/pagination_event/pagination_event_bloc.dart';
 import 'package:gig_buddy/src/common/manager/location_manager.dart';
 import 'package:gig_buddy/src/common/widgets/cards/event_mini_card.dart';
 import 'package:gig_buddy/src/features/home/view/home_view_state_mixin.dart';
@@ -57,7 +58,7 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
         forceMaterialTransparency: true,
         centerTitle: false,
         title: Text(
-          AppLocalizations.of(context)!.app_title,
+          context.localizations.app_title,
           style: Theme.of(context).textTheme.headlineSmall,
         ),
         actions: [
@@ -106,6 +107,7 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
                           onSubmitted: (_) {
                             FocusScope.of(context).unfocus();
                           },
+                          placeholder: context.localizations.search_placeholder,
                           onChanged: onChangeKeyword,
                         ),
                         if (state.nearCity?.isNotEmpty ?? false)
@@ -114,12 +116,12 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
                             child: buildNearCityList(state),
                           ),
                         Text(
-                          'Hop! Yakındaki Sahneler',
+                          context.localizations.home_view_title_1,
                           style: Theme.of(context).textTheme.headlineMedium,
                         ),
                         buildVenueSuggests(state, context),
                         Text(
-                          'Etkinlikler',
+                          context.localizations.home_view_title_2,
                           style: Theme.of(context).textTheme.headlineSmall,
                         ),
                         const SizedBox(height: 10),
@@ -169,7 +171,8 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
                                   },
                                   venueName: item.venue.name,
                                   avatars: [
-                                    ...eventAvatarsState.seenImages[item.id] ?? [],
+                                    ...eventAvatarsState.seenImages[item.id] ??
+                                        [],
                                     ...(item.participantAvatars ?? [])
                                   ],
                                   onJoinedChanged: (isJoined) {
@@ -303,7 +306,7 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                             Text(
-                              'Yaklaşan Etkinlikler: ${item.upcomingEvents?.total}',
+                              '${context.localizations.venue_suggests_upcoming_events}: ${item.upcomingEvents?.total}',
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                             GigElevatedButton(
@@ -313,7 +316,7 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
                                   extra: item,
                                 );
                               },
-                              child: const Text('Detay Gör'),
+                              child: Text(context.localizations.venue_suggests_detail_button),
                             ),
                           ],
                         ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gig_buddy/core/extensions/context_extensions.dart';
 import 'package:gig_buddy/src/app_ui/widgets/buttons/gig_elevated_button.dart';
 import 'package:gig_buddy/src/bloc/event/event_bloc.dart';
 import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
@@ -183,7 +184,7 @@ class _ProfileViewState extends State<ProfileView> {
                         : state.user!.gender == Gender.other
                             ? const Icon(Icons.transgender)
                             : const Icon(Icons.female),
-                    label: Text('Gender: $gender',
+                    label: Text(gender,
                         style: Theme.of(context).textTheme.bodySmall),
                   ),
                 ],
@@ -238,7 +239,7 @@ class _ProfileViewState extends State<ProfileView> {
               ),
               leading: const Icon(Icons.email),
               title: Text(
-                'Email',
+                context.localizations.profile_view_email,
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               subtitle: Text(
@@ -257,7 +258,7 @@ class _ProfileViewState extends State<ProfileView> {
               ),
               leading: const Icon(Icons.calendar_today),
               title: Text(
-                'Creation Date',
+                context.localizations.profile_view_creation_date,
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               subtitle: Text(
@@ -276,7 +277,7 @@ class _ProfileViewState extends State<ProfileView> {
               ),
               leading: const Icon(Icons.person),
               title: Text(
-                'Interests',
+                context.localizations.profile_view_interests,
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               subtitle: Wrap(

@@ -7,7 +7,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/services.dart';
 import 'package:gig_buddy/src/bloc/event_avatars/event_avatars_cubit.dart';
 import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
-import 'package:gig_buddy/src/bloc/pagination_event%20/pagination_event_bloc.dart';
+import 'package:gig_buddy/src/bloc/pagination_event/pagination_event_bloc.dart';
 import 'package:gig_buddy/src/common/manager/location_manager.dart';
 import 'package:gig_buddy/src/http/dio/model/request_state.dart';
 import 'package:gig_buddy/src/repository/event_repository.dart';

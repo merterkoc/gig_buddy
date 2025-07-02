@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gig_buddy/core/extensions/context_extensions.dart';
 import 'package:gig_buddy/src/app_ui/widgets/buttons/gig_elevated_button.dart';
 import 'package:gig_buddy/src/bloc/buddy/buddy_bloc.dart';
 import 'package:gig_buddy/src/bloc/event/event_bloc.dart';
@@ -70,8 +71,8 @@ class _UserProfileViewState extends State<UserProfileView> {
                 } else if (state.requestState.isError) {
                   return const Center(child: Text('Error'));
                 }
-                return const Center(child: CircularProgressIndicator.adaptive());
-
+                return const Center(
+                    child: CircularProgressIndicator.adaptive());
               },
             ),
           ),
@@ -128,7 +129,7 @@ class _UserProfileViewState extends State<UserProfileView> {
               child: Center(child: CircularProgressIndicator()),
             );
           }
-          return  Row(
+          return Row(
             children: [
               Icon(
                 Icons.location_on,
@@ -167,9 +168,10 @@ class _UserProfileViewState extends State<UserProfileView> {
             spacing: 10,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Interests',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              Text(
+                context.localizations.profile_view_interests,
+                style:
+                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               if (state.user!.interests.isEmpty) const Text('No interests'),
               Wrap(

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gig_buddy/core/extensions/context_extensions.dart';
 import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
 import 'package:gig_buddy/src/common/modal/action_sheet.dart';
 import 'package:gig_buddy/src/features/settings/helpers/settings_controller.dart';
@@ -39,7 +40,7 @@ class SettingsView extends StatelessWidget {
                 ),
               ),
             ),
-            header: Text('Settings',
+            header: Text(context.localizations.settings_view_title,
                 style: Theme.of(context).textTheme.headlineSmall),
             margin: const EdgeInsets.only(top: 10),
             children: <Widget>[
@@ -48,7 +49,7 @@ class SettingsView extends StatelessWidget {
                   icon: settingsController.themeMode == Brightness.light
                       ? CupertinoIcons.sun_max
                       : CupertinoIcons.moon_stars_fill,
-                  title: 'Theme',
+                  title:  context.localizations.settings_view_theme,
                   color: settingsController.themeMode == Brightness.light
                       ? Theme.of(context).colorScheme.primary
                       : Theme.of(context).colorScheme.onPrimary,
@@ -59,7 +60,7 @@ class SettingsView extends StatelessWidget {
                       context,
                       cancelButton: CupertinoActionSheetAction(
                         onPressed: goRouter.pop,
-                        child: const Text('Cancel'),
+                        child:  Text(context.localizations.cancel),
                       ),
                       actions: [
                         CupertinoActionSheetAction(
@@ -68,24 +69,24 @@ class SettingsView extends StatelessWidget {
                                 .updateThemeMode(Brightness.light);
                             goRouter.pop();
                           },
-                          child: const Text('Light'),
+                          child:  Text(context.localizations.settings_view_theme_light),
                         ),
                         CupertinoActionSheetAction(
                           onPressed: () {
                             settingsController.updateThemeMode(Brightness.dark);
                             goRouter.pop();
                           },
-                          child: const Text('Dark'),
+                          child:  Text(context.localizations.settings_view_theme_dark),
                         ),
                         CupertinoActionSheetAction(
                           onPressed: () {
                             settingsController.setDefaultThemeMode();
                             goRouter.pop();
                           },
-                          child: const Text('System'),
+                          child: Text(context.localizations.settings_view_theme_system),
                         ),
                       ],
-                      title: const Text('Select Theme'),
+                      title:  Text(context.localizations.settings_view_theme_select),
                     );
                   },
                   child: const Text('Change '),
