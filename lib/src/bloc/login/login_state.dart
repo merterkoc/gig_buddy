@@ -11,6 +11,7 @@ class LoginState extends Equatable {
     this.user,
     this.interests = const [],
     this.interestRequestState = const {},
+    this.emailVerificationRequestState = RequestState.initialized,
   });
 
   factory LoginState.initial() {
@@ -30,6 +31,7 @@ class LoginState extends Equatable {
   final UserDto? user;
   final List<InterestDto> interests;
   final Map<int, RequestState> interestRequestState;
+  final RequestState emailVerificationRequestState;
 
   LoginState copyWith({
     ResponseEntity<void>? createAccountRequest,
@@ -41,6 +43,7 @@ class LoginState extends Equatable {
     UserDto? user,
     List<InterestDto>? interests,
     Map<int, RequestState>? interestRequestState,
+    RequestState? emailVerificationRequestState,
   }) {
     return LoginState(
       createAccountRequest: createAccountRequest ?? this.createAccountRequest,
@@ -53,6 +56,8 @@ class LoginState extends Equatable {
       user: user ?? this.user,
       interests: interests ?? this.interests,
       interestRequestState: interestRequestState ?? this.interestRequestState,
+      emailVerificationRequestState:
+          emailVerificationRequestState ?? this.emailVerificationRequestState,
     );
   }
 
@@ -66,5 +71,6 @@ class LoginState extends Equatable {
         user,
         interests,
         interestRequestState,
+        emailVerificationRequestState,
       ];
 }
