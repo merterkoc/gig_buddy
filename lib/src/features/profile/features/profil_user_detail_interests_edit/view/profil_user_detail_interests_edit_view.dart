@@ -35,7 +35,7 @@ class ProfileUserDetailInterestsEditView extends StatelessWidget {
           previous.interests != current.interests,
       builder: (context, state) {
         if (state.interests.isEmpty) {
-          return const CircularProgressIndicator();
+          return const CircularProgressIndicator.adaptive();
         }
         return UserInterests(
           interests: state.interests,

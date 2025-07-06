@@ -81,3 +81,5 @@ class PatchUserInterests extends LoginEvent {
   final InterestDto interestDto;
   final String operation;
 }
+
+class VerifyEmail extends LoginEvent {}

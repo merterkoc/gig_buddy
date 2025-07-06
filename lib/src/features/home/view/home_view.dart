@@ -1,5 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart'
-    show CupertinoIcons, CupertinoSearchTextField;
+    show
+        CupertinoIcons,
+        CupertinoSearchTextField,
+        CupertinoSliverRefreshControl;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -29,9 +34,19 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> with HomeViewMixin {
   final TextEditingController _controller = TextEditingController();
+  late final RefreshCallback refreshCallback;
+  late Completer<void>? _refreshCompleter;
 
   @override
   void initState() {
+    refreshCallback = refreshHomePageEvent;
+    fetchData();
+    context.read<LoginBloc>().add(const FetchUserInfo());
+
+    super.initState();
+  }
+
+  void fetchData() {
     context.read<EventBloc>().add(const EventLoad(page: 0));
     context.read<EventBloc>().add(
           EventLoadNearCity(
@@ -41,184 +56,206 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
             limit: 10,
           ),
         );
-
-    context.read<LoginBloc>().add(const FetchUserInfo());
     context.read<EventBloc>().add(
           Suggests(
             lat: LocationManager.position!.latitude,
             lng: LocationManager.position!.longitude,
           ),
         );
-    super.initState();
+  }
+
+  Future<void> refreshHomePageEvent() {
+    _refreshCompleter = Completer<void>();
+    fetchData();
+    return _refreshCompleter!.future;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-        forceMaterialTransparency: true,
-        centerTitle: false,
-        title: Text(
-          context.localizations.app_title,
-          style: Theme.of(context).textTheme.headlineSmall,
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16, top: 8, bottom: 8),
-            child: GestureDetector(
-              onTap: () {
-                context.goNamed(AppRoute.profileView.name);
-              },
-              child: IconButton(
-                icon: const Icon(CupertinoIcons.chat_bubble_2_fill),
-                onPressed: () {
-                  context.goNamed(AppRoute.chatView.name);
-                },
-              ),
-            ),
+    return BlocListener<EventBloc, EventState>(
+      listenWhen: (previous, current) => previous.events != current.events,
+      listener: (context, state) {
+        if (!state.requestState.isLoading) {
+          _refreshCompleter!.complete();
+        }
+      },
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        appBar: AppBar(
+          forceMaterialTransparency: true,
+          centerTitle: false,
+          title: Text(
+            context.localizations.app_title,
+            style: Theme.of(context).textTheme.headlineSmall,
           ),
-        ],
-      ),
-      body: BlocBuilder<EventBloc, EventState>(
-        buildWhen: (previous, current) => previous.events != current.events,
-        builder: (context, state) {
-          if (state.requestState.isLoading || state.events == null) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-          return Padding(
-            padding: const EdgeInsets.only(left: 18, right: 18),
-            child: SafeArea(
-              bottom: false,
-              child: CustomScrollView(
-                keyboardDismissBehavior:
-                    ScrollViewKeyboardDismissBehavior.onDrag,
-                slivers: [
-                  SliverToBoxAdapter(
-                    child: Column(
-                      spacing: 8,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CupertinoSearchTextField(
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
-                          controller: _controller,
-                          onSubmitted: (_) {
-                            FocusScope.of(context).unfocus();
-                          },
-                          placeholder: context.localizations.search_placeholder,
-                          onChanged: onChangeKeyword,
-                        ),
-                        if (state.nearCity?.isNotEmpty ?? false)
-                          SizedBox(
-                            height: 50,
-                            child: buildNearCityList(state),
-                          ),
-                        Text(
-                          context.localizations.home_view_title_1,
-                          style: Theme.of(context).textTheme.headlineMedium,
-                        ),
-                        buildVenueSuggests(state, context),
-                        Text(
-                          context.localizations.home_view_title_2,
-                          style: Theme.of(context).textTheme.headlineSmall,
-                        ),
-                        const SizedBox(height: 10),
-                      ],
-                    ),
-                  ),
-                  BlocBuilder<HomePagePaginationBloc,
-                      Map<String, PagingState<int, EventDetail>>>(
-                    builder: (context, pageState) {
-                      return PagedSliverList<int, EventDetail>(
-                        builderDelegate: PagedChildBuilderDelegate<EventDetail>(
-                          itemBuilder: (context, item, index) {
-                            return BlocBuilder<EventAvatarsCubit,
-                                EventAvatarsState>(
-                              buildWhen: (previous, current) =>
-                                  previous.seenImages != current.seenImages,
-                              builder: (context, eventAvatarsState) {
-                                return EventMiniCard(
-                                  id: item.id,
-                                  title: item.name,
-                                  subtitle: item.name,
-                                  startDateTime: item.start,
-                                  location: item.location,
-                                  city: item.city,
-                                  imageUrl: item.images.isNotEmpty
-                                      ? item.images.first.url
-                                      : null,
-                                  distance: item.distance,
-                                  isJoined:
-                                      (eventAvatarsState.seenImages[item.id] ??
-                                              [])
-                                          .any(
-                                    (participantAvatars) =>
-                                        participantAvatars.userId ==
-                                        context
-                                            .read<LoginBloc>()
-                                            .state
-                                            .user!
-                                            .id,
-                                  ),
-                                  onTap: () {
-                                    context.goNamed(
-                                      AppRoute.eventDetailView.name,
-                                      extra: item,
-                                      pathParameters: {'eventId': item.id},
-                                    );
-                                  },
-                                  venueName: item.venue.name,
-                                  avatars: [
-                                    ...eventAvatarsState.seenImages[item.id] ??
-                                        [],
-                                    ...(item.participantAvatars ?? []),
-                                  ],
-                                  onJoinedChanged: (isJoined) {
-                                    if (isJoined) {
-                                      context.read<EventBloc>().add(
-                                            JoinEvent(
-                                              'homepage',
-                                              eventId: item.id,
-                                            ),
-                                          );
-                                    } else {
-                                      context.read<EventBloc>().add(
-                                            LeaveEvent(
-                                              'homepage',
-                                              eventId: item.id,
-                                            ),
-                                          );
-                                    }
-                                  },
-                                );
-                              },
-                            );
-                          },
-                        ),
-                        state: pageState['homepage'] ??
-                            PagingState<int, EventDetail>(),
-                        fetchNextPage: () {
-                          context.read<HomePagePaginationBloc>().add(
-                                FetchNextPaginationEvent<
-                                    HomePagePaginationBloc>(
-                                  'homepage',
-                                  selectedCity: selectedCity,
-                                  keyword: currentKeyword,
-                                ),
-                              );
-                        },
-                      );
-                    },
-                  ),
-                ],
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 16, top: 8, bottom: 8),
+              child: GestureDetector(
+                onTap: () {
+                  context.goNamed(AppRoute.profileView.name);
+                },
+                child: IconButton(
+                  icon: const Icon(CupertinoIcons.chat_bubble_2_fill),
+                  onPressed: () {
+                    context.goNamed(AppRoute.chatView.name);
+                  },
+                ),
               ),
             ),
-          );
-        },
+          ],
+        ),
+        body: BlocBuilder<EventBloc, EventState>(
+          buildWhen: (previous, current) => previous.events != current.events,
+          builder: (context, state) {
+            if (state.requestState.isLoading || state.events == null) {
+              return const Center(
+                child: CircularProgressIndicator.adaptive(),
+              );
+            }
+            return Padding(
+              padding: const EdgeInsets.only(left: 18, right: 18),
+              child: SafeArea(
+                bottom: false,
+                child: CustomScrollView(
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
+                  slivers: [
+                    CupertinoSliverRefreshControl(
+                      onRefresh: refreshCallback,
+                    ),
+                    SliverToBoxAdapter(
+                      child: Column(
+                        spacing: 8,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CupertinoSearchTextField(
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                            controller: _controller,
+                            onSubmitted: (_) {
+                              FocusScope.of(context).unfocus();
+                            },
+                            placeholder:
+                                context.localizations.search_placeholder,
+                            onChanged: onChangeKeyword,
+                          ),
+                          if (state.nearCity?.isNotEmpty ?? false)
+                            SizedBox(
+                              height: 50,
+                              child: buildNearCityList(state),
+                            ),
+                          Text(
+                            context.localizations.home_view_title_1,
+                            style: Theme.of(context).textTheme.headlineMedium,
+                          ),
+                          buildVenueSuggests(state, context),
+                          Text(
+                            context.localizations.home_view_title_2,
+                            style: Theme.of(context).textTheme.headlineSmall,
+                          ),
+                          const SizedBox(height: 10),
+                        ],
+                      ),
+                    ),
+                    BlocBuilder<HomePagePaginationBloc,
+                        Map<String, PagingState<int, EventDetail>>>(
+                      builder: (context, pageState) {
+                        return PagedSliverList<int, EventDetail>(
+                          builderDelegate:
+                              PagedChildBuilderDelegate<EventDetail>(
+                               animateTransitions: true,
+                            transitionDuration: const Duration(milliseconds: 300),
+                            firstPageProgressIndicatorBuilder: (context) => const Center(child: CircularProgressIndicator.adaptive()),
+                            newPageProgressIndicatorBuilder: (context) => const Center(child: CircularProgressIndicator.adaptive()),
+
+                            itemBuilder: (context, item, index) {
+                              return BlocBuilder<EventAvatarsCubit,
+                                  EventAvatarsState>(
+                                buildWhen: (previous, current) =>
+                                    previous.seenImages != current.seenImages,
+                                builder: (context, eventAvatarsState) {
+                                  return EventMiniCard(
+                                    id: item.id,
+                                    title: item.name,
+                                    subtitle: item.name,
+                                    startDateTime: item.start,
+                                    location: item.location,
+                                    city: item.city,
+                                    imageUrl: item.images.isNotEmpty
+                                        ? item.images.first.url
+                                        : null,
+                                    distance: item.distance,
+                                    isJoined: (eventAvatarsState
+                                                .seenImages[item.id] ??
+                                            [])
+                                        .any(
+                                      (participantAvatars) =>
+                                          participantAvatars.userId ==
+                                          context
+                                              .read<LoginBloc>()
+                                              .state
+                                              .user!
+                                              .id,
+                                    ),
+                                    onTap: () {
+                                      context.goNamed(
+                                        AppRoute.eventDetailView.name,
+                                        extra: item,
+                                        pathParameters: {'eventId': item.id},
+                                      );
+                                    },
+                                    venueName: item.venue.name,
+                                    avatars: [
+                                      ...eventAvatarsState
+                                              .seenImages[item.id] ??
+                                          [],
+                                      ...(item.participantAvatars ?? []),
+                                    ],
+                                    onJoinedChanged: (isJoined) {
+                                      if (isJoined) {
+                                        context.read<EventBloc>().add(
+                                              JoinEvent(
+                                                'homepage',
+                                                eventId: item.id,
+                                              ),
+                                            );
+                                      } else {
+                                        context.read<EventBloc>().add(
+                                              LeaveEvent(
+                                                'homepage',
+                                                eventId: item.id,
+                                              ),
+                                            );
+                                      }
+                                    },
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                          state: pageState['homepage'] ??
+                              PagingState<int, EventDetail>(),
+                          fetchNextPage: () {
+                            context.read<HomePagePaginationBloc>().add(
+                                  FetchNextPaginationEvent<
+                                      HomePagePaginationBloc>(
+                                    'homepage',
+                                    selectedCity: selectedCity,
+                                    keyword: currentKeyword,
+                                  ),
+                                );
+                          },
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }
@@ -272,7 +309,8 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
       buildWhen: (previous, current) => previous.suggest != current.suggest,
       builder: (context, state) {
         final items = state.suggest.data?.embedded.venues ?? [];
-        if (state.suggest.status.isLoading || state.suggest.status.isError) {
+        if ((state.suggest.status.isLoading || state.suggest.status.isError)&&
+            items.isEmpty) {
           return TryAgain(
             isLoading: state.suggest.status.isLoading,
             onPressed: () {

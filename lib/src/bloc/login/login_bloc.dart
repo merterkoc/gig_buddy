@@ -31,6 +31,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     on<FetchUserInfo>(_onFetchUserInfo);
     on<FetchAllInterests>(_onFetchAllInterests);
     on<PatchUserInterests>(_onPatchUserInterests, transformer: sequential());
+    on<VerifyEmail>(_onVerifyEmail);
   }
 
   final AuthManager _authManager;
@@ -123,7 +124,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       emit(
         state.copyWith(
           submitEmail: ResponseEntity.success(),
-          verifyIDTokenRequest: response,
+          verifyIDTokenRequest: ResponseEntity.success(data: response.data),
         ),
       );
     } on Exception {
@@ -203,6 +204,18 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       }
     } on Exception {
       emit(state.copyWith(user: state.user!.copyWith(interests: oldState)));
+      rethrow;
+    }
+  }
+
+  Future<void> _onVerifyEmail(
+      VerifyEmail event, Emitter<LoginState> emit) async {
+    emit(state.copyWith(emailVerificationRequestState: RequestState.loading));
+    try {
+      await AuthManager.verifyEmail();
+      emit(state.copyWith(emailVerificationRequestState: RequestState.success));
+    } on Exception {
+      emit(state.copyWith(emailVerificationRequestState: RequestState.error));
       rethrow;
     }
   }

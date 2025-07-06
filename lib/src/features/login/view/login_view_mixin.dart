@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:gig_buddy/src/features/login/view/email_login/view/email_login_view.dart';
 import 'package:gig_buddy/src/features/login/view/login_view.dart';
 import 'package:gig_buddy/src/features/register/view/register_view.dart';
 
@@ -11,12 +12,13 @@ mixin LoginViewMixin on State<LoginView> {
     super.initState();
   }
 
-  Future<void> showSignupEmailSheet() async {
+
+  Future<void> showLoginWithEmailSheet() async {
     await showCupertinoSheet<void>(
       context: context,
       useNestedNavigation: true,
       pageBuilder: (BuildContext context) {
-        return const RegisterView();
+        return const EmailLoginView();
       },
     );
   }

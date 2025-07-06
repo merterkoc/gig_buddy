@@ -70,7 +70,6 @@ class _BirthdateStepState extends State<BirthdateStep> {
               alignment: Alignment.centerRight,
               child: TextButton(
                 onPressed: () {
-                  Navigator.of(context).pop();
                   onSelected(tempPickedDate);
                 },
                 child: GigTextButton(

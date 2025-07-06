@@ -4,7 +4,7 @@ import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
 import 'package:gig_buddy/src/common/util/snackbar/custom_snackbar.dart';
 import 'package:go_router/go_router.dart';
 
-mixin LoginListener {
+mixin EmailLoginListener {
   static MultiBlocListener listen({required Widget child}) {
     return MultiBlocListener(
       listeners: [
@@ -30,7 +30,9 @@ mixin LoginListener {
     BuildContext context,
     LoginState state,
   ) {
-    if (state.verifyIDTokenRequest.status.isError) {
+    if (state.verifyIDTokenRequest.status.isSuccess) {
+      context.pop();
+    } else if (state.verifyIDTokenRequest.status.isError) {
       TopSnackBar.showError(
         context,
         '${state.verifyIDTokenRequest.displayMessage}',

@@ -67,7 +67,7 @@ class _UserProfileViewState extends State<UserProfileView> {
                     ),
                   );
                 } else if (state.requestState.isLoading && state.user == null) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator.adaptive());
                 } else if (state.requestState.isError) {
                   return const Center(child: Text('Error'));
                 }
@@ -88,7 +88,7 @@ class _UserProfileViewState extends State<UserProfileView> {
           return const SizedBox(
             width: 210,
             height: 210,
-            child: Center(child: CircularProgressIndicator()),
+            child: Center(child: CircularProgressIndicator.adaptive()),
           );
         }
 
@@ -126,7 +126,7 @@ class _UserProfileViewState extends State<UserProfileView> {
             return const SizedBox(
               width: 210,
               height: 210,
-              child: Center(child: CircularProgressIndicator()),
+              child: Center(child: CircularProgressIndicator.adaptive()),
             );
           }
           return Row(
@@ -161,7 +161,7 @@ class _UserProfileViewState extends State<UserProfileView> {
             return const SizedBox(
               width: 210,
               height: 210,
-              child: Center(child: CircularProgressIndicator()),
+              child: Center(child: CircularProgressIndicator.adaptive()),
             );
           }
           return Column(

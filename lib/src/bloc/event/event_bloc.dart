@@ -226,10 +226,10 @@ class EventBloc extends Bloc<EventEvent, EventState> {
           ),
         );
       } else {
-        add(EventFailure(message: response.message));
+        emit(state.copyWith(requestState: RequestState.error));
       }
     } catch (e) {
-      add(EventFailure(message: e.toString()));
+      emit(state.copyWith(requestState: RequestState.error));
       rethrow;
     }
   }
@@ -295,7 +295,8 @@ class EventBloc extends Bloc<EventEvent, EventState> {
     Suggests event,
     Emitter<EventState> emit,
   ) async {
-    emit(state.copyWith(suggest: ResponseEntity.loading()));
+    final data = state.suggest.data;
+    emit(state.copyWith(suggest: ResponseEntity.loading(data: data)));
     try {
       final response = await _eventRepository.suggests(
         lat: event.lat,

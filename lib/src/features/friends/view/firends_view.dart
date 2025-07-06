@@ -71,7 +71,7 @@ class _FriendsViewState extends State<FriendsView> {
                             );
                           } else if (!state.buddyRequests.status.isSuccess) {
                             return const Center(
-                              child: CircularProgressIndicator(),
+                              child: CircularProgressIndicator.adaptive(),
                             );
                           }
 
@@ -142,7 +142,7 @@ class _FriendsViewState extends State<FriendsView> {
                             );
                           } else if (!state.buddyRequests.status.isSuccess) {
                             return const Center(
-                              child: CircularProgressIndicator(),
+                              child: CircularProgressIndicator.adaptive(),
                             );
                           }
                           final loggedUser =

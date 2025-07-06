@@ -22,54 +22,62 @@ class UserEvents extends StatelessWidget {
       buildWhen: (previous, current) =>
           previous.seenImages != current.seenImages,
       builder: (context, state) {
-        return ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: events.length,
-          padding: const EdgeInsets.all(16),
-          itemBuilder: (context, index) {
-            return EventMiniCard(
-              id: events[index].id,
-              title: events[index].name,
-              subtitle: events[index].name,
-              startDateTime: events[index].start,
-              location: events[index].location,
-              distance: events[index].distance,
-              imageUrl: events[index].images.isNotEmpty
-                  ? events[index].images.first.url
-                  : null,
-              isJoined: (state.seenImages[events[index].id] ?? []).any(
-                (participantAvatars) =>
-                    participantAvatars.userId ==
-                    context.read<LoginBloc>().state.user!.id,
-              ),
-              onTap: () {
-                context.pushNamed(
-                  AppRoute.eventDetailView.name,
-                  extra: events[index],
-                  pathParameters: {'eventId': events[index].id},
-                );
-              },
-              avatars:[
-                ...state.seenImages[events[index].id] ?? [],
-                ...(events[index].participantAvatars?.where((element) =>
-                        element.userId !=
-                        context.read<LoginBloc>().state.user!.id) ??
-                    [])
-              ],
-              onJoinedChanged: (isJoined) {
-                if (isJoined) {
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          transitionBuilder: (Widget child, Animation<double> animation) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          child: ListView.builder(
+            key: ValueKey(events.hashCode), // liste değiştiğinde animasyonu tetikler
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: events.length,
+            padding: const EdgeInsets.all(16),
+            itemBuilder: (context, index) {
+              return EventMiniCard(
+                key: ValueKey(events[index].id),
+                id: events[index].id,
+                title: events[index].name,
+                subtitle: events[index].name,
+                startDateTime: events[index].start,
+                location: events[index].location,
+                distance: events[index].distance,
+                imageUrl: events[index].images.isNotEmpty
+                    ? events[index].images.first.url
+                    : null,
+                isJoined: (state.seenImages[events[index].id] ?? []).any(
+                  (participantAvatars) =>
+                      participantAvatars.userId ==
+                      context.read<LoginBloc>().state.user!.id,
+                ),
+                onTap: () {
+                  context.pushNamed(
+                    AppRoute.eventDetailView.name,
+                    extra: events[index],
+                    pathParameters: {'eventId': events[index].id},
+                  );
+                },
+                avatars:[
+                  ...state.seenImages[events[index].id] ?? [],
+                  ...(events[index].participantAvatars?.where((element) =>
+                          element.userId !=
+                          context.read<LoginBloc>().state.user!.id) ??
+                      [])
+                ],
+                onJoinedChanged: (isJoined) {
+                  if (isJoined) {
+                    context
+                        .read<EventBloc>()
+                        .add(JoinEvent('homepage', eventId: events[index].id));
+                  }
                   context
                       .read<EventBloc>()
-                      .add(JoinEvent('homepage', eventId: events[index].id));
-                }
-                context
-                    .read<EventBloc>()
-                    .add(LeaveEvent('homepage', eventId: events[index].id));
-              },
-              venueName: events[index].venue.name,
-            );
-          },
+                      .add(LeaveEvent('homepage', eventId: events[index].id));
+                },
+                venueName: events[index].venue.name,
+              );
+            },
+          ),
         );
       },
     );

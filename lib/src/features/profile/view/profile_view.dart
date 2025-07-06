@@ -1,4 +1,7 @@
-import 'package:flutter/cupertino.dart';
+import 'dart:async';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart' hide RefreshCallback;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,13 +9,13 @@ import 'package:gig_buddy/core/extensions/context_extensions.dart';
 import 'package:gig_buddy/src/app_ui/widgets/buttons/gig_elevated_button.dart';
 import 'package:gig_buddy/src/bloc/event/event_bloc.dart';
 import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
+import 'package:gig_buddy/src/common/firebase/manager/auth_manager.dart';
 import 'package:gig_buddy/src/common/util/date_util.dart';
 import 'package:gig_buddy/src/features/profile/view/profile_listener.dart';
 import 'package:gig_buddy/src/features/profile/widgets/user_events.dart';
 import 'package:gig_buddy/src/route/router.dart';
 import 'package:gig_buddy/src/service/model/enum/gender.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
 class ProfileView extends StatefulWidget {
   const ProfileView({super.key});
@@ -22,86 +25,104 @@ class ProfileView extends StatefulWidget {
 }
 
 class _ProfileViewState extends State<ProfileView> {
-  late final RefreshController _refreshController;
+  late final RefreshCallback refreshCallback;
+  late Completer<void>? _refreshCompleter;
 
   @override
   void initState() {
-    _refreshController = RefreshController();
     context.read<LoginBloc>().add(const FetchAllInterests());
     refreshEvent();
+    refreshCallback = refreshEvent;
     super.initState();
   }
 
-  void refreshEvent() {
+  Future<void> refreshEvent() {
+    _refreshCompleter = Completer<void>();
     context.read<EventBloc>().add(const GetMyEvents());
     context.read<LoginBloc>().add(const FetchUserInfo());
+    return _refreshCompleter!.future;
   }
 
   @override
   Widget build(BuildContext context) {
-    return ProfileListener.listen(
-      refreshController: _refreshController,
-      child: Scaffold(
-        appBar: AppBar(
-          forceMaterialTransparency: true,
-          centerTitle: true,
-          actionsPadding:
-          const EdgeInsets.only(right: 16, top: 8, bottom: 8),
-          surfaceTintColor: Colors.transparent,
-          leadingWidth: 90,
-          leading: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: buildUserImage(),
-          ),
-          title: Text(context.read<LoginBloc>().state.user!.username),
-          actions: [
-            IconButton(
-              onPressed: () {
-                context.read<LoginBloc>().add(const Logout());
-              },
-              icon: const Icon(Icons.logout),
-            )
-          ],
-        ),
-        body: SmartRefresher(
-
-
-          onRefresh: refreshEvent,
-          controller: _refreshController,
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                const SizedBox(height: 10),
-                buildUserDetails(),
-                BlocBuilder<EventBloc, EventState>(
-                  buildWhen: (previous, current) =>
-                  previous.myEvents != current.myEvents ||
-                      previous.requestState != current.requestState,
-                  builder: (context, state) {
-                    if (state.requestState.isError) {
-                      return Center(
-                        child: Column(
-                          children: [
-                            const Text('You have not joined any events yet.'),
-                            const SizedBox(height: 20),
-                            GigElevatedButton(
-                              onPressed: () {
-                                context.read<EventBloc>().add(const GetMyEvents());
-                              },
-                              child: const Text('Try again'),
-                            ),
-                          ],
-                        ),
-                      );
-                    }
-                    if (state.myEvents == null) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                    return UserEvents(events: state.myEvents!);
-                  },
-                ),
-              ],
+    return BlocListener<EventBloc, EventState>(
+      listenWhen: (previous, current) =>
+          previous.myEvents != current.myEvents ||
+          previous.requestState != current.requestState,
+      listener: (context, state) {
+        if (!state.requestState.isLoading) {
+          _refreshCompleter!.complete();
+        }
+      },
+      child: ProfileListener.listen(
+        child: Scaffold(
+          appBar: AppBar(
+            forceMaterialTransparency: true,
+            centerTitle: true,
+            actionsPadding: const EdgeInsets.only(right: 16, top: 8, bottom: 8),
+            surfaceTintColor: Colors.transparent,
+            leadingWidth: 90,
+            leading: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: buildUserImage(),
             ),
+            title: Text(context.read<LoginBloc>().state.user!.username),
+            actions: [
+              IconButton(
+                onPressed: () {
+                  context.read<LoginBloc>().add(const Logout());
+                },
+                icon: const Icon(Icons.logout),
+              ),
+            ],
+          ),
+          body: CustomScrollView(
+            slivers: [
+              CupertinoSliverRefreshControl(
+                onRefresh: refreshCallback,
+              ),
+              SliverToBoxAdapter(
+                child: Column(
+                  children: [
+                    const SizedBox(height: 10),
+                    buildUserDetails(),
+                    BlocBuilder<EventBloc, EventState>(
+                      buildWhen: (previous, current) =>
+                          previous.myEvents != current.myEvents ||
+                          previous.requestState != current.requestState,
+                      builder: (context, state) {
+                        if (state.requestState.isError) {
+                          return Center(
+                            child: Column(
+                              children: [
+                                const Text(
+                                  'You have not joined any events yet.',
+                                ),
+                                const SizedBox(height: 20),
+                                GigElevatedButton(
+                                  onPressed: () {
+                                    context
+                                        .read<EventBloc>()
+                                        .add(const GetMyEvents());
+                                  },
+                                  child: const Text('Try again'),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+                        if (state.myEvents == null) {
+                          return const Center(
+                            child: CircularProgressIndicator.adaptive(),
+                          );
+                        }
+                        return UserEvents(events: state.myEvents!);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -111,11 +132,13 @@ class _ProfileViewState extends State<ProfileView> {
   BlocBuilder<LoginBloc, LoginState> buildUserImage() {
     return BlocBuilder<LoginBloc, LoginState>(
       builder: (context, state) {
-        if (state.user == null) {
+        if (state.user == null || state.user!.userImage.isEmpty) {
           return const SizedBox(
             width: 210,
             height: 210,
-            child: Center(child: CircularProgressIndicator()),
+            child: Center(
+              child: Icon(Icons.person_2_rounded),
+            ),
           );
         }
         return CircleAvatar(
@@ -133,7 +156,7 @@ class _ProfileViewState extends State<ProfileView> {
           previous.user?.username != current.user?.username,
       builder: (context, state) {
         if (state.user == null) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator.adaptive());
         }
         return Text(
           state.user!.username,
@@ -150,7 +173,7 @@ class _ProfileViewState extends State<ProfileView> {
           previous.user!.birthdate != current.user!.birthdate,
       builder: (context, state) {
         if (state.user == null) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator.adaptive());
         }
 
         final birthdate = state.user!.birthdate != null
@@ -182,8 +205,10 @@ class _ProfileViewState extends State<ProfileView> {
                         : state.user!.gender == Gender.other
                             ? const Icon(Icons.transgender)
                             : const Icon(Icons.female),
-                    label: Text(gender,
-                        style: Theme.of(context).textTheme.bodySmall),
+                    label: Text(
+                      gender,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
                   ),
                 ],
               ),
@@ -243,6 +268,43 @@ class _ProfileViewState extends State<ProfileView> {
               subtitle: Text(
                 state.user!.email,
                 style: Theme.of(context).textTheme.bodySmall,
+              ),
+              trailing: BlocBuilder<LoginBloc, LoginState>(
+                buildWhen: (previous, current) =>
+                    previous.emailVerificationRequestState !=
+                    current.emailVerificationRequestState,
+                builder: (context, state) {
+                  if (state.emailVerificationRequestState.isLoading) {
+                    return const CircularProgressIndicator.adaptive();
+                  } else if (state.emailVerificationRequestState.isSuccess) {
+                    return const VerificationButton(
+                    );
+                  }
+                  return FutureBuilder<bool>(
+                    future: AuthManager.isEmailVerified(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        switch (snapshot.data) {
+                          case true:
+                            return Icon(
+                              Icons.check_circle,
+                              color: Theme.of(context).colorScheme.primary,
+                            );
+                          case false:
+                            return GigElevatedButton(
+                              onPressed: () {
+                                context.read<LoginBloc>().add(VerifyEmail());
+                              },
+                              child: const Text('Verify'),
+                            );
+                          case null:
+                            throw UnimplementedError();
+                        }
+                      }
+                      return const CircularProgressIndicator.adaptive();
+                    },
+                  );
+                },
               ),
               dense: true,
               contentPadding: const EdgeInsets.symmetric(horizontal: 16),
@@ -307,6 +369,62 @@ class _ProfileViewState extends State<ProfileView> {
           ],
         );
       },
+    );
+  }
+}class VerificationButton extends StatefulWidget {
+  const VerificationButton({super.key});
+
+  @override
+  State<VerificationButton> createState() => _VerificationButtonState();
+}
+
+class _VerificationButtonState extends State<VerificationButton> {
+  int _remainingSeconds = 30;
+  Timer? _timer;
+  bool _isButtonEnabled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _startCountdown();
+  }
+
+  void _startCountdown() {
+    _isButtonEnabled = false;
+    _remainingSeconds = 30;
+
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_remainingSeconds == 0) {
+        timer.cancel();
+        setState(() {
+          _isButtonEnabled = true;
+        });
+      } else {
+        setState(() {
+          _remainingSeconds--;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void _onButtonPressed() {
+    context.read<LoginBloc>().add(VerifyEmail());
+    _startCountdown();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GigElevatedButton(
+      onPressed: _isButtonEnabled ? _onButtonPressed : null,
+      child: Text(_isButtonEnabled
+          ? 'Verify Now'
+          : 'Waiting for resend ${_remainingSeconds}s'),
     );
   }
 }

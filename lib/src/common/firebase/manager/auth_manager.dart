@@ -9,6 +9,42 @@ import 'package:google_sign_in_ios/google_sign_in_ios.dart';
 import 'package:google_sign_in_platform_interface/google_sign_in_platform_interface.dart';
 
 class AuthManager {
+  static Future<IdTokenResult> getUserInfo() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      throw Exception('User not signed in');
+    }
+    final userInfo = await user.getIdTokenResult();
+    return userInfo;
+  }
+
+  static Future<bool> isEmailVerified() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      throw Exception('User not signed in');
+    }
+    final userInfo = await user.getIdTokenResult(true);
+    return userInfo.claims!['email_verified'] as bool;
+  }
+
+  static Future<void> verifyEmail() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      throw Exception('User not signed in');
+    }
+    await user.sendEmailVerification();
+  }
+
+  /// IF you want update user email verify
+  static Future<void> reloadUserInfo() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      throw Exception('User not signed in');
+    }
+    final userInfo = await user.reload();
+    return userInfo;
+  }
+
   static Future<void> signInAnonymously() async {
     await FirebaseAuth.instance.signInAnonymously();
   }
