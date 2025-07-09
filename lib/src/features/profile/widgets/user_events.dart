@@ -74,7 +74,7 @@ class UserEvents extends StatelessWidget {
                       .read<EventBloc>()
                       .add(LeaveEvent('homepage', eventId: events[index].id));
                 },
-                venueName: events[index].venue.name,
+                venueName: events[index].venue!.name,
               );
             },
           ),

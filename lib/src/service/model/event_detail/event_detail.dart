@@ -21,7 +21,7 @@ class EventDetail with _$EventDetail {
     required String? locale,
     required String? city,
     required String? country,
-    @JsonKey(name: 'venue') required Venue venue,
+    @JsonKey(name: 'venue')  Venue? venue,
     @JsonKey(name: 'is_joined') required bool isJoined,
     @JsonKey(name: 'is_matched') bool? isMatched,
     @JsonKey(name: 'buddy_request_status',required: false)

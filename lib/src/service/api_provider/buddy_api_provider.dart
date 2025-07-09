@@ -13,6 +13,7 @@ class BuddyApiProvider extends ApiProvider {
   Future<ResponseEntity<List<BuddyRequests>>> getBuddyRequests({
     CancelToken? cancelToken,
   }) async {
+    await Future<void>.delayed(const Duration(seconds: 2));
     final response = await get(
       resource: 'requests',
       cancelToken: cancelToken,

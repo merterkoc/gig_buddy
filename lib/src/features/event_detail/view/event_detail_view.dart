@@ -114,8 +114,8 @@ class _EventDetailViewState extends State<EventDetailView> {
                                               .read<LoginBloc>()
                                               .state
                                               .user!
-                                              .id) ??
-                                  [])
+                                              .id,) ??
+                                  []),
                             ];
                             return buildParticipantAvatars();
                           },
@@ -186,7 +186,7 @@ class _EventDetailViewState extends State<EventDetailView> {
           style: Theme.of(context).textTheme.bodyMedium,
         ),
         const SizedBox(height: 10),
-        if (widget.eventDetail.venue.name.isNotEmpty)
+        if (widget.eventDetail.venue!.name.isNotEmpty)
           GigElevatedButton(
             onPressed: () {
               context.pushNamed(
@@ -195,7 +195,7 @@ class _EventDetailViewState extends State<EventDetailView> {
               );
             },
             child: Text(
-              widget.eventDetail.venue.name,
+              widget.eventDetail.venue!.name,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
           ),
@@ -234,7 +234,7 @@ class _EventDetailViewState extends State<EventDetailView> {
                 avatars = List.of(avatars)
                   ..removeWhere((element) => element.userId == userProfile!.id);
                 context.read<EventBloc>().add(
-                    LeaveEvent('homepage', eventId: widget.eventDetail.id));
+                    LeaveEvent('homepage', eventId: widget.eventDetail.id),);
               }
             });
           },

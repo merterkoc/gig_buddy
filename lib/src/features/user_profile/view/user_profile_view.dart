@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gig_buddy/core/extensions/context_extensions.dart';
@@ -11,7 +13,6 @@ import 'package:gig_buddy/src/common/widgets/user/user_avatar_widget.dart';
 import 'package:gig_buddy/src/features/user_profile/view/user_profile_listener.dart';
 import 'package:gig_buddy/src/route/router.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
 class UserProfileView extends StatefulWidget {
   const UserProfileView({required this.userId, super.key});
@@ -23,59 +24,73 @@ class UserProfileView extends StatefulWidget {
 }
 
 class _UserProfileViewState extends State<UserProfileView> {
-  late final RefreshController _refreshController;
+  Completer<void>? _refreshCompleter;
 
   @override
   void initState() {
-    _refreshController = RefreshController();
     context.read<ProfileBloc>().add(FetchUserProfile(widget.userId));
     context.read<EventBloc>().add(GetEventsByUserId(widget.userId));
     super.initState();
   }
 
+  Future<void> refreshCallback() async {
+    _refreshCompleter = Completer<void>();
+    context.read<ProfileBloc>().add(FetchUserProfile(widget.userId));
+    context.read<EventBloc>().add(GetEventsByUserId(widget.userId));
+    return _refreshCompleter!.future;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return UserProfileListener.listen(
-      refreshController: _refreshController,
+    return BlocListener<ProfileBloc, ProfileState>(
+      listenWhen: (previous, current) =>
+          previous.requestState != current.requestState,
+      listener: (context, state) {
+        if (!state.requestState.isLoading &&
+            _refreshCompleter?.isCompleted == false) {
+          _refreshCompleter?.complete();
+        }
+      },
       child: Scaffold(
-        appBar: AppBar(title: buildUserName()),
-        body: SmartRefresher(
-          physics: const ClampingScrollPhysics(),
-          onRefresh: () async {
-            context.read<ProfileBloc>().add(FetchUserProfile(widget.userId));
-          },
-          controller: _refreshController,
-          child: SingleChildScrollView(
-            child: BlocBuilder<ProfileBloc, ProfileState>(
-              buildWhen: (previous, current) =>
-                  previous.requestState != current.requestState,
-              builder: (BuildContext context, ProfileState state) {
-                if (state.requestState.isSuccess) {
-                  return Padding(
+        resizeToAvoidBottomInset: false,
+        appBar: AppBar(
+          title: buildUserName(),
+          forceMaterialTransparency: true,
+        ),
+        body: BlocBuilder<ProfileBloc, ProfileState>(
+          buildWhen: (previous, current) =>
+              previous.requestState != current.requestState,
+          builder: (BuildContext context, ProfileState state) {
+            if (state.requestState.isLoading && state.user == null) {
+              return const Center(child: CircularProgressIndicator.adaptive());
+            } else if (state.requestState.isError) {
+              return const Center(child: Text('Error'));
+            }
+
+            return CustomScrollView(
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              slivers: [
+                CupertinoSliverRefreshControl(
+                  onRefresh: refreshCallback,
+                ),
+                SliverToBoxAdapter(
+                  child: Padding(
                     padding: const EdgeInsets.only(top: 8, left: 8, right: 8),
-                    child: Center(
-                      child: Column(
-                        spacing: 20,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          buildUserImage(),
-                          buildUserLocation(),
-                          buildUserInterests(),
-                          buildUserEvents(),
-                        ],
-                      ),
+                    child: Column(
+                      spacing: 20,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        buildUserImage(),
+                        buildUserLocation(),
+                        buildUserInterests(),
+                        buildUserEvents(),
+                      ],
                     ),
-                  );
-                } else if (state.requestState.isLoading && state.user == null) {
-                  return const Center(child: CircularProgressIndicator.adaptive());
-                } else if (state.requestState.isError) {
-                  return const Center(child: Text('Error'));
-                }
-                return const Center(
-                    child: CircularProgressIndicator.adaptive());
-              },
-            ),
-          ),
+                  ),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );

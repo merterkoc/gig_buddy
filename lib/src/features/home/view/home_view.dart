@@ -36,7 +36,7 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> with HomeViewMixin {
   final TextEditingController _controller = TextEditingController();
   late final RefreshCallback refreshCallback;
-  late Completer<void>? _refreshCompleter;
+  late Completer<void> _refreshCompleter = Completer<void>();
 
   @override
   void initState() {
@@ -77,7 +77,7 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
       listenWhen: (previous, current) => previous.events != current.events,
       listener: (context, state) {
         if (!state.requestState.isLoading) {
-          _refreshCompleter!.complete();
+          _refreshCompleter?.complete();
         }
       },
       child: Scaffold(
@@ -213,7 +213,7 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
                                         pathParameters: {'eventId': item.id},
                                       );
                                     },
-                                    venueName: item.venue.name,
+                                    venueName: item.venue!.name,
                                     avatars: [
                                       ...eventAvatarsState
                                               .seenImages[item.id] ??

@@ -5,7 +5,27 @@
   "nav_nar_home": "Ana Sayfa",
   "nav_nar_profile": "Profil",
   "nav_nar_settings": "Ayarlar",
-  "nav_nar_friends": "Arkadaşlar",
+  "nav_nar_friends": "Gig Buddy",
+
+  "gig_buddy_title": "Gig Buddy",
+  "got_requests": "Gelen İstekler",
+  "sent_requests": "Gönderilen İstekler",
+  "no_incoming_requests": "Gelen istek bulunmuyor",
+  "no_sent_requests": "Gönderilen istek bulunmuyor",
+  "failed_to_get_buddy_requests": "Gig Buddy istekleri alınamadı",
+
+  "filter_all": "Tümü",
+  "filter_pending": "Bekleyen",
+  "filter_accepted": "Kabul Edilen",
+  "filter_rejected": "Reddedilen",
+
+  "button_message": "Mesajlaş",
+  "button_reject": "Reddet",
+  "button_accept": "Kabul Et",
+  "status_rejected": "Reddedildi",
+  "status_accepted": "Kabul Edildi",
+  "status_pending": "Bekleyen",
+  "status_rejected_sent": "Reddedildi",
 
   "home_view_title_1": "Hop! Yakındaki Sahneler",
   "home_view_title_2": "Hop! Konserler",

@@ -143,7 +143,7 @@ Widget buildPaginationSearch(
                     },
                   );
                 },
-                venueName: item.venue.name,
+                venueName: item.venue!.name,
                 avatars: [
                   ...eventAvatarsState.seenImages[item.id] ?? [],
                   ...(item.participantAvatars?.where((element) =>

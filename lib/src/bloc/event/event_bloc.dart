@@ -144,7 +144,6 @@ class EventBloc extends Bloc<EventEvent, EventState> {
           EventDetail.fromJson(fetchData.data['data'] as Map<String, dynamic>);
       emit(state.copyWith(selectedEventDetail: event));
     } else {
-      add(EventFailure(message: fetchData.message));
     }
   }
 
@@ -161,10 +160,7 @@ class EventBloc extends Bloc<EventEvent, EventState> {
           .map((e) => EventDetail.fromJson(e as Map<String, dynamic>))
           .toList();
       _setEventParticipantAvatars(events);
-      add(EventSuccess(events: events));
-    } else {
-      add(EventFailure(message: fetchData.message));
-    }
+    } else {}
   }
 
   FutureOr<void> _onJoin(JoinEvent event, Emitter<EventState> emit) async {
