@@ -57,7 +57,7 @@
   "profile_view_gig_buddy_id": "Gig Buddy ID",
   "profile_view_verify_email": "Doğrula",
   "profile_view_verify_now": "Şimdi Doğrula",
-  "profile_view_verify_email_waiting": "Tekrar denemek için {seconds} saniye",
+  "profile_view_verify_email_waiting": "{seconds} saniye",
   "@profile_view_verify_email_waiting": {
      "placeholders": {
           "seconds": {

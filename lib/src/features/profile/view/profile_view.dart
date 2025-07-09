@@ -50,7 +50,7 @@ class _ProfileViewState extends State<ProfileView> {
           previous.requestState != current.requestState,
       listener: (context, state) {
         if (!state.requestState.isLoading) {
-          _refreshCompleter!.complete();
+          _refreshCompleter?.complete();
         }
       },
       child: ProfileListener.listen(
@@ -60,11 +60,6 @@ class _ProfileViewState extends State<ProfileView> {
             centerTitle: true,
             actionsPadding: const EdgeInsets.only(right: 16, top: 8, bottom: 8),
             surfaceTintColor: Colors.transparent,
-            leadingWidth: 90,
-            leading: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: buildUserImage(),
-            ),
             title: Text(context.read<LoginBloc>().state.user!.username),
             actions: [
               IconButton(
@@ -95,8 +90,8 @@ class _ProfileViewState extends State<ProfileView> {
                             child: Column(
                               children: [
                                 Text(
-                                  context.l10
-                                      .you_have_not_joined_any_events_yet,
+                                  context
+                                      .l10.you_have_not_joined_any_events_yet,
                                 ),
                                 const SizedBox(height: 20),
                                 GigElevatedButton(
@@ -186,188 +181,412 @@ class _ProfileViewState extends State<ProfileView> {
 
         return Column(
           children: [
-            ListTile(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              subtitle: Wrap(
+            // User Avatar and Basic Info Section
+            Container(
+              padding: const EdgeInsets.all(20),
+              child: Column(
                 children: [
-                  Chip(
-                    avatar: const Icon(Icons.cake),
-                    label: Text(
-                      birthdate,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Chip(
-                    avatar: state.user!.gender == Gender.male
-                        ? const Icon(Icons.male)
-                        : state.user!.gender == Gender.other
-                            ? const Icon(Icons.transgender)
-                            : const Icon(Icons.female),
-                    label: Text(
-                      gender,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
+                  buildUserImage(),
+                  const SizedBox(height: 16),
+                  buildUserName(),
+                  const SizedBox(height: 8),
+                  // Birthdate and Gender Chips
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      if (state.user!.birthdate != null)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color:
+                                Theme.of(context).colorScheme.primaryContainer,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.cake,
+                                size: 16,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onPrimaryContainer,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                birthdate,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimaryContainer,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      if (state.user!.gender != null)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .secondaryContainer,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                state.user!.gender == Gender.male
+                                    ? Icons.male
+                                    : state.user!.gender == Gender.other
+                                        ? Icons.transgender
+                                        : Icons.female,
+                                size: 16,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSecondaryContainer,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                gender,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSecondaryContainer,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
                   ),
                 ],
               ),
-              title: Text(context.read<LoginBloc>().state.user!.username),
-              dense: true,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-              minLeadingWidth: 0,
-              leadingAndTrailingTextStyle:
-                  Theme.of(context).textTheme.bodySmall,
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: () {
-                context.goNamed(
-                  AppRoute.profileUserDetailEditView.name,
-                );
-              },
             ),
-            ListTile(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+
+            // User Details Section
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainer,
+                borderRadius: BorderRadius.circular(16),
               ),
-              leading: const Icon(Icons.account_circle),
-              title: Text(
-                context.l10.profile_view_gig_buddy_id,
-                style: Theme.of(context).textTheme.bodySmall,
+              child: Column(
+                children: [
+                  // Email Section
+                  ListTile(
+                    leading: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primaryContainer,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.email_outlined,
+                        size: 20,
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      ),
+                    ),
+                    title: Text(
+                      context.l10.profile_view_email,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withValues(alpha: 0.7),
+                          ),
+                    ),
+                    subtitle: Text(
+                      state.user!.email,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w500,
+                          ),
+                    ),
+                    trailing: BlocBuilder<LoginBloc, LoginState>(
+                      buildWhen: (previous, current) =>
+                          previous.emailVerificationRequestState !=
+                          current.emailVerificationRequestState,
+                      builder: (context, state) {
+                        if (state.emailVerificationRequestState.isLoading) {
+                          return const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator.adaptive(
+                                strokeWidth: 2),
+                          );
+                        } else if (state
+                            .emailVerificationRequestState.isSuccess) {
+                          return const VerificationButton();
+                        }
+                        return FutureBuilder<bool>(
+                          future: AuthManager.isEmailVerified(),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              switch (snapshot.data) {
+                                case true:
+                                  return Icon(
+                                    Icons.check_circle,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                    size: 20,
+                                  );
+                                case false:
+                                  return GigElevatedButton(
+                                    onPressed: () {
+                                      context
+                                          .read<LoginBloc>()
+                                          .add(VerifyEmail());
+                                    },
+                                    child: Text(
+                                      context.l10.profile_view_verify_email,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onPrimary,
+                                      ),
+                                    ),
+                                  );
+                                case null:
+                                  throw UnimplementedError();
+                              }
+                            }
+                            return const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator.adaptive(
+                                  strokeWidth: 2),
+                            );
+                          },
+                        );
+                      },
+                    ),
+                    dense: true,
+                    contentPadding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  ),
+
+                  // Gig Buddy ID Section
+                  ListTile(
+                    leading: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.secondaryContainer,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.badge_outlined,
+                        size: 20,
+                        color:
+                            Theme.of(context).colorScheme.onSecondaryContainer,
+                      ),
+                    ),
+                    title: Text(
+                      context.l10.profile_view_gig_buddy_id,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withValues(alpha: 0.7),
+                          ),
+                    ),
+                    subtitle: Text(
+                      state.user!.id,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w500,
+                            fontFamily: 'monospace',
+                          ),
+                    ),
+                    trailing: IconButton(
+                      icon: Icon(
+                        Icons.content_copy_outlined,
+                        size: 20,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      onPressed: () {
+                        Clipboard.setData(ClipboardData(text: state.user!.id));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(context.l10.copy_to_clipboard),
+                            shape: const RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(8)),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    dense: true,
+                    contentPadding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  ),
+
+                  // Creation Date Section
+                  ListTile(
+                    leading: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.tertiaryContainer,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.calendar_today_outlined,
+                        size: 20,
+                        color:
+                            Theme.of(context).colorScheme.onTertiaryContainer,
+                      ),
+                    ),
+                    title: Text(
+                      context.l10.profile_view_creation_date,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withValues(alpha: 0.7),
+                          ),
+                    ),
+                    subtitle: Text(
+                      DateUtil.getDate(state.user!.createdAt, context),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w500,
+                          ),
+                    ),
+                    dense: true,
+                    contentPadding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  ),
+                ],
               ),
-              subtitle: Text(
-                state.user!.id,
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-              dense: true,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-              minLeadingWidth: 0,
-              leadingAndTrailingTextStyle:
-                  Theme.of(context).textTheme.bodySmall,
-              trailing: const Icon(Icons.content_copy_sharp, size: 16),
-              onTap: () {
-                Clipboard.setData(ClipboardData(text: state.user!.id));
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(context.l10.copy_to_clipboard),
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(8)),
+            ),
+
+            const SizedBox(height: 16),
+
+            // Interests Section
+            if (state.user!.interests != null &&
+                state.user!.interests!.isNotEmpty)
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainer,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(
+                      Icons.favorite_outline,
+                      size: 20,
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
                     ),
                   ),
-                );
-              },
-            ),
-            ListTile(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              leading: const Icon(Icons.email),
-              title: Text(
-                context.l10.profile_view_email,
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-              subtitle: Text(
-                state.user!.email,
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-              trailing: BlocBuilder<LoginBloc, LoginState>(
-                buildWhen: (previous, current) =>
-                    previous.emailVerificationRequestState !=
-                    current.emailVerificationRequestState,
-                builder: (context, state) {
-                  if (state.emailVerificationRequestState.isLoading) {
-                    return const CircularProgressIndicator.adaptive();
-                  } else if (state.emailVerificationRequestState.isSuccess) {
-                    return const VerificationButton();
-                  }
-                  return FutureBuilder<bool>(
-                    future: AuthManager.isEmailVerified(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        switch (snapshot.data) {
-                          case true:
-                            return Icon(
-                              Icons.check_circle,
-                              color: Theme.of(context).colorScheme.primary,
-                            );
-                          case false:
-                            return GigElevatedButton(
-                              onPressed: () {
-                                context.read<LoginBloc>().add(VerifyEmail());
-                              },
-                              child: Text(
-                                context.l10.profile_view_verify_email,
-                              ),
-                            );
-                          case null:
-                            throw UnimplementedError();
-                        }
-                      }
-                      return const CircularProgressIndicator.adaptive();
-                    },
-                  );
-                },
-              ),
-              dense: true,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-              minLeadingWidth: 0,
-              leadingAndTrailingTextStyle:
-                  Theme.of(context).textTheme.bodySmall,
-            ),
-            ListTile(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              leading: const Icon(Icons.calendar_today),
-              title: Text(
-                context.l10.profile_view_creation_date,
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-              subtitle: Text(
-                DateUtil.getDate(state.user!.createdAt, context),
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-              dense: true,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-              minLeadingWidth: 0,
-              leadingAndTrailingTextStyle:
-                  Theme.of(context).textTheme.bodySmall,
-            ),
-            ListTile(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              leading: const Icon(Icons.person),
-              title: Text(
-                context.l10.profile_view_interests,
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-              subtitle: Wrap(
-                spacing: 4,
-                children: state.user!.interests!
-                    .map(
-                      (e) => Chip(
-                        padding: EdgeInsets.zero,
-                        label: Text(
-                          e.name,
-                          style: Theme.of(context).textTheme.labelSmall,
+                  title: Text(
+                    context.l10.profile_view_interests,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withValues(alpha: 0.7),
                         ),
-                      ),
-                    )
-                    .toList(),
+                  ),
+                  subtitle: Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: state.user!.interests!
+                        .map(
+                          (e) => Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .primary
+                                  .withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .primary
+                                    .withValues(alpha: 0.3),
+                                width: 1,
+                              ),
+                            ),
+                            child: Text(
+                              e.name,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelSmall
+                                  ?.copyWith(
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                            ),
+                          ),
+                        )
+                        .toList(),
+                  ),
+                  trailing: Icon(
+                    Icons.arrow_forward_ios,
+                    size: 16,
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withValues(alpha: 0.5),
+                  ),
+                  onTap: () {
+                    context.goNamed(AppRoute.profileUserInterestsView.name);
+                  },
+                  dense: true,
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                ),
               ),
-              dense: true,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-              minLeadingWidth: 0,
-              leadingAndTrailingTextStyle:
-                  Theme.of(context).textTheme.bodySmall,
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: () {
-                context.goNamed(
-                  AppRoute.profileUserInterestsView.name,
-                );
-              },
+
+            const SizedBox(height: 16),
+
+            // Edit Profile Button
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              child: GigElevatedButton(
+                onPressed: () {
+                  context.goNamed(AppRoute.profileUserDetailEditView.name);
+                },
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.edit_outlined,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      context.l10.profile_edit_view_title,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
+
+            const SizedBox(height: 20),
           ],
         );
       },
@@ -428,8 +647,7 @@ class _VerificationButtonState extends State<VerificationButton> {
       onPressed: _isButtonEnabled ? _onButtonPressed : null,
       child: Text(_isButtonEnabled
           ? context.l10.profile_view_verify_now
-          : context.l10
-              .profile_view_verify_email_waiting(_remainingSeconds)),
+          : context.l10.profile_view_verify_email_waiting(_remainingSeconds)),
     );
   }
 }
