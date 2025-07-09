@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart' as cupertino;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,7 +9,6 @@ import 'package:gig_buddy/src/bloc/buddy/buddy_bloc.dart';
 import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
 import 'package:gig_buddy/src/features/friends/widgets/buddy_request_card.dart';
 import 'package:gig_buddy/src/service/model/enum/buddy_request_status.dart';
-import 'dart:async';
 
 class FriendsView extends StatefulWidget {
   const FriendsView({super.key});
@@ -47,7 +48,7 @@ class _FriendsViewState extends State<FriendsView> {
           previous.buddyRequests.status != current.buddyRequests.status,
       listener: (context, state) {
         if (!state.buddyRequests.status.isLoading) {
-          _refreshCompleter?.complete();
+          _refreshCompleter.complete();
         }
       },
       child: Scaffold(
@@ -113,9 +114,10 @@ class _FriendsViewState extends State<FriendsView> {
                   ],
                 ),
               ),
-              _selectedIndex == 0
-                  ? _buildGotRequestsSliver()
-                  : _buildSentRequestsSliver(),
+              if (_selectedIndex == 0)
+                _buildGotRequestsSliver()
+              else
+                _buildSentRequestsSliver(),
             ],
           ),
         ),
@@ -234,21 +236,16 @@ class _FriendsViewState extends State<FriendsView> {
           return SliverToBoxAdapter(
             child: _buildErrorState(context),
           );
-        } else if (!state.buddyRequests.status.isSuccess) {
-          return const SliverFillRemaining(
-            hasScrollBody: false,
-            child: Center(
-              child: CircularProgressIndicator.adaptive(),
-            ),
-          );
         }
 
         final loggedUser = context.read<LoginBloc>().state.user;
-        var myBuddyRequests = state.buddyRequests.data!
-            .where(
-              (buddyRequest) => buddyRequest.sender.email != loggedUser?.email,
-            )
-            .toList();
+        var myBuddyRequests = state.buddyRequests.data
+                ?.where(
+                  (buddyRequest) =>
+                      buddyRequest.sender.email != loggedUser?.email,
+                )
+                .toList() ??
+            [];
 
         // Filtreleme uygula
         if (_gotRequestsFilter != null) {
@@ -257,7 +254,18 @@ class _FriendsViewState extends State<FriendsView> {
               .toList();
         }
 
-        if (myBuddyRequests.isEmpty) {
+        // Eğer veri yoksa ve yükleme durumundaysa loading göster
+        if (myBuddyRequests.isEmpty && state.buddyRequests.status.isLoading) {
+          return const SliverFillRemaining(
+            hasScrollBody: false,
+            child: Center(
+              child: CircularProgressIndicator.adaptive(),
+            ),
+          );
+        }
+
+        // Eğer veri yoksa ve yükleme tamamlandıysa empty state göster
+        if (myBuddyRequests.isEmpty && state.buddyRequests.status.isSuccess) {
           return SliverToBoxAdapter(
             child: _buildEmptyState(context, context.l10.no_incoming_requests),
           );
@@ -271,20 +279,10 @@ class _FriendsViewState extends State<FriendsView> {
                 padding: const EdgeInsets.only(bottom: 12),
                 child: BuddyRequestCard(
                   buddyRequests: buddyRequest,
-                  onAccept: () {
-                    context.read<BuddyBloc>().add(
-                          AcceptBuddyRequest(
-                            buddyRequestId: buddyRequest.id,
-                          ),
-                        );
-                  },
-                  onReject: () {
-                    context.read<BuddyBloc>().add(
-                          RejectBuddyRequest(
-                            buddyRequestId: buddyRequest.id,
-                          ),
-                        );
-                  },
+                  onAccept: () =>
+                      _showAcceptConfirmation(context, buddyRequest.id),
+                  onReject: () =>
+                      _showRejectConfirmation(context, buddyRequest.id),
                 ),
               );
             },
@@ -304,21 +302,16 @@ class _FriendsViewState extends State<FriendsView> {
           return SliverToBoxAdapter(
             child: _buildErrorState(context),
           );
-        } else if (!state.buddyRequests.status.isSuccess) {
-          return const SliverFillRemaining(
-            hasScrollBody: false,
-            child: Center(
-              child: CircularProgressIndicator.adaptive(),
-            ),
-          );
         }
 
         final loggedUser = context.read<LoginBloc>().state.user;
-        var myBuddyRequests = state.buddyRequests.data!
-            .where(
-              (buddyRequest) => buddyRequest.sender.email == loggedUser?.email,
-            )
-            .toList();
+        var myBuddyRequests = state.buddyRequests.data
+                ?.where(
+                  (buddyRequest) =>
+                      buddyRequest.sender.email == loggedUser?.email,
+                )
+                .toList() ??
+            [];
 
         // Filtreleme uygula
         if (_sentRequestsFilter != null) {
@@ -327,7 +320,18 @@ class _FriendsViewState extends State<FriendsView> {
               .toList();
         }
 
-        if (myBuddyRequests.isEmpty) {
+        // Eğer veri yoksa ve yükleme durumundaysa loading göster
+        if (myBuddyRequests.isEmpty && state.buddyRequests.status.isLoading) {
+          return const SliverFillRemaining(
+            hasScrollBody: false,
+            child: Center(
+              child: CircularProgressIndicator.adaptive(),
+            ),
+          );
+        }
+
+        // Eğer veri yoksa ve yükleme tamamlandıysa empty state göster
+        if (myBuddyRequests.isEmpty && state.buddyRequests.status.isSuccess) {
           return SliverToBoxAdapter(
             child: _buildEmptyState(context, context.l10.no_sent_requests),
           );
@@ -397,6 +401,66 @@ class _FriendsViewState extends State<FriendsView> {
           ),
         ],
       ),
+    );
+  }
+
+  void _showAcceptConfirmation(BuildContext context, String buddyRequestId) {
+    showAdaptiveDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(context.l10.alert_accept_title),
+          content: Text(context.l10.alert_accept_message),
+          actions: [
+            GigElevatedButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(context.l10.cancel),
+            ),
+            GigElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                context.read<BuddyBloc>().add(
+                      AcceptBuddyRequest(
+                        buddyRequestId: buddyRequestId,
+                      ),
+                    );
+              },
+              child: Text(context.l10.button_accept),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showRejectConfirmation(BuildContext context, String buddyRequestId) {
+    showAdaptiveDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(context.l10.alert_reject_title),
+          content: Text(context.l10.alert_reject_message),
+          actions: [
+            GigElevatedButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(context.l10.cancel),
+            ),
+            GigElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                context.read<BuddyBloc>().add(
+                      RejectBuddyRequest(
+                        buddyRequestId: buddyRequestId,
+                      ),
+                    );
+              },
+              child: Text(context.l10.button_reject),
+            ),
+          ],
+        );
+      },
     );
   }
 }

@@ -27,6 +27,11 @@
   "status_pending": "Bekleyen",
   "status_rejected_sent": "Reddedildi",
 
+  "alert_accept_title": "İsteği Kabul Et",
+  "alert_accept_message": "Bu Gig Buddy isteğini kabul etmek istediğinizden emin misiniz?",
+  "alert_reject_title": "İsteği Reddet",
+  "alert_reject_message": "Bu Gig Buddy isteğini reddetmek istediğinizden emin misiniz?",
+
   "home_view_title_1": "Hop! Yakındaki Sahneler",
   "home_view_title_2": "Hop! Konserler",
 

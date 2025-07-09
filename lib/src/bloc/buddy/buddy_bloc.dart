@@ -36,7 +36,7 @@ class BuddyBloc extends Bloc<BuddyEvent, BuddyState> {
     Emitter<BuddyState> emit,
   ) async {
     try {
-      emit(state.copyWith(buddyRequests: ResponseEntity.loading()));
+      emit(state.copyWith(buddyRequests: ResponseEntity.loading(data: state.buddyRequests.data)));
       final responseEntity = await _buddyRepository.getBuddyRequests();
 
       emit(
