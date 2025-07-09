@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gig_buddy/core/extensions/context_extensions.dart';
 import 'package:gig_buddy/src/app_ui/widgets/buttons/gig_elevated_button.dart';
 import 'package:gig_buddy/src/app_ui/widgets/buttons/gig_text_button.dart';
 import 'package:gig_buddy/src/app_ui/widgets/date_picker/gig_date_picker.dart';
@@ -25,9 +26,7 @@ class _ProfileUserDetailEditViewState extends State<ProfileUserDetailEditView> {
 
   @override
   void initState() {
-    final profileState = context
-        .read<LoginBloc>()
-        .state;
+    final profileState = context.read<LoginBloc>().state;
     _selectedDate = profileState.user!.birthdate;
     _selectedGender = profileState.user!.gender;
     super.initState();
@@ -45,14 +44,15 @@ class _ProfileUserDetailEditViewState extends State<ProfileUserDetailEditView> {
         }
       },
       child: Scaffold(
-        appBar: AppBar(title: const Text('Edit Profile Details')),
+        appBar: AppBar(title: Text(context.l10.profile_edit_view_title)),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Birthdate', style: TextStyle(fontSize: 16)),
-              const SizedBox(height: 8),
+              Text(context.l10.profile_edit_view_birthdate,
+                  style: TextStyle(fontSize: 16)),
+              SizedBox(height: 8),
               GigDatePicker(
                 initialDate: _selectedDate ?? DateTime(2000),
                 onChanged: (DateTime date) {
@@ -62,12 +62,13 @@ class _ProfileUserDetailEditViewState extends State<ProfileUserDetailEditView> {
                 },
               ),
               const SizedBox(height: 24),
-              const Text('Gender', style: TextStyle(fontSize: 16)),
+              Text(context.l10.profile_edit_view_gender,
+                  style: TextStyle(fontSize: 16)),
               const SizedBox(height: 8),
               DropdownButtonFormField<Gender>(
                 value: _selectedGender,
                 decoration: const InputDecoration(border: OutlineInputBorder()),
-                hint: const Text('Select gender'),
+                hint: Text(context.l10.gender_male),
                 onChanged: (Gender? newValue) {
                   setState(() {
                     _selectedGender = newValue;
@@ -83,31 +84,31 @@ class _ProfileUserDetailEditViewState extends State<ProfileUserDetailEditView> {
               const SizedBox(height: 24),
               BlocBuilder<ProfileBloc, ProfileState>(
                 buildWhen: (previous, current) =>
-                previous.requestSetUserAttributes !=
+                    previous.requestSetUserAttributes !=
                     current.requestSetUserAttributes,
                 builder: (context, state) {
                   return Align(
                     alignment: Alignment.centerRight,
                     child: GigElevatedButton(
                       isLoading: context
-                          .read<ProfileBloc>()
-                          .state
-                          .requestSetUserAttributes
-                          ?.status
-                          .isLoading ??
+                              .read<ProfileBloc>()
+                              .state
+                              .requestSetUserAttributes
+                              ?.status
+                              .isLoading ??
                           false,
                       onPressed: () {
                         if (_selectedDate == null || _selectedGender == null) {
                           return;
                         }
                         context.read<ProfileBloc>().add(UpdateUserDetails(
-                          UpdateUserRequestDTO(
-                            birthdate: _selectedDate!,
-                            gender: _selectedGender!,
-                          ),
-                        ));
+                              UpdateUserRequestDTO(
+                                birthdate: _selectedDate!,
+                                gender: _selectedGender!,
+                              ),
+                            ));
                       },
-                      child: const Text('Save'),
+                      child: Text(context.l10.save),
                     ),
                   );
                 },

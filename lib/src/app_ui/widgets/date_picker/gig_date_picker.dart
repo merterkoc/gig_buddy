@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:gig_buddy/core/extensions/context_extensions.dart';
 import 'package:gig_buddy/src/app_ui/widgets/buttons/gig_text_button.dart';
 import 'package:go_router/go_router.dart';
 
@@ -46,14 +47,14 @@ class _GigDatePickerState extends State<GigDatePicker> {
     return InkWell(
       onTap: () => _selectDate(context),
       child: InputDecorator(
-        decoration: const InputDecoration(
-          border: OutlineInputBorder(),
-          hintText: 'Select birthdate',
+        decoration:  InputDecoration(
+          border: const OutlineInputBorder(),
+          hintText:   context.l10.select_birthdate,
         ),
         child: Text(
           _selectedDate != null
               ? '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}'
-              : 'No date selected',
+              : context.l10.no_date_selected,
         ),
       ),
     );
@@ -64,7 +65,7 @@ class _GigDatePickerState extends State<GigDatePicker> {
     required DateTime initialDate,
     required ValueChanged<DateTime> onSelected,
   }) async {
-    DateTime tempPickedDate = initialDate;
+    var tempPickedDate = initialDate;
 
     await showCupertinoModalPopup<void>(
       context: context,
@@ -89,7 +90,7 @@ class _GigDatePickerState extends State<GigDatePicker> {
                     context.pop();
                   },
                   child: Text(
-                    'Tamam',
+                    context.l10.ok,
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 ),

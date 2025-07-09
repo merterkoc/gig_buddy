@@ -113,7 +113,7 @@ class _EventCardProfileState extends State<EventCardProfile> {
           Row(
             children: [
               Text(
-                DateUtil.getDate(widget.startDateTime!),
+                DateUtil.getDate(widget.startDateTime!,context),
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               const Spacer(),

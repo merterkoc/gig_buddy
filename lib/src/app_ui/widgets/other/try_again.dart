@@ -19,13 +19,13 @@ class TryAgain extends StatelessWidget {
     return Column(
       children: [
         Center(
-          child: Text(text ?? context.localizations.something_went_wrong),
+          child: Text(text ?? context.l10.something_went_wrong),
         ),
         const SizedBox(height: 20),
         GigElevatedButton(
           onPressed: onPressed,
           isLoading: isLoading,
-          child: Text(context.localizations.try_again),
+          child: Text(context.l10.try_again),
         ),
       ],
     );

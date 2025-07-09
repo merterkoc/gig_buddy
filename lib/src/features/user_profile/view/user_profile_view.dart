@@ -169,7 +169,7 @@ class _UserProfileViewState extends State<UserProfileView> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                context.localizations.profile_view_interests,
+                context.l10.profile_view_interests,
                 style:
                     const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),

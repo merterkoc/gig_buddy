@@ -56,7 +56,7 @@ class _JoinLeaveButtonState extends State<JoinLeaveButton> {
             size: 20,
           ),
           Text(
-            isJoined ? context.localizations.event_mini_card_leave_button : context.localizations.event_mini_card_join_button,
+            isJoined ? context.l10.event_mini_card_leave_button : context.l10.event_mini_card_join_button,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
         ],

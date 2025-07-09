@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:gig_buddy/core/localization/manager/localization_manager.dart';
 import 'package:gig_buddy/src/cache/shared_preferences.dart';
 import 'package:gig_buddy/src/common/environment_manager/environment_manager.dart';
 import 'package:gig_buddy/src/common/manager/location_manager.dart';
@@ -11,13 +12,17 @@ class AppInitializationService {
   AppInitializationService._();
 
   static Future<void> initialize() async {
-    await EnvironmentManager().init();
     WidgetsFlutterBinding.ensureInitialized();
-    await Firebase.initializeApp();
-    await Shared().init();
-    await settingsController.loadSettings();
-    await DeviceInfoHelper.init();
-    await PackageInfoHelper.init();
-    await LocationManager.init();
+    await Future.wait([
+      EnvironmentManager().init(),
+      Firebase.initializeApp(),
+      Shared().init().then(
+            (value) => settingsController.loadSettings(),
+          ),
+      DeviceInfoHelper.init(),
+      PackageInfoHelper.init(),
+      LocationManager.init(),
+      LocalizationManager().initialize(),
+    ]);
   }
 }

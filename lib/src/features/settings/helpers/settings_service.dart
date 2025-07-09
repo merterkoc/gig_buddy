@@ -17,7 +17,7 @@ class SettingsService {
 
   /// Loads the User's preferred ThemeMode from local or remote storage.
   Future<Brightness> themeMode() async {
-    final theme = await Shared().getInt('theme');
+    final theme = Shared().getInt('theme');
     if (theme == null || theme.isNegative || theme > Brightness.values.length) {
       return WidgetsBinding.instance.platformDispatcher.platformBrightness;
     }

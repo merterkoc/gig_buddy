@@ -14,7 +14,6 @@ import 'package:gig_buddy/src/app_ui/widgets/buttons/gig_elevated_button.dart';
 import 'package:gig_buddy/src/app_ui/widgets/other/try_again.dart';
 import 'package:gig_buddy/src/bloc/event/event_bloc.dart';
 import 'package:gig_buddy/src/bloc/event_avatars/event_avatars_cubit.dart';
-import 'package:gig_buddy/src/bloc/event_avatars/event_avatars_cubit.dart';
 import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
 import 'package:gig_buddy/src/bloc/pagination_event/pagination_event_bloc.dart';
 import 'package:gig_buddy/src/common/manager/location_manager.dart';
@@ -26,7 +25,9 @@ import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
 class HomeView extends StatefulWidget {
-  const HomeView({super.key});
+  const HomeView({required this.scrollController, super.key});
+
+  final ScrollController scrollController;
 
   @override
   State<HomeView> createState() => _HomeViewState();
@@ -85,7 +86,7 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
           forceMaterialTransparency: true,
           centerTitle: false,
           title: Text(
-            context.localizations.app_title,
+            context.l10.app_title,
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           actions: [
@@ -118,6 +119,7 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
               child: SafeArea(
                 bottom: false,
                 child: CustomScrollView(
+                  controller: widget.scrollController,
                   keyboardDismissBehavior:
                       ScrollViewKeyboardDismissBehavior.onDrag,
                   slivers: [
@@ -137,8 +139,7 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
                             onSubmitted: (_) {
                               FocusScope.of(context).unfocus();
                             },
-                            placeholder:
-                                context.localizations.search_placeholder,
+                            placeholder: context.l10.search_placeholder,
                             onChanged: onChangeKeyword,
                           ),
                           if (state.nearCity?.isNotEmpty ?? false)
@@ -147,12 +148,12 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
                               child: buildNearCityList(state),
                             ),
                           Text(
-                            context.localizations.home_view_title_1,
+                            context.l10.home_view_title_1,
                             style: Theme.of(context).textTheme.headlineMedium,
                           ),
                           buildVenueSuggests(state, context),
                           Text(
-                            context.localizations.home_view_title_2,
+                            context.l10.home_view_title_2,
                             style: Theme.of(context).textTheme.headlineSmall,
                           ),
                           const SizedBox(height: 10),
@@ -165,11 +166,17 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
                         return PagedSliverList<int, EventDetail>(
                           builderDelegate:
                               PagedChildBuilderDelegate<EventDetail>(
-                               animateTransitions: true,
-                            transitionDuration: const Duration(milliseconds: 300),
-                            firstPageProgressIndicatorBuilder: (context) => const Center(child: CircularProgressIndicator.adaptive()),
-                            newPageProgressIndicatorBuilder: (context) => const Center(child: CircularProgressIndicator.adaptive()),
-
+                            animateTransitions: true,
+                            transitionDuration:
+                                const Duration(milliseconds: 300),
+                            firstPageProgressIndicatorBuilder: (context) =>
+                                const Center(
+                                    child:
+                                        CircularProgressIndicator.adaptive()),
+                            newPageProgressIndicatorBuilder: (context) =>
+                                const Center(
+                                    child:
+                                        CircularProgressIndicator.adaptive()),
                             itemBuilder: (context, item, index) {
                               return BlocBuilder<EventAvatarsCubit,
                                   EventAvatarsState>(
@@ -309,7 +316,7 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
       buildWhen: (previous, current) => previous.suggest != current.suggest,
       builder: (context, state) {
         final items = state.suggest.data?.embedded.venues ?? [];
-        if ((state.suggest.status.isLoading || state.suggest.status.isError)&&
+        if ((state.suggest.status.isLoading || state.suggest.status.isError) &&
             items.isEmpty) {
           return TryAgain(
             isLoading: state.suggest.status.isLoading,
@@ -365,7 +372,7 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                             Text(
-                              '${context.localizations.venue_suggests_upcoming_events}: ${item.upcomingEvents?.total}',
+                              '${context.l10.venue_suggests_upcoming_events}: ${item.upcomingEvents?.total}',
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                             GigElevatedButton(
@@ -376,8 +383,7 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
                                 );
                               },
                               child: Text(
-                                context
-                                    .localizations.venue_suggests_detail_button,
+                                context.l10.venue_suggests_detail_button,
                               ),
                             ),
                           ],

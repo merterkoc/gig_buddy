@@ -1,8 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gig_buddy/src/app_ui/widgets/buttons/gig_action_button.dart';
-import 'package:gig_buddy/src/app_ui/widgets/buttons/gig_elevated_button.dart';
+import 'package:gig_buddy/core/extensions/context_extensions.dart';
 import 'package:gig_buddy/src/app_ui/widgets/buttons/gig_text_button.dart';
 import 'package:gig_buddy/src/bloc/profile/profile_bloc.dart';
 import 'package:gig_buddy/src/features/user_attributes/widgets/birth_date_select.dart';
@@ -57,7 +56,7 @@ class UserAttributeSliderState extends State<UserDetailsView> {
         }
       },
       child: Scaffold(
-        appBar: AppBar(title: const Text('Çok az kaldı')),
+        appBar: AppBar(title:  Text( context.l10.very_little_left)),
         body: SafeArea(
           child: Stack(
             children: [
@@ -117,7 +116,7 @@ class UserAttributeSliderState extends State<UserDetailsView> {
                           }
                         },
                         child: Text(
-                          'Next',
+                          context.l10.next,
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurface,
                           ),

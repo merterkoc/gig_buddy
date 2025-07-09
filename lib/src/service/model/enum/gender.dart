@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:gig_buddy/core/localization/manager/localization_manager.dart';
 
 enum Gender {
   @JsonValue("male")
@@ -13,11 +14,11 @@ extension GenderExtension on Gender {
   String get value {
     switch (this) {
       case Gender.male:
-        return 'Male';
+        return LocalizationManager().l10.gender_male;
       case Gender.female:
-        return 'Female';
+        return LocalizationManager().l10.gender_female;
       case Gender.other:
-        return 'Other';
+        return LocalizationManager().l10.gender_other;
     }
   }
 }

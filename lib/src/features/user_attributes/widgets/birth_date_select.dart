@@ -1,14 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:gig_buddy/core/extensions/context_extensions.dart';
 import 'package:gig_buddy/src/app_ui/widgets/buttons/gig_elevated_button.dart';
 import 'package:gig_buddy/src/app_ui/widgets/buttons/gig_text_button.dart';
 import 'package:gig_buddy/src/common/util/date_util.dart';
 import 'package:go_router/go_router.dart';
 
 class BirthdateStep extends StatefulWidget {
-  final Function(DateTime) onSelected;
+  const BirthdateStep({super.key, required this.onSelected});
 
-  BirthdateStep({required this.onSelected});
+  final Function(DateTime) onSelected;
 
   @override
   State<BirthdateStep> createState() => _BirthdateStepState();
@@ -16,13 +17,14 @@ class BirthdateStep extends StatefulWidget {
 
 class _BirthdateStepState extends State<BirthdateStep> {
   DateTime? _selectedDate;
+
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text("Select Birthday", style: TextStyle(fontSize: 24)),
+          Text(context.l10.profile_edit_view_birthdate, style: TextStyle(fontSize: 24)),
           const SizedBox(height: 20),
           GigElevatedButton(
             onPressed: () async {
@@ -36,12 +38,11 @@ class _BirthdateStepState extends State<BirthdateStep> {
                   });
                 },
               );
-
             },
-            child:  Text(
+            child: Text(
               _selectedDate != null
                   ? DateUtil.getBirthDate(_selectedDate!)
-                  : 'Choose birthdate',
+                  : context.l10.select_birthdate,
             ),
           ),
         ],
@@ -54,7 +55,7 @@ class _BirthdateStepState extends State<BirthdateStep> {
     required DateTime initialDate,
     required ValueChanged<DateTime> onSelected,
   }) async {
-    DateTime tempPickedDate = initialDate;
+    var tempPickedDate = initialDate;
 
     await showCupertinoModalPopup<void>(
       context: context,
@@ -78,7 +79,7 @@ class _BirthdateStepState extends State<BirthdateStep> {
                     context.pop();
                   },
                   child: Text(
-                    'Tamam',
+                    context.l10.ok,
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 ),

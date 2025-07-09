@@ -40,7 +40,7 @@ class SettingsView extends StatelessWidget {
                 ),
               ),
             ),
-            header: Text(context.localizations.settings_view_title,
+            header: Text(context.l10.settings_view_title,
                 style: Theme.of(context).textTheme.headlineSmall),
             margin: const EdgeInsets.only(top: 10),
             children: <Widget>[
@@ -49,7 +49,7 @@ class SettingsView extends StatelessWidget {
                   icon: settingsController.themeMode == Brightness.light
                       ? CupertinoIcons.sun_max
                       : CupertinoIcons.moon_stars_fill,
-                  title:  context.localizations.settings_view_theme,
+                  title:  context.l10.settings_view_theme,
                   color: settingsController.themeMode == Brightness.light
                       ? Theme.of(context).colorScheme.primary
                       : Theme.of(context).colorScheme.onPrimary,
@@ -60,7 +60,7 @@ class SettingsView extends StatelessWidget {
                       context,
                       cancelButton: CupertinoActionSheetAction(
                         onPressed: goRouter.pop,
-                        child:  Text(context.localizations.cancel),
+                        child:  Text(context.l10.cancel),
                       ),
                       actions: [
                         CupertinoActionSheetAction(
@@ -69,24 +69,24 @@ class SettingsView extends StatelessWidget {
                                 .updateThemeMode(Brightness.light);
                             goRouter.pop();
                           },
-                          child:  Text(context.localizations.settings_view_theme_light),
+                          child:  Text(context.l10.settings_view_theme_light),
                         ),
                         CupertinoActionSheetAction(
                           onPressed: () {
                             settingsController.updateThemeMode(Brightness.dark);
                             goRouter.pop();
                           },
-                          child:  Text(context.localizations.settings_view_theme_dark),
+                          child:  Text(context.l10.settings_view_theme_dark),
                         ),
                         CupertinoActionSheetAction(
                           onPressed: () {
                             settingsController.setDefaultThemeMode();
                             goRouter.pop();
                           },
-                          child: Text(context.localizations.settings_view_theme_system),
+                          child: Text(context.l10.settings_view_theme_system),
                         ),
                       ],
-                      title:  Text(context.localizations.settings_view_theme_select),
+                      title:  Text(context.l10.settings_view_theme_select),
                     );
                   },
                   child: const Text('Change '),

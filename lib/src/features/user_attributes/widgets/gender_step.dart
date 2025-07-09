@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gig_buddy/src/app_ui/widgets/buttons/gig_elevated_button.dart';
+import 'package:gig_buddy/core/extensions/context_extensions.dart';
 import 'package:gig_buddy/src/service/model/enum/gender.dart';
 
 class GenderStep extends StatefulWidget {
@@ -22,15 +22,15 @@ class _GenderStepState extends State<GenderStep> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text("Gender", style: TextStyle(fontSize: 24)),
+             Text(context.l10.profile_edit_view_gender, style: const TextStyle(fontSize: 24)),
             const SizedBox(height: 20),
             DropdownButtonFormField<Gender>(
               value: _selectedGender,
               decoration: const InputDecoration(border: OutlineInputBorder()),
-              hint: const Text('Select gender'),
+              hint: Text(context.l10.select_gender),
               onChanged: (Gender? newValue) {
                 setState(() {
-                  _selectedGender = newValue!;
+                  _selectedGender = newValue;
                   widget.onSelected(newValue!);
                 });
               },

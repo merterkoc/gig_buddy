@@ -13,11 +13,13 @@ class ScaffoldWithNavBar extends StatelessWidget {
   const ScaffoldWithNavBar({
     required this.navigationShell,
     required this.settingsController,
+    required this.controller,
     Key? key,
   }) : super(key: key ?? const ValueKey<String>('ScaffoldWithNavBar'));
 
   final StatefulNavigationShell navigationShell;
   final SettingsController settingsController;
+  final ScrollController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -39,23 +41,23 @@ class ScaffoldWithNavBar extends StatelessWidget {
                 icon: navigationShell.currentIndex == 0
                     ? const Icon(CupertinoIcons.wand_stars)
                     : const Icon(CupertinoIcons.wand_stars_inverse),
-                label: context.localizations.nav_nar_home,
+                label: context.l10.nav_nar_home,
               ),
               BottomNavigationBarItem(
                 icon: navigationShell.currentIndex == 1
                     ? const Icon(CupertinoIcons.music_mic)
                     : const Icon(CupertinoIcons.music_mic),
-                label: context.localizations.nav_nar_settings,
+                label: context.l10.nav_nar_settings,
               ),
               BottomNavigationBarItem(
                 icon: navigationShell.currentIndex == 2
                     ? const Icon(CupertinoIcons.heart_solid)
                     : const Icon(CupertinoIcons.heart),
-                label: context.localizations.nav_nar_friends,
+                label: context.l10.nav_nar_friends,
               ),
               BottomNavigationBarItem(
                 icon: buildProfileIcon(context),
-                label: context.localizations.nav_nar_profile,
+                label: context.l10.nav_nar_profile,
               ),
             ],
           ),
@@ -98,9 +100,21 @@ class ScaffoldWithNavBar extends StatelessWidget {
     //   goRouter.pushNamed(AppRoute.loginView.name);
     //   return;
     // }
-    navigationShell.goBranch(
-      index,
-      initialLocation: index == navigationShell.currentIndex,
+    if (index == 0 && navigationShell.currentIndex == 0) {
+      scrollToTop();
+    } else {
+      navigationShell.goBranch(
+        index,
+        initialLocation: index == navigationShell.currentIndex,
+      );
+    }
+  }
+
+  void scrollToTop() {
+    controller.animateTo(
+      0,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
     );
   }
 }

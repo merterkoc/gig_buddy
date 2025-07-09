@@ -29,12 +29,45 @@
   "profile_view_creation_date": "Katılma Tarihi",
   "profile_view_interests": "İlgi",
   "profile_view_email": "E-posta",
+  "profile_view_gig_buddy_id": "Gig Buddy ID",
+  "profile_view_verify_email": "Doğrula",
+  "profile_view_verify_now": "Şimdi Doğrula",
+  "profile_view_verify_email_waiting": "Tekrar denemek için {seconds} saniye",
+  "@profile_view_verify_email_waiting": {
+     "placeholders": {
+          "seconds": {
+            "type": "int"
+          }
+        }
+  },
+  "profile_edit_view_title": "Profili Düzenle",
+  "profile_edit_view_birthdate": "Doğum Tarihi",
+  "profile_edit_view_gender": "Cinsiyet",
+
+  "select_birthdate": "Doğum Tarihi Seç",
+  "no_date_selected": "Tarih Seçilmedi",
+  "select_gender": "Cinsiyet Seç",
+
+
+  "you_have_not_joined_any_events_yet": "Henüz bir etkinliğe katılmadınız.",
+  "no_set" : "Ayarlanmadı",
 
   "tickets" : "Biletler",
 
   "something_went_wrong": "Bir şeyler ters gitti, lütfen tekrar deneyin.",
   "try_again": "Tekrar dene",
+  "copy_to_clipboard": "Panoya kopyalandı",
+  "today": "Bugün",
+  "yesterday": "Dün",
+  "tomorrow": "Yarın",
+  "gender_male": "Erkek",
+  "gender_female": "Kadın",
+  "gender_other": "Diğer",
+  "very_little_left": "Çok az kaldı",
 
+  "ok" : "Tamam",
+  "next" : "Sonraki",
   "change": "Değiştir",
-  "cancel": "İptal"
+  "cancel": "İptal",
+  "save" : "Kaydet"
 }

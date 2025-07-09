@@ -149,9 +149,9 @@ class _EventDetailViewState extends State<EventDetailView> {
 
   Widget buildParticipantAvatars() {
     if (avatars.isEmpty) {
-      return  SizedBox(
+      return SizedBox(
         height: 42,
-        child: Text(context.localizations.event_mini_card_no_participants),
+        child: Text(context.l10.event_mini_card_no_participants),
       );
     }
     return AvatarStackWidget(
@@ -247,7 +247,7 @@ class _EventDetailViewState extends State<EventDetailView> {
     return Row(
       children: [
         Text(
-          DateUtil.getDate(widget.eventDetail.start),
+          DateUtil.getDate(widget.eventDetail.start, context),
           style: Theme.of(context).textTheme.headlineSmall,
         ),
         const Spacer(),
@@ -285,7 +285,7 @@ class _EventDetailViewState extends State<EventDetailView> {
             size: 20,
           ),
           Text(
-            context.localizations.tickets,
+            context.l10.tickets,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
         ],

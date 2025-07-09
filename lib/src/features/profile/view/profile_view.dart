@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart' hide RefreshCallback;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -95,8 +94,9 @@ class _ProfileViewState extends State<ProfileView> {
                           return Center(
                             child: Column(
                               children: [
-                                const Text(
-                                  'You have not joined any events yet.',
+                                Text(
+                                  context.l10
+                                      .you_have_not_joined_any_events_yet,
                                 ),
                                 const SizedBox(height: 20),
                                 GigElevatedButton(
@@ -105,7 +105,7 @@ class _ProfileViewState extends State<ProfileView> {
                                         .read<EventBloc>()
                                         .add(const GetMyEvents());
                                   },
-                                  child: const Text('Try again'),
+                                  child: Text(context.l10.try_again),
                                 ),
                               ],
                             ),
@@ -178,10 +178,11 @@ class _ProfileViewState extends State<ProfileView> {
 
         final birthdate = state.user!.birthdate != null
             ? DateUtil.getBirthDate(state.user!.birthdate!)
-            : 'Not set';
+            : context.l10.no_set;
 
-        final gender =
-            state.user!.gender != null ? state.user!.gender!.value : 'Not set';
+        final gender = state.user!.gender != null
+            ? state.user!.gender!.value
+            : context.l10.no_set;
 
         return Column(
           children: [
@@ -231,7 +232,7 @@ class _ProfileViewState extends State<ProfileView> {
               ),
               leading: const Icon(Icons.account_circle),
               title: Text(
-                'Gig Buddy ID',
+                context.l10.profile_view_gig_buddy_id,
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               subtitle: Text(
@@ -247,9 +248,9 @@ class _ProfileViewState extends State<ProfileView> {
               onTap: () {
                 Clipboard.setData(ClipboardData(text: state.user!.id));
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Copied to clipboard'),
-                    shape: RoundedRectangleBorder(
+                  SnackBar(
+                    content: Text(context.l10.copy_to_clipboard),
+                    shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.all(Radius.circular(8)),
                     ),
                   ),
@@ -262,7 +263,7 @@ class _ProfileViewState extends State<ProfileView> {
               ),
               leading: const Icon(Icons.email),
               title: Text(
-                context.localizations.profile_view_email,
+                context.l10.profile_view_email,
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               subtitle: Text(
@@ -277,8 +278,7 @@ class _ProfileViewState extends State<ProfileView> {
                   if (state.emailVerificationRequestState.isLoading) {
                     return const CircularProgressIndicator.adaptive();
                   } else if (state.emailVerificationRequestState.isSuccess) {
-                    return const VerificationButton(
-                    );
+                    return const VerificationButton();
                   }
                   return FutureBuilder<bool>(
                     future: AuthManager.isEmailVerified(),
@@ -295,7 +295,9 @@ class _ProfileViewState extends State<ProfileView> {
                               onPressed: () {
                                 context.read<LoginBloc>().add(VerifyEmail());
                               },
-                              child: const Text('Verify'),
+                              child: Text(
+                                context.l10.profile_view_verify_email,
+                              ),
                             );
                           case null:
                             throw UnimplementedError();
@@ -318,11 +320,11 @@ class _ProfileViewState extends State<ProfileView> {
               ),
               leading: const Icon(Icons.calendar_today),
               title: Text(
-                context.localizations.profile_view_creation_date,
+                context.l10.profile_view_creation_date,
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               subtitle: Text(
-                DateUtil.getDate(state.user!.createdAt),
+                DateUtil.getDate(state.user!.createdAt, context),
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               dense: true,
@@ -337,7 +339,7 @@ class _ProfileViewState extends State<ProfileView> {
               ),
               leading: const Icon(Icons.person),
               title: Text(
-                context.localizations.profile_view_interests,
+                context.l10.profile_view_interests,
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               subtitle: Wrap(
@@ -371,7 +373,9 @@ class _ProfileViewState extends State<ProfileView> {
       },
     );
   }
-}class VerificationButton extends StatefulWidget {
+}
+
+class VerificationButton extends StatefulWidget {
   const VerificationButton({super.key});
 
   @override
@@ -423,8 +427,9 @@ class _VerificationButtonState extends State<VerificationButton> {
     return GigElevatedButton(
       onPressed: _isButtonEnabled ? _onButtonPressed : null,
       child: Text(_isButtonEnabled
-          ? 'Verify Now'
-          : 'Waiting for resend ${_remainingSeconds}s'),
+          ? context.l10.profile_view_verify_now
+          : context.l10
+              .profile_view_verify_email_waiting(_remainingSeconds)),
     );
   }
 }

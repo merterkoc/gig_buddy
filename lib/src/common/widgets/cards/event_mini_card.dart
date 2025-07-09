@@ -125,7 +125,7 @@ class _EventCardState extends State<EventMiniCard> {
               ),
               const SizedBox(width: 8),
               Text(
-                DateUtil.getDate(widget.startDateTime!),
+                DateUtil.getDate(widget.startDateTime!,context),
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
             ],
@@ -151,7 +151,7 @@ class _EventCardState extends State<EventMiniCard> {
                         avatars: avatars ?? [],
                       )
                     : Text(
-                        context.localizations.event_mini_card_no_participants,
+                        context.l10.event_mini_card_no_participants,
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
               ),

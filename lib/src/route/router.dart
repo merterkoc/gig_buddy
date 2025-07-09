@@ -36,6 +36,7 @@ final RouteObserver<ModalRoute<void>> routeObserver =
 final SettingsController settingsController =
     SettingsController(SettingsService());
 
+final controller = ScrollController();
 enum AppRoute {
   onBoardingView(path: '/onBoardingView'),
   homeView(path: '/homeView'),
@@ -104,6 +105,7 @@ final GoRouter goRouter = GoRouter(
             return ScaffoldWithNavBar(
               navigationShell: navigationShell,
               settingsController: settingsController,
+              controller: controller,
             );
           },
           branches: <StatefulShellBranch>[
@@ -112,11 +114,15 @@ final GoRouter goRouter = GoRouter(
                 GoRoute(
                   path: AppRoute.homeView.path,
                   name: AppRoute.homeView.name,
-                  pageBuilder: (BuildContext context, GoRouterState state) =>
-                      CupertinoPage<void>(
-                    key: state.pageKey,
-                    child: const HomeView(),
-                  ),
+                  pageBuilder: (BuildContext context, GoRouterState state) {
+
+                    return CupertinoPage<void>(
+                      key: state.pageKey,
+                      child: HomeView(
+                        scrollController: controller,
+                      ),
+                    );
+                  },
                   redirect: (BuildContext context, GoRouterState state) {
                     if (!AuthenticationRouterListener
                         .currentAuthenticationStatus.isAuthenticated) {
