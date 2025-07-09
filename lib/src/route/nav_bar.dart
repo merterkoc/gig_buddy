@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gig_buddy/core/extensions/context_extensions.dart';
@@ -30,38 +31,117 @@ class ScaffoldWithNavBar extends StatelessWidget {
           Expanded(
             child: navigationShell,
           ),
-          CupertinoTabBar(
-            onTap: (index) => _onTap(context, index),
-            currentIndex: navigationShell.currentIndex,
-            activeColor: settingsController.themeMode == Brightness.dark
-                ? Colors.white
-                : Colors.blue,
-            items: [
-              BottomNavigationBarItem(
-                icon: navigationShell.currentIndex == 0
-                    ? const Icon(CupertinoIcons.wand_stars)
-                    : const Icon(CupertinoIcons.wand_stars_inverse),
-                label: context.l10.nav_nar_home,
-              ),
-              BottomNavigationBarItem(
-                icon: navigationShell.currentIndex == 1
-                    ? const Icon(CupertinoIcons.music_mic)
-                    : const Icon(CupertinoIcons.music_mic),
-                label: context.l10.nav_nar_settings,
-              ),
-              BottomNavigationBarItem(
-                icon: navigationShell.currentIndex == 2
-                    ? const Icon(CupertinoIcons.heart_solid)
-                    : const Icon(CupertinoIcons.heart),
-                label: context.l10.nav_nar_friends,
-              ),
-              BottomNavigationBarItem(
-                icon: buildProfileIcon(context),
-                label: context.l10.nav_nar_profile,
-              ),
-            ],
-          ),
+          _buildAppleMusicStyleNavBar(context),
         ],
+      ),
+    );
+  }
+
+  Widget _buildAppleMusicStyleNavBar(BuildContext context) {
+    return ClipRRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 1250, sigmaY: 1250,tileMode: TileMode.repeated),
+        child: Container(
+          decoration: BoxDecoration(
+            color: settingsController.themeMode == Brightness.dark
+                ? const Color(0xFF1C1C1E).withValues(alpha: 0.2)
+                : const Color(0xFFFFFFFF).withValues(alpha: 0.2),
+            border: Border(
+              top: BorderSide(
+                color: settingsController.themeMode == Brightness.dark
+                    ? const Color(0xFF38383A).withValues(alpha: 0.9)
+                    : const Color(0xFFE5E5EA).withValues(alpha: 0.9),
+                width: 0.5,
+              ),
+            ),
+          ),
+          child: SafeArea(
+            top: false,
+            child: Container(
+              height: 60, // Reduced height to prevent overflow
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _buildNavItem(
+                    context,
+                    index: 0,
+                    icon: navigationShell.currentIndex == 0
+                        ? CupertinoIcons.wand_stars
+                        : CupertinoIcons.wand_stars_inverse,
+                    label: context.l10.nav_nar_home,
+                  ),
+                  _buildNavItem(
+                    context,
+                    index: 1,
+                    icon: CupertinoIcons.music_mic,
+                    label: context.l10.nav_nar_settings,
+                  ),
+                  _buildNavItem(
+                    context,
+                    index: 2,
+                    icon: navigationShell.currentIndex == 2
+                        ? CupertinoIcons.heart_solid
+                        : CupertinoIcons.heart,
+                    label: context.l10.nav_nar_friends,
+                  ),
+                  _buildNavItem(
+                    context,
+                    index: 3,
+                    icon: null, // Custom profile icon
+                    label: context.l10.nav_nar_profile,
+                    isProfile: true,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNavItem(
+    BuildContext context, {
+    required int index,
+    IconData? icon,
+    required String label,
+    bool isProfile = false,
+  }) {
+    final isActive = navigationShell.currentIndex == index;
+    final activeColor = settingsController.themeMode == Brightness.dark
+        ? Theme.of(context).colorScheme.secondary
+        : Theme.of(context).colorScheme.secondary;
+    final inactiveColor = settingsController.themeMode == Brightness.dark
+        ? Theme.of(context).colorScheme.onSurface
+        : Theme.of(context).colorScheme.onSurface;
+
+    return GestureDetector(
+      onTap: () => _onTap(context, index),
+      child: Container(
+        height: 120, // Reduced height to prevent overflow
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: isActive
+              ? (settingsController.themeMode == Brightness.dark
+                  ? activeColor.withValues(alpha: 0.2)
+                  : activeColor.withValues(alpha: 0.1))
+              : Colors.transparent,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isProfile)
+              buildProfileIcon(context)
+            else
+              Icon(
+                icon,
+                size: 28,
+                color: isActive ? activeColor : inactiveColor,
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -73,13 +153,23 @@ class ScaffoldWithNavBar extends StatelessWidget {
         buildWhen: (previous, current) => previous.user != current.user,
         builder: (context, state) {
           if (state.user == null || state.user!.userImage.isEmpty) {
-            return const Icon(Icons.person);
+            return Icon(
+              Icons.person,
+              size: 28,
+              color: navigationShell.currentIndex == 3
+                  ? (settingsController.themeMode == Brightness.dark
+                      ? Theme.of(context).colorScheme.secondary
+                      : Theme.of(context).colorScheme.secondary)
+                  : (settingsController.themeMode == Brightness.dark
+                      ? Theme.of(context).colorScheme.onSurface
+                      : Theme.of(context).colorScheme.onSurface),
+            );
           }
           return SizedBox(
             width: 28,
             height: 28,
             child: CircleAvatar(
-              radius: 20,
+              radius: 12,
               backgroundImage: NetworkImage(
                 context.read<LoginBloc>().state.user!.userImage,
               ),
@@ -89,9 +179,19 @@ class ScaffoldWithNavBar extends StatelessWidget {
         },
       );
     }
-    return navigationShell.currentIndex == 3
-        ? const Icon(CupertinoIcons.person_fill)
-        : const Icon(CupertinoIcons.person);
+    return Icon(
+      navigationShell.currentIndex == 3
+          ? CupertinoIcons.person_fill
+          : CupertinoIcons.person,
+      size: 24,
+      color: navigationShell.currentIndex == 3
+          ? (settingsController.themeMode == Brightness.dark
+              ? Theme.of(context).colorScheme.secondary
+              : Theme.of(context).colorScheme.secondary)
+          : (settingsController.themeMode == Brightness.dark
+              ? Theme.of(context).colorScheme.onSurface
+              : Theme.of(context).colorScheme.onSurface),
+    );
   }
 
   void _onTap(BuildContext context, int index) {
