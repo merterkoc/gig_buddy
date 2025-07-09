@@ -58,6 +58,13 @@ class _ProfileViewState extends State<ProfileView> {
           appBar: AppBar(
             forceMaterialTransparency: true,
             centerTitle: true,
+            leadingWidth: 56,
+            leading: IconButton(
+              icon: const Icon(CupertinoIcons.pencil),
+              onPressed: () {
+                context.goNamed(AppRoute.profileUserDetailEditView.name);
+              },
+            ),
             actionsPadding: const EdgeInsets.only(right: 16, top: 8, bottom: 8),
             surfaceTintColor: Colors.transparent,
             title: Text(context.read<LoginBloc>().state.user!.username),
@@ -351,11 +358,8 @@ class _ProfileViewState extends State<ProfileView> {
                                     },
                                     child: Text(
                                       context.l10.profile_view_verify_email,
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontSize: 12,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onPrimary,
                                       ),
                                     ),
                                   );
@@ -504,42 +508,45 @@ class _ProfileViewState extends State<ProfileView> {
                               .withValues(alpha: 0.7),
                         ),
                   ),
-                  subtitle: Wrap(
-                    spacing: 6,
-                    runSpacing: 6,
-                    children: state.user!.interests!
-                        .map(
-                          (e) => Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .primary
-                                  .withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
+                  subtitle: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    child: Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: state.user!.interests!
+                          .map(
+                            (e) => Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
                                 color: Theme.of(context)
                                     .colorScheme
                                     .primary
-                                    .withValues(alpha: 0.3),
-                                width: 1,
+                                    .withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .primary
+                                      .withValues(alpha: 0.3),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Text(
+                                e.name,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelSmall
+                                    ?.copyWith(
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                      fontWeight: FontWeight.w500,
+                                    ),
                               ),
                             ),
-                            child: Text(
-                              e.name,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .labelSmall
-                                  ?.copyWith(
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                            ),
-                          ),
-                        )
-                        .toList(),
+                          )
+                          .toList(),
+                    ),
                   ),
                   trailing: Icon(
                     Icons.arrow_forward_ios,
@@ -557,36 +564,6 @@ class _ProfileViewState extends State<ProfileView> {
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
               ),
-
-            const SizedBox(height: 16),
-
-            // Edit Profile Button
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16),
-              child: GigElevatedButton(
-                onPressed: () {
-                  context.goNamed(AppRoute.profileUserDetailEditView.name);
-                },
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.edit_outlined,
-                      size: 18,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      context.l10.profile_edit_view_title,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 20),
           ],
         );
       },

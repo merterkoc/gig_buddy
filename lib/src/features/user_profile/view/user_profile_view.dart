@@ -1,18 +1,21 @@
 import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:gig_buddy/core/extensions/context_extensions.dart';
 import 'package:gig_buddy/src/app_ui/widgets/buttons/gig_elevated_button.dart';
 import 'package:gig_buddy/src/bloc/buddy/buddy_bloc.dart';
 import 'package:gig_buddy/src/bloc/event/event_bloc.dart';
 import 'package:gig_buddy/src/bloc/profile/profile_bloc.dart';
+import 'package:gig_buddy/src/common/widgets/avatar_image/avatar_image.dart';
 import 'package:gig_buddy/src/common/widgets/cards/event_card_profile.dart';
-import 'package:gig_buddy/src/common/widgets/containers/surface_container.dart';
-import 'package:gig_buddy/src/common/widgets/user/user_avatar_widget.dart';
-import 'package:gig_buddy/src/features/user_profile/view/user_profile_listener.dart';
 import 'package:gig_buddy/src/route/router.dart';
-import 'package:go_router/go_router.dart';
+import 'package:gig_buddy/src/service/model/enum/gender.dart';
+import 'package:gig_buddy/src/service/model/public_user/public_user_dto.dart';
+import 'package:gig_buddy/src/common/util/date_util.dart';
 
 class UserProfileView extends StatefulWidget {
   const UserProfileView({required this.userId, super.key});
@@ -74,18 +77,13 @@ class _UserProfileViewState extends State<UserProfileView> {
                   onRefresh: refreshCallback,
                 ),
                 SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 8, left: 8, right: 8),
-                    child: Column(
-                      spacing: 20,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        buildUserImage(),
-                        buildUserLocation(),
-                        buildUserInterests(),
-                        buildUserEvents(),
-                      ],
-                    ),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 10),
+                      buildUserDetails(state),
+                      const SizedBox(height: 20),
+                      buildUserEvents(),
+                    ],
                   ),
                 ),
               ],
@@ -101,15 +99,35 @@ class _UserProfileViewState extends State<UserProfileView> {
       builder: (context, state) {
         if (state.user == null) {
           return const SizedBox(
-            width: 210,
-            height: 210,
+            width: 120,
+            height: 120,
             child: Center(child: CircularProgressIndicator.adaptive()),
           );
         }
 
-        return UserAvatarWidget(
-          userId: state.user!.id,
-          userImage: state.user!.userImage,
+        if (state.user!.userImage.isEmpty) {
+          return Container(
+            width: 120,
+            height: 120,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainer,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.person_2_rounded,
+              size: 60,
+              color: Theme.of(context)
+                  .colorScheme
+                  .onSurface
+                  .withValues(alpha: 0.5),
+            ),
+          );
+        }
+
+        return CircleAvatar(
+          backgroundImage: NetworkImage(state.user!.userImage),
+          radius: 60,
+          backgroundColor: Colors.transparent,
         );
       },
     );
@@ -123,146 +141,414 @@ class _UserProfileViewState extends State<UserProfileView> {
         }
         return Text(
           state.user!.username,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
         );
       },
     );
   }
 
-  SurfaceContainer buildUserLocation() {
-    return SurfaceContainer(
-      isExpanded: true,
-      child: BlocBuilder<ProfileBloc, ProfileState>(
-        builder: (context, state) {
-          if (state.user == null) {
-            return const SizedBox(
-              width: 210,
-              height: 210,
-              child: Center(child: CircularProgressIndicator.adaptive()),
-            );
-          }
-          return Row(
-            children: [
-              Icon(
-                Icons.location_on,
-                size: 20,
-              ),
-              SizedBox(
-                width: 10,
-              ),
-              Text(
-                'Ankara',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
+  Widget buildUserDetails(ProfileState state) {
+    if (state.user == null) {
+      return const Center(child: CircularProgressIndicator.adaptive());
+    }
 
-  SurfaceContainer buildUserInterests() {
-    return SurfaceContainer(
-      isExpanded: true,
-      child: BlocBuilder<ProfileBloc, ProfileState>(
-        builder: (context, state) {
-          if (state.user == null) {
-            return const SizedBox(
-              width: 210,
-              height: 210,
-              child: Center(child: CircularProgressIndicator.adaptive()),
-            );
-          }
-          return Column(
-            spacing: 10,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                context.l10.profile_view_interests,
-                style:
-                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              if (state.user!.interests.isEmpty) const Text('No interests'),
-              Wrap(
-                spacing: 10,
-                children: state.user!.interests.map((interest) {
-                  return Chip(
-                    label: Text(interest.name),
-                  );
-                }).toList(),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
+    final birthdate = state.user!.birthdate != null
+        ? DateUtil.getBirthDate(state.user!.birthdate!)
+        : context.l10.no_set;
 
-  BlocBuilder<EventBloc, EventState> buildUserEvents() {
-    return BlocBuilder<EventBloc, EventState>(
-      builder: (context, state) {
-        return Padding(
-          padding: const EdgeInsets.only(top: 8, left: 8, right: 20),
+    final gender = state.user!.gender != null
+        ? state.user!.gender!.value
+        : context.l10.no_set;
+
+    return Column(
+      children: [
+        // User Avatar and Basic Info Section
+        Container(
+          padding: const EdgeInsets.all(20),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 20,
             children: [
-              const Text(
-                'Users going to this event',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+              buildUserImage(),
+              const SizedBox(height: 16),
+              buildUserName(),
+              const SizedBox(height: 8),
+              // Birthdate and Gender Chips
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  if (state.user!.birthdate != null)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primaryContainer,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.cake,
+                            size: 16,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onPrimaryContainer,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            birthdate,
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimaryContainer,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  if (state.user!.gender != null)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.secondaryContainer,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            state.user!.gender == Gender.male
+                                ? Icons.male
+                                : state.user!.gender == Gender.other
+                                    ? Icons.transgender
+                                    : Icons.female,
+                            size: 16,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSecondaryContainer,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            gender,
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSecondaryContainer,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+            ],
+          ),
+        ),
+
+        // User Details Section
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainer,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            children: [
+              // Gig Buddy ID Section
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.secondaryContainer,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.badge_outlined,
+                    size: 20,
+                    color: Theme.of(context).colorScheme.onSecondaryContainer,
+                  ),
+                ),
+                title: Text(
+                  context.l10.profile_view_gig_buddy_id,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withValues(alpha: 0.7),
+                      ),
+                ),
+                subtitle: Text(
+                  state.user!.id,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'monospace',
+                      ),
+                ),
+                trailing: IconButton(
+                  icon: Icon(
+                    Icons.content_copy_outlined,
+                    size: 20,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  onPressed: () {
+                    Clipboard.setData(ClipboardData(text: state.user!.id));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(context.l10.copy_to_clipboard),
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(8)),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                dense: true,
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              ),
+
+              // Creation Date Section
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.tertiaryContainer,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.calendar_today_outlined,
+                    size: 20,
+                    color: Theme.of(context).colorScheme.onTertiaryContainer,
+                  ),
+                ),
+                title: Text(
+                  context.l10.profile_view_creation_date,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withValues(alpha: 0.7),
+                      ),
+                ),
+                subtitle: Text(
+                  DateUtil.getDate(state.user!.createdAt, context),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w500,
+                      ),
+                ),
+                dense: true,
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 16),
+
+        // Interests Section
+        if (state.user!.interests.isNotEmpty)
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainer,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.favorite_outline,
+                  size: 20,
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
                 ),
               ),
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: state.currentProfileEvents?.length ?? 0,
-                itemBuilder: (context, index) {
-                  return EventCardProfile(
+              title: Text(
+                context.l10.profile_view_interests,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withValues(alpha: 0.7),
+                    ),
+              ),
+              subtitle: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: state.user!.interests
+                      .map(
+                        (e) => Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .primary
+                                .withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .primary
+                                  .withValues(alpha: 0.3),
+                              width: 1,
+                            ),
+                          ),
+                          child: Text(
+                            e.name,
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelSmall
+                                ?.copyWith(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                          ),
+                        ),
+                      )
+                      .toList(),
+                ),
+              ),
+              dense: true,
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget buildUserEvents() {
+    return BlocBuilder<EventBloc, EventState>(
+      buildWhen: (previous, current) =>
+          previous.currentProfileEvents != current.currentProfileEvents ||
+          previous.requestState != current.requestState,
+      builder: (context, state) {
+        if (state.requestState.isError) {
+          return Center(
+            child: Column(
+              children: [
+                Text(
+                  context.l10.you_have_not_joined_any_events_yet,
+                ),
+                const SizedBox(height: 20),
+                GigElevatedButton(
+                  onPressed: () {
+                    context
+                        .read<EventBloc>()
+                        .add(GetEventsByUserId(widget.userId));
+                  },
+                  child: Text(context.l10.try_again),
+                ),
+              ],
+            ),
+          );
+        }
+        if (state.currentProfileEvents == null) {
+          return const Center(
+            child: CircularProgressIndicator.adaptive(),
+          );
+        }
+        if (state.currentProfileEvents!.isEmpty) {
+          return Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainer,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              children: [
+                Icon(
+                  Icons.event_busy_outlined,
+                  size: 48,
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onSurface
+                      .withValues(alpha: 0.5),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  context.l10.you_have_not_joined_any_events_yet,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withValues(alpha: 0.7),
+                      ),
+                ),
+              ],
+            ),
+          );
+        }
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Text(
+                'Etkinlikler',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+            ),
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: state.currentProfileEvents!.length,
+              itemBuilder: (context, index) {
+                final event = state.currentProfileEvents![index];
+                return Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  child: EventCardProfile(
                     userId: widget.userId,
-                    id: state.currentProfileEvents![index].id,
-                    title: state.currentProfileEvents![index].name,
-                    subtitle: state.currentProfileEvents![index].name,
-                    startDateTime: state.currentProfileEvents![index].start,
-                    location: state.currentProfileEvents![index].location,
-                    imageUrl: state
-                            .currentProfileEvents![index].images.isNotEmpty
-                        ? state.currentProfileEvents![index].images.first.url
-                        : null,
-                    distance: state.currentProfileEvents![index].distance,
-                    isJoined: state.currentProfileEvents![index].isJoined,
-                    isMatched: state.currentProfileEvents![index].isMatched!,
-                    buddyRequestStatus:
-                        state.currentProfileEvents![index].buddyRequestStatus,
+                    id: event.id,
+                    title: event.name,
+                    subtitle: event.name,
+                    startDateTime: event.start,
+                    location: event.location,
+                    imageUrl:
+                        event.images.isNotEmpty ? event.images.first.url : null,
+                    distance: event.distance,
+                    isJoined: event.isJoined,
+                    isMatched: event.isMatched!,
+                    buddyRequestStatus: event.buddyRequestStatus,
                     onTap: () {
                       context.pushNamed(
                         AppRoute.eventDetailView.name,
-                        extra: state.currentProfileEvents![index],
-                        pathParameters: {
-                          'eventId': state.currentProfileEvents![index].id,
-                        },
+                        extra: event,
+                        pathParameters: {'eventId': event.id},
                       );
                     },
                     onMatchChanged: (isMatched) {
                       context.read<BuddyBloc>().add(
                             CreateBuddyRequest(
-                              eventId: state.currentProfileEvents![index].id,
+                              eventId: event.id,
                               receiverId: widget.userId,
                             ),
                           );
                     },
-                  );
-                },
-              ),
-            ],
-          ),
+                  ),
+                );
+              },
+            ),
+          ],
         );
       },
     );

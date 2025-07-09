@@ -1,10 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gig_buddy/core/extensions/context_extensions.dart';
-import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
-import 'package:gig_buddy/src/common/modal/action_sheet.dart';
 import 'package:gig_buddy/src/features/settings/helpers/settings_controller.dart';
+import 'package:gig_buddy/src/features/settings/helpers/settings_service.dart';
 import 'package:gig_buddy/src/route/router.dart';
 
 /// Displays the various settings that can be customized by the user.
@@ -49,44 +47,47 @@ class SettingsView extends StatelessWidget {
                   icon: settingsController.themeMode == Brightness.light
                       ? CupertinoIcons.sun_max
                       : CupertinoIcons.moon_stars_fill,
-                  title:  context.l10.settings_view_theme,
+                  title: context.l10.settings_view_theme,
                   color: settingsController.themeMode == Brightness.light
                       ? Theme.of(context).colorScheme.primary
                       : Theme.of(context).colorScheme.onPrimary,
                 ),
                 child: CupertinoButton(
                   onPressed: () {
-                    CupertinoAction.showModalPopup(
-                      context,
-                      cancelButton: CupertinoActionSheetAction(
-                        onPressed: goRouter.pop,
-                        child:  Text(context.l10.cancel),
+                    showCupertinoModalPopup<void>(
+                      context: context,
+                      builder: (BuildContext context) => CupertinoActionSheet(
+                        cancelButton: CupertinoActionSheetAction(
+                          onPressed: () => goRouter.pop(),
+                          child: Text(context.l10.cancel),
+                        ),
+                        actions: [
+                          CupertinoActionSheetAction(
+                            onPressed: () {
+                              settingsController
+                                  .updateThemeMode(Brightness.light);
+                              goRouter.pop();
+                            },
+                            child: Text(context.l10.settings_view_theme_light),
+                          ),
+                          CupertinoActionSheetAction(
+                            onPressed: () {
+                              settingsController
+                                  .updateThemeMode(Brightness.dark);
+                              goRouter.pop();
+                            },
+                            child: Text(context.l10.settings_view_theme_dark),
+                          ),
+                          CupertinoActionSheetAction(
+                            onPressed: () {
+                              settingsController.setDefaultThemeMode();
+                              goRouter.pop();
+                            },
+                            child: Text(context.l10.settings_view_theme_system),
+                          ),
+                        ],
+                        title: Text(context.l10.settings_view_theme_select),
                       ),
-                      actions: [
-                        CupertinoActionSheetAction(
-                          onPressed: () {
-                            settingsController
-                                .updateThemeMode(Brightness.light);
-                            goRouter.pop();
-                          },
-                          child:  Text(context.l10.settings_view_theme_light),
-                        ),
-                        CupertinoActionSheetAction(
-                          onPressed: () {
-                            settingsController.updateThemeMode(Brightness.dark);
-                            goRouter.pop();
-                          },
-                          child:  Text(context.l10.settings_view_theme_dark),
-                        ),
-                        CupertinoActionSheetAction(
-                          onPressed: () {
-                            settingsController.setDefaultThemeMode();
-                            goRouter.pop();
-                          },
-                          child: Text(context.l10.settings_view_theme_system),
-                        ),
-                      ],
-                      title:  Text(context.l10.settings_view_theme_select),
                     );
                   },
                   child: const Text('Change '),

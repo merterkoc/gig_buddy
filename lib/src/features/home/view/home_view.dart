@@ -7,9 +7,7 @@ import 'package:flutter/cupertino.dart'
         CupertinoSliverRefreshControl;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:gig_buddy/core/extensions/context_extensions.dart';
-import 'package:gig_buddy/core/ui/app_ui.dart';
 import 'package:gig_buddy/src/app_ui/widgets/buttons/gig_elevated_button.dart';
 import 'package:gig_buddy/src/app_ui/widgets/other/try_again.dart';
 import 'package:gig_buddy/src/bloc/event/event_bloc.dart';
@@ -68,7 +66,7 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
   Future<void> refreshHomePageEvent() {
     _refreshCompleter = Completer<void>();
     fetchData();
-    return _refreshCompleter!.future;
+    return _refreshCompleter.future;
   }
 
   @override
@@ -77,7 +75,7 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
       listenWhen: (previous, current) => previous.events != current.events,
       listener: (context, state) {
         if (!state.requestState.isLoading) {
-          _refreshCompleter?.complete();
+          _refreshCompleter.complete();
         }
       },
       child: Scaffold(

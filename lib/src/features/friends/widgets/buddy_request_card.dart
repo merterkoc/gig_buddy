@@ -1,16 +1,15 @@
-import 'package:flutter/material.dart';
-import 'package:gig_buddy/src/common/widgets/containers/surface_container.dart';
-import 'package:gig_buddy/src/service/model/buddy_requests/buddy_requests.dart';
-import 'package:gig_buddy/src/service/model/enum/buddy_request_status.dart';
-import 'package:gig_buddy/src/common/widgets/avatar_image/avatar_image.dart';
-import 'package:gig_buddy/src/common/widgets/user/user_avatar_widget.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:gig_buddy/src/app_ui/widgets/buttons/gig_elevated_button.dart';
-import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:gig_buddy/src/route/router.dart';
+
 import 'package:gig_buddy/core/extensions/context_extensions.dart';
+import 'package:gig_buddy/src/app_ui/widgets/buttons/gig_elevated_button.dart';
+import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
+import 'package:gig_buddy/src/common/widgets/containers/surface_container.dart';
+import 'package:gig_buddy/src/route/router.dart';
+import 'package:gig_buddy/src/service/model/buddy_requests/buddy_requests.dart';
+import 'package:gig_buddy/src/service/model/enum/buddy_request_status.dart';
 
 class BuddyRequestCard extends StatefulWidget {
   const BuddyRequestCard({
@@ -135,9 +134,7 @@ class _BuddyRequestCardState extends State<BuddyRequestCard> {
                                   shape: BoxShape.circle,
                                   border: Border.all(
                                     color: isCurrentUserSender
-                                        ? Theme.of(context)
-                                            .colorScheme
-                                            .primary
+                                        ? Theme.of(context).colorScheme.primary
                                         : Colors.transparent,
                                     width: 2,
                                   ),
@@ -164,8 +161,7 @@ class _BuddyRequestCardState extends State<BuddyRequestCard> {
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       widget.buddyRequests.sender.username,
@@ -216,12 +212,10 @@ class _BuddyRequestCardState extends State<BuddyRequestCard> {
                               children: [
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.end,
+                                    crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
                                       Text(
-                                        widget
-                                            .buddyRequests.receiver.username,
+                                        widget.buddyRequests.receiver.username,
                                         style: Theme.of(context)
                                             .textTheme
                                             .titleMedium
@@ -258,12 +252,12 @@ class _BuddyRequestCardState extends State<BuddyRequestCard> {
                                         ? Image.network(
                                             receiverImage,
                                             fit: BoxFit.cover,
-                                            errorBuilder: (context, error,
-                                                    stackTrace) =>
-                                                Icon(Icons.person,
-                                                    color: Theme.of(context)
-                                                        .colorScheme
-                                                        .primary),
+                                            errorBuilder:
+                                                (context, error, stackTrace) =>
+                                                    Icon(Icons.person,
+                                                        color: Theme.of(context)
+                                                            .colorScheme
+                                                            .primary),
                                           )
                                         : Icon(Icons.person,
                                             color: Theme.of(context)

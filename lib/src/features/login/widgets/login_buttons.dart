@@ -52,7 +52,7 @@ class LoginButtons extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           surfaceTintColor: Colors.black,
           foregroundColor: Colors.white,
-          overlayColor: Colors.white.withOpacity(1),
+          overlayColor: Colors.white.withValues(alpha: 0.5),
           animationDuration: Duration.zero,
           shadowColor: Colors.black,
           backgroundColor: Colors.black,
