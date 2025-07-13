@@ -6,6 +6,7 @@ import 'package:gig_buddy/core/extensions/context_extensions.dart';
 import 'package:gig_buddy/src/bloc/authentication/auth_bloc.dart';
 import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
 import 'package:gig_buddy/src/bloc/profile/profile_bloc.dart';
+import 'package:gig_buddy/src/common/widgets/cached_avatar_image.dart';
 import 'package:gig_buddy/src/common/widgets/user/user_avatar_widget.dart';
 import 'package:gig_buddy/src/features/settings/helpers/settings_controller.dart';
 import 'package:go_router/go_router.dart';
@@ -25,7 +26,7 @@ class ScaffoldWithNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      resizeToAvoidBottomInset: false,
+
       child: Column(
         children: [
           Expanded(
@@ -40,7 +41,8 @@ class ScaffoldWithNavBar extends StatelessWidget {
   Widget _buildAppleMusicStyleNavBar(BuildContext context) {
     return ClipRRect(
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 1250, sigmaY: 1250,tileMode: TileMode.repeated),
+        filter: ImageFilter.blur(
+            sigmaX: 1250, sigmaY: 1250, tileMode: TileMode.repeated),
         child: Container(
           decoration: BoxDecoration(
             color: settingsController.themeMode == Brightness.dark
@@ -168,12 +170,9 @@ class ScaffoldWithNavBar extends StatelessWidget {
           return SizedBox(
             width: 28,
             height: 28,
-            child: CircleAvatar(
+            child: CachedAvatarImage(
+              imageUrl: context.read<LoginBloc>().state.user!.userImage,
               radius: 12,
-              backgroundImage: NetworkImage(
-                context.read<LoginBloc>().state.user!.userImage,
-              ),
-              backgroundColor: Colors.transparent,
             ),
           );
         },

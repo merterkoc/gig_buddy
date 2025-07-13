@@ -93,6 +93,20 @@ class SettingsView extends StatelessWidget {
                   child: const Text('Change '),
                 ),
               ),
+              const SizedBox(height: 20),
+              CupertinoFormRow(
+                prefix: PrefixWidget(
+                  icon: CupertinoIcons.book_fill,
+                  title: context.l10.onboarding_title,
+                  color: CupertinoColors.systemBlue,
+                ),
+                child: CupertinoButton(
+                  onPressed: () {
+                    goRouter.pushNamed(AppRoute.onBoardingView.name);
+                  },
+                  child: Text(context.l10.onboarding_show),
+                ),
+              ),
             ],
           ),
         ),

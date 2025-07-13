@@ -8,12 +8,11 @@ class DateUtil {
     final now = DateTime.now();
     final dateTime = DateTime.parse(date);
     final difference = now.difference(dateTime);
+
     if (difference.inDays == 0) {
-      return  context.l10.today;
+      return context.l10.today;
     } else if (difference.inDays == 1) {
       return context.l10.yesterday;
-    } else if (difference.inDays == 2) {
-      return context.l10.tomorrow;
     } else {
       if (dateTime.year != now.year) {
         return DateFormat('dd MMMM yyyy').format(dateTime);
@@ -22,6 +21,7 @@ class DateUtil {
       }
     }
   }
+
   static String getBirthDate(DateTime date) {
     return DateFormat('dd MMMM yyyy').format(date);
   }

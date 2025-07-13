@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gig_buddy/src/bloc/profile/profile_bloc.dart';
+import 'package:gig_buddy/src/helper/chat/chat_helper.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:gig_buddy/core/extensions/context_extensions.dart';
@@ -290,18 +292,31 @@ class _BuddyRequestCardState extends State<BuddyRequestCard> {
 
     if (widget.onAccept != null) {
       if (status == BuddyRequestStatus.accepted) {
-        return GigElevatedButton(
-          onPressed: () {
-            // DM ekranına yönlendir
-            context.pushNamed(AppRoute.chatView.name);
+        return BlocListener<ProfileBloc, ProfileState>(
+          listenWhen: (previous, current) =>
+              previous.user != current.user ||
+              previous.requestState != current.requestState,
+          listener: (context, state) {
+            if (!state.requestState.isLoading &&
+                state.user != null &&
+                state.requestState.isSuccess) {
+              ChatHelper.startChat(context, state.user!);
+            }
           },
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(CupertinoIcons.chat_bubble_2, size: 18),
-              const SizedBox(width: 8),
-              Text(context.l10.button_message),
-            ],
+          child: GigElevatedButton(
+            onPressed: () {
+              context
+                  .read<ProfileBloc>()
+                  .add(FetchUserProfile(widget.buddyRequests.sender.id));
+            },
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(CupertinoIcons.chat_bubble_2, size: 18),
+                const SizedBox(width: 8),
+                Text(context.l10.button_message),
+              ],
+            ),
           ),
         );
       } else if (status == BuddyRequestStatus.rejected) {

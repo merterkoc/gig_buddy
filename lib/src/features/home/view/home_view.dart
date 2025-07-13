@@ -18,6 +18,7 @@ import 'package:gig_buddy/src/common/manager/location_manager.dart';
 import 'package:gig_buddy/src/common/widgets/cards/event_mini_card.dart';
 import 'package:gig_buddy/src/features/home/view/home_view_state_mixin.dart';
 import 'package:gig_buddy/src/route/router.dart';
+import 'package:gig_buddy/src/service/chat_service.dart';
 import 'package:gig_buddy/src/service/model/event_detail/event_detail.dart';
 import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -90,16 +91,42 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
           actions: [
             Padding(
               padding: const EdgeInsets.only(right: 16, top: 8, bottom: 8),
-              child: GestureDetector(
-                onTap: () {
-                  context.goNamed(AppRoute.profileView.name);
+              child: StreamBuilder<int>(
+                stream: ChatService().getTotalUnreadCount(),
+                builder: (context, snapshot) {
+                  final unreadCount = snapshot.data ?? 0;
+
+                  return Stack(
+                    children: [
+                      Badge(
+                        backgroundColor: Colors.red,
+                        textColor: Colors.white,
+                        smallSize: 6,
+                        largeSize: 16,
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        alignment: AlignmentDirectional.topEnd,
+                        offset: const Offset(4, -4),
+                        isLabelVisible: unreadCount > 0,
+                        label: unreadCount > 0
+                            ? Text(
+                                unreadCount.toString(),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              )
+                            : null,
+                        child: IconButton(
+                          icon: const Icon(CupertinoIcons.chat_bubble_2_fill),
+                          onPressed: () {
+                            context.pushNamed(AppRoute.chatView.name);
+                          },
+                        ),
+                      ),
+                    ],
+                  );
                 },
-                child: IconButton(
-                  icon: const Icon(CupertinoIcons.chat_bubble_2_fill),
-                  onPressed: () {
-                    context.goNamed(AppRoute.chatView.name);
-                  },
-                ),
               ),
             ),
           ],
@@ -169,12 +196,12 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
                                 const Duration(milliseconds: 300),
                             firstPageProgressIndicatorBuilder: (context) =>
                                 const Center(
-                                    child:
-                                        CircularProgressIndicator.adaptive()),
+                              child: CircularProgressIndicator.adaptive(),
+                            ),
                             newPageProgressIndicatorBuilder: (context) =>
                                 const Center(
-                                    child:
-                                        CircularProgressIndicator.adaptive()),
+                              child: CircularProgressIndicator.adaptive(),
+                            ),
                             itemBuilder: (context, item, index) {
                               return BlocBuilder<EventAvatarsCubit,
                                   EventAvatarsState>(

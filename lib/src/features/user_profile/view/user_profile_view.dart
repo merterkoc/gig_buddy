@@ -4,18 +4,23 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gig_buddy/src/helper/chat/chat_helper.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gig_buddy/core/extensions/context_extensions.dart';
 import 'package:gig_buddy/src/app_ui/widgets/buttons/gig_elevated_button.dart';
 import 'package:gig_buddy/src/bloc/buddy/buddy_bloc.dart';
 import 'package:gig_buddy/src/bloc/event/event_bloc.dart';
 import 'package:gig_buddy/src/bloc/profile/profile_bloc.dart';
+import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
 import 'package:gig_buddy/src/common/widgets/avatar_image/avatar_image.dart';
 import 'package:gig_buddy/src/common/widgets/cards/event_card_profile.dart';
 import 'package:gig_buddy/src/route/router.dart';
 import 'package:gig_buddy/src/service/model/enum/gender.dart';
 import 'package:gig_buddy/src/service/model/public_user/public_user_dto.dart';
+import 'package:gig_buddy/src/service/model/user/user_dto.dart';
 import 'package:gig_buddy/src/common/util/date_util.dart';
+import 'package:gig_buddy/src/service/chat_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class UserProfileView extends StatefulWidget {
   const UserProfileView({required this.userId, super.key});
@@ -59,6 +64,18 @@ class _UserProfileViewState extends State<UserProfileView> {
         appBar: AppBar(
           title: buildUserName(),
           forceMaterialTransparency: true,
+          actions: [
+            BlocBuilder<ProfileBloc, ProfileState>(
+              builder: (context, state) {
+                if (state.user == null) return const SizedBox.shrink();
+
+                return IconButton(
+                  icon: const Icon(Icons.message_outlined),
+                  onPressed: () => ChatHelper.startChat(context, state.user!),
+                );
+              },
+            ),
+          ],
         ),
         body: BlocBuilder<ProfileBloc, ProfileState>(
           buildWhen: (previous, current) =>

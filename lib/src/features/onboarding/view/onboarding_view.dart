@@ -9,10 +9,20 @@ class OnboardingView extends StatelessWidget {
     return Scaffold(
       body: OnboardingPagePresenter(
         onSkip: () {
-          goRouter.goNamed(AppRoute.homeView.name);
+          // Eğer settings'ten açıldıysa geri dön, değilse ana sayfaya git
+          if (goRouter.canPop()) {
+            goRouter.pop();
+          } else {
+            goRouter.goNamed(AppRoute.homeView.name);
+          }
         },
         onFinish: () {
-          goRouter.goNamed(AppRoute.homeView.name);
+          // Eğer settings'ten açıldıysa geri dön, değilse ana sayfaya git
+          if (goRouter.canPop()) {
+            goRouter.pop();
+          } else {
+            goRouter.goNamed(AppRoute.homeView.name);
+          }
         },
         pages: [
           OnboardingPageModel(
@@ -85,6 +95,23 @@ class _OnboardingPageState extends State<OnboardingPagePresenter> {
         child: SafeArea(
           child: Column(
             children: [
+              // Geri butonu - sadece settings'ten açıldığında göster
+              if (goRouter.canPop())
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        onPressed: () => goRouter.pop(),
+                        icon: const Icon(
+                          Icons.arrow_back,
+                          color: Colors.white,
+                          size: 28,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               Expanded(
                 // Pageview to render each page
                 child: PageView.builder(

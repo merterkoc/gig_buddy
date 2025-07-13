@@ -17,6 +17,7 @@ class PublicUserDto with _$PublicUserDto {
     @JsonKey(name: 'interests') required List<InterestDto> interests,
     @JsonKey(name: 'birthdate') DateTime? birthdate,
     @JsonKey(name: 'gender') Gender? gender,
+    @JsonKey(name: 'firebase_uid') String? firebaseUid,
   }) = _PublicUserDto;
 
   factory PublicUserDto.fromJson(Map<String, dynamic> json) =>

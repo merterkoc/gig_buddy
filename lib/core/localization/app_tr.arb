@@ -68,6 +68,7 @@
   "profile_edit_view_title": "Profili Düzenle",
   "profile_edit_view_birthdate": "Doğum Tarihi",
   "profile_edit_view_gender": "Cinsiyet",
+  "profile_view_fetch_image": "Please add a profile image",
 
   "select_birthdate": "Doğum Tarihi Seç",
   "no_date_selected": "Tarih Seçilmedi",
@@ -94,5 +95,132 @@
   "next" : "Sonraki",
   "change": "Değiştir",
   "cancel": "İptal",
-  "save" : "Kaydet"
+  "save" : "Kaydet",
+
+  "chat_title": "Chat",
+  "chat_no_messages": "Henüz hiç mesajınız yok",
+  "chat_no_messages_in_room": "Henüz mesaj yok\nİlk mesajı gönderin!",
+  "chat_message_hint": "Mesajınızı yazın...",
+  "chat_send_message": "Mesaj Gönder",
+  "chat_delete_message": "Mesajı Sil",
+  "chat_delete_chat": "Sohbeti Sil",
+  "chat_delete_chat_confirm": "Bu sohbeti silmek istediğinizden emin misiniz?",
+  "chat_online": "Çevrimiçi",
+  "chat_user": "Kullanıcı",
+  "chat_try_again": "Tekrar Dene",
+  "chat_unknown_user": "Bilinmeyen Kullanıcı",
+  "chat_you": "Sen",
+  "chat_now": "Şimdi",
+  "chat_minutes_ago": "{minutes} dk",
+  "@chat_minutes_ago": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "chat_days_ago": "{days} gün",
+  "@chat_days_ago": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "chat_yesterday": "Dün",
+  "chat_error": "Hata",
+  "chat_error_loading": "Yüklenirken hata oluştu",
+  "chat_error_sending": "Mesaj gönderilirken hata oluştu",
+  "chat_loading": "Yükleniyor...",
+  "chat_message_deleted": "Bu mesaj silindi",
+  "chat_message_edited": "Düzenlendi",
+  "chat_reply": "Yanıtla",
+  "chat_copy": "Kopyala",
+  "chat_edit": "Düzenle",
+  "chat_delete": "Sil",
+  "chat_cancel": "İptal",
+  "chat_save": "Kaydet",
+  "chat_confirm_delete_message": "Bu mesajı silmek istediğinizden emin misiniz?",
+  "chat_confirm_delete_chat": "Bu sohbeti silmek istediğinizden emin misiniz?",
+  "chat_message_sent": "Gönderildi",
+  "chat_message_delivered": "İletildi",
+  "chat_message_read": "Okundu",
+  "chat_typing": "yazıyor...",
+  "chat_online_status": "Çevrimiçi",
+  "chat_offline_status": "Çevrimdışı",
+  "chat_last_seen": "Son görülme",
+  "chat_unread_messages": "Okunmamış mesajlar",
+  "chat_mark_as_read": "Okundu olarak işaretle",
+  "chat_mute_notifications": "Bildirimleri sustur",
+  "chat_unmute_notifications": "Bildirimleri aç",
+  "chat_block_user": "Kullanıcıyı engelle",
+  "chat_unblock_user": "Engeli kaldır",
+  "chat_report_user": "Kullanıcıyı bildir",
+  "chat_share_chat": "Sohbeti paylaş",
+  "chat_search_messages": "Mesajlarda ara",
+  "chat_no_search_results": "Arama sonucu bulunamadı",
+  "chat_clear_chat": "Sohbeti temizle",
+  "chat_clear_chat_confirm": "Bu sohbetin tüm mesajlarını silmek istediğinizden emin misiniz?",
+  "chat_export_chat": "Sohbeti dışa aktar",
+  "chat_media": "Medya",
+  "chat_documents": "Belgeler",
+  "chat_photos": "Fotoğraflar",
+  "chat_videos": "Videolar",
+  "chat_audio": "Ses",
+  "chat_location": "Konum",
+  "chat_contact": "Kişi",
+  "chat_camera": "Kamera",
+  "chat_gallery": "Galeri",
+  "chat_file": "Dosya",
+  "chat_voice_message": "Sesli mesaj",
+  "chat_stop_recording": "Kaydı durdur",
+  "chat_start_recording": "Kayda başla",
+  "chat_recording": "Kaydediliyor...",
+  "chat_play": "Oynat",
+  "chat_pause": "Duraklat",
+  "chat_stop": "Durdur",
+  "chat_forward": "İlet",
+  "chat_reply_to": "Yanıtla",
+  "chat_quote": "Alıntıla",
+  "chat_emoji": "Emoji",
+  "chat_sticker": "Sticker",
+  "chat_gif": "GIF",
+  "chat_more": "Daha fazla",
+  "chat_less": "Daha az",
+  "chat_today": "Bugün",
+  "chat_yesterday": "Dün",
+  "chat_this_week": "Bu hafta",
+  "chat_last_week": "Geçen hafta",
+  "chat_this_month": "Bu ay",
+  "chat_last_month": "Geçen ay",
+  "chat_this_year": "Bu yıl",
+  "chat_last_year": "Geçen yıl",
+  "chat_time_format": "{hour}:{minute}",
+  "@chat_time_format": {
+    "placeholders": {
+      "hour": {
+        "type": "String"
+      },
+      "minute": {
+        "type": "String"
+      }
+    }
+  },
+  "chat_date_format": "{day}.{month}.{year}",
+  "@chat_date_format": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      },
+      "month": {
+        "type": "int"
+      },
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+
+  "onboarding_title": "Onboarding",
+  "onboarding_show": "Göster"
 }

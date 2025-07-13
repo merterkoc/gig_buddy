@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
-import 'package:gig_buddy/src/common/firebase/manager/auth_manager.dart';
 import 'package:gig_buddy/src/features/chat/view/chat_view.dart';
+import 'package:gig_buddy/src/features/chat/view/chat_detail_view.dart';
 import 'package:gig_buddy/src/features/event_detail/view/event_detail_view.dart';
 import 'package:gig_buddy/src/features/friends/view/firends_view.dart';
 import 'package:gig_buddy/src/features/home/view/home_view.dart';
@@ -19,7 +19,6 @@ import 'package:gig_buddy/src/features/user_attributes/view/user_details_view.da
 import 'package:gig_buddy/src/features/user_profile/view/user_profile_view.dart';
 import 'package:gig_buddy/src/features/venue_detail/view/venue_detail_view.dart';
 import 'package:gig_buddy/src/http/dio/interface/i_dio_client.dart';
-import 'package:gig_buddy/src/repository/event_repository.dart';
 import 'package:gig_buddy/src/route/authentication_listener.dart';
 import 'package:gig_buddy/src/route/nav_bar.dart';
 import 'package:gig_buddy/src/route/sheel_route.dart';
@@ -37,6 +36,7 @@ final SettingsController settingsController =
     SettingsController(SettingsService());
 
 final controller = ScrollController();
+
 enum AppRoute {
   onBoardingView(path: '/onBoardingView'),
   homeView(path: '/homeView'),
@@ -47,6 +47,7 @@ enum AppRoute {
   profileUserDetailEditView(path: 'profileUserDetailsEditView'),
   profileUserInterestsView(path: 'profileUserInterestsView'),
   chatView(path: '/chatView'),
+  chatDetailView(path: '/chat/:chatId'),
   userProfileView(path: '/userProfileView/:userId'),
   settingsView(path: '/settingsView'),
   friendsView(path: '/friendsView'),
@@ -115,7 +116,6 @@ final GoRouter goRouter = GoRouter(
                   path: AppRoute.homeView.path,
                   name: AppRoute.homeView.name,
                   pageBuilder: (BuildContext context, GoRouterState state) {
-
                     return CupertinoPage<void>(
                       key: state.pageKey,
                       child: HomeView(
@@ -165,13 +165,6 @@ final GoRouter goRouter = GoRouter(
                         return VenueDetailView(
                           venue: extra,
                         );
-                      },
-                    ),
-                    GoRoute(
-                      path: AppRoute.chatView.path,
-                      name: AppRoute.chatView.name,
-                      builder: (BuildContext context, GoRouterState state) {
-                        return const ChatView();
                       },
                     ),
                   ],
@@ -236,6 +229,22 @@ final GoRouter goRouter = GoRouter(
               ],
             ),
           ],
+        ),
+
+        GoRoute(
+          path: AppRoute.chatView.path,
+          name: AppRoute.chatView.name,
+          builder: (BuildContext context, GoRouterState state) {
+            return const ChatView();
+          },
+        ),
+        GoRoute(
+          path: AppRoute.chatDetailView.path,
+          name: AppRoute.chatDetailView.name,
+          builder: (BuildContext context, GoRouterState state) {
+            final chatId = state.pathParameters['chatId']!;
+            return ChatDetailView(chatId: chatId);
+          },
         ),
       ],
     ),

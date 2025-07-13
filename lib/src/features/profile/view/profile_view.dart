@@ -10,6 +10,7 @@ import 'package:gig_buddy/src/bloc/event/event_bloc.dart';
 import 'package:gig_buddy/src/bloc/login/login_bloc.dart';
 import 'package:gig_buddy/src/common/firebase/manager/auth_manager.dart';
 import 'package:gig_buddy/src/common/util/date_util.dart';
+import 'package:gig_buddy/src/common/widgets/cached_avatar_image.dart';
 import 'package:gig_buddy/src/features/profile/view/profile_listener.dart';
 import 'package:gig_buddy/src/features/profile/widgets/user_events.dart';
 import 'package:gig_buddy/src/route/router.dart';
@@ -152,6 +153,40 @@ class _ProfileViewState extends State<ProfileView> {
     );
   }
 
+  BlocBuilder<LoginBloc, LoginState> buildCachedUserImage() {
+    return BlocBuilder<LoginBloc, LoginState>(
+      buildWhen: (previous, current) =>
+          previous.user?.userImage != current.user?.userImage,
+      builder: (context, state) {
+        if (state.user == null) {
+          return const Center(child: CircularProgressIndicator.adaptive());
+        } else if (state.user == null || state.user!.userImage.isEmpty) {
+          return Center(
+            child: Column(
+              spacing: 8,
+              children: [
+                GigElevatedButton(
+                  onPressed: () {
+                    goRouter.pushNamed(AppRoute.profileUserDetailEditView.name);
+                  },
+                  padding: const EdgeInsets.all(12),
+                  child: Text(
+                    context.l10.profile_view_fetch_image,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+        return CachedAvatarImage(
+          imageUrl: state.user!.userImage,
+          radius: 50,
+        );
+      },
+    );
+  }
+
   BlocBuilder<LoginBloc, LoginState> buildUserName() {
     return BlocBuilder<LoginBloc, LoginState>(
       buildWhen: (previous, current) =>
@@ -193,7 +228,7 @@ class _ProfileViewState extends State<ProfileView> {
               padding: const EdgeInsets.all(20),
               child: Column(
                 children: [
-                  buildUserImage(),
+                  buildCachedUserImage(),
                   const SizedBox(height: 16),
                   buildUserName(),
                   const SizedBox(height: 8),
@@ -205,7 +240,9 @@ class _ProfileViewState extends State<ProfileView> {
                       if (state.user!.birthdate != null)
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 6),
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
                           decoration: BoxDecoration(
                             color:
                                 Theme.of(context).colorScheme.primaryContainer,
@@ -240,7 +277,9 @@ class _ProfileViewState extends State<ProfileView> {
                       if (state.user!.gender != null)
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 6),
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
                           decoration: BoxDecoration(
                             color: Theme.of(context)
                                 .colorScheme
@@ -331,7 +370,8 @@ class _ProfileViewState extends State<ProfileView> {
                             width: 20,
                             height: 20,
                             child: CircularProgressIndicator.adaptive(
-                                strokeWidth: 2),
+                              strokeWidth: 2,
+                            ),
                           );
                         } else if (state
                             .emailVerificationRequestState.isSuccess) {
@@ -371,7 +411,8 @@ class _ProfileViewState extends State<ProfileView> {
                               width: 20,
                               height: 20,
                               child: CircularProgressIndicator.adaptive(
-                                  strokeWidth: 2),
+                                strokeWidth: 2,
+                              ),
                             );
                           },
                         );
@@ -476,94 +517,91 @@ class _ProfileViewState extends State<ProfileView> {
             ),
 
             const SizedBox(height: 16),
-
-            // Interests Section
-            if (state.user!.interests != null &&
-                state.user!.interests!.isNotEmpty)
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 16),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainer,
-                  borderRadius: BorderRadius.circular(16),
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainer,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.favorite_outline,
+                    size: 20,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  ),
                 ),
-                child: ListTile(
-                  leading: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primaryContainer,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Icon(
-                      Icons.favorite_outline,
-                      size: 20,
-                      color: Theme.of(context).colorScheme.onPrimaryContainer,
-                    ),
-                  ),
-                  title: Text(
-                    context.l10.profile_view_interests,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurface
-                              .withValues(alpha: 0.7),
-                        ),
-                  ),
-                  subtitle: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 6),
-                    child: Wrap(
-                      spacing: 6,
-                      runSpacing: 6,
-                      children: state.user!.interests!
-                          .map(
-                            (e) => Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 4),
-                              decoration: BoxDecoration(
+                title: Text(
+                  context.l10.profile_view_interests,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withValues(alpha: 0.7),
+                      ),
+                ),
+                subtitle: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  child: Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: state.user!.interests!
+                        .map(
+                          (e) => Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .primary
+                                  .withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
                                 color: Theme.of(context)
                                     .colorScheme
                                     .primary
-                                    .withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .primary
-                                      .withValues(alpha: 0.3),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Text(
-                                e.name,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .labelSmall
-                                    ?.copyWith(
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
-                                      fontWeight: FontWeight.w500,
-                                    ),
+                                    .withValues(alpha: 0.3),
                               ),
                             ),
-                          )
-                          .toList(),
-                    ),
+                            child: Text(
+                              e.name,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelSmall
+                                  ?.copyWith(
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                            ),
+                          ),
+                        )
+                        .toList(),
                   ),
-                  trailing: Icon(
-                    Icons.arrow_forward_ios,
-                    size: 16,
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withValues(alpha: 0.5),
-                  ),
-                  onTap: () {
-                    context.goNamed(AppRoute.profileUserInterestsView.name);
-                  },
-                  dense: true,
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
+                trailing: Icon(
+                  Icons.arrow_forward_ios,
+                  size: 16,
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onSurface
+                      .withValues(alpha: 0.5),
+                ),
+                onTap: () {
+                  context.goNamed(AppRoute.profileUserInterestsView.name);
+                },
+                dense: true,
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               ),
+            ),
           ],
         );
       },
@@ -622,9 +660,11 @@ class _VerificationButtonState extends State<VerificationButton> {
   Widget build(BuildContext context) {
     return GigElevatedButton(
       onPressed: _isButtonEnabled ? _onButtonPressed : null,
-      child: Text(_isButtonEnabled
-          ? context.l10.profile_view_verify_now
-          : context.l10.profile_view_verify_email_waiting(_remainingSeconds)),
+      child: Text(
+        _isButtonEnabled
+            ? context.l10.profile_view_verify_now
+            : context.l10.profile_view_verify_email_waiting(_remainingSeconds),
+      ),
     );
   }
 }
