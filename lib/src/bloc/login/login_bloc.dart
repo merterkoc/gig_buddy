@@ -14,14 +14,21 @@ import 'package:gig_buddy/src/http/dio/model/response_entity.dart';
 import 'package:gig_buddy/src/repository/identity_repository.dart';
 import 'package:gig_buddy/src/service/model/interest/interest_dto.dart';
 import 'package:gig_buddy/src/service/model/user/user_dto.dart';
+import 'package:gig_buddy/src/service/notification_service.dart';
+import 'package:gig_buddy/src/common/manager/location_manager.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:gig_buddy/src/repository/user_metadata_repository.dart';
 
 part 'login_event.dart';
 
 part 'login_state.dart';
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
-  LoginBloc(this._authManager, this._identityRepository)
-      : super(LoginState.initial()) {
+  LoginBloc(this._authManager, this._identityRepository,
+      [UserMetadataRepository? userMetadataRepository])
+      : _userMetadataRepository =
+            userMetadataRepository ?? UserMetadataRepository(),
+        super(LoginState.initial()) {
     on<LoginInitState>(_onInit);
     on<SignInWithGoogle>(_onSignInWithGoogle);
     on<CreateAccount>(_onCreateAccount);
@@ -32,10 +39,12 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     on<FetchAllInterests>(_onFetchAllInterests);
     on<PatchUserInterests>(_onPatchUserInterests, transformer: sequential());
     on<VerifyEmail>(_onVerifyEmail);
+    on<SendMetadata>(_onSendMetadata);
   }
 
   final AuthManager _authManager;
   final IdentityRepository _identityRepository;
+  final UserMetadataRepository _userMetadataRepository;
 
   Future<void> _onInit(LoginInitState event, Emitter<LoginState> emit) async {
     emit(LoginState.initial());
@@ -121,6 +130,9 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       );
       await _identityRepository
           .setToken(OAuth2Token(accessToken: response.data!.token));
+
+      add(SendMetadata());
+
       emit(
         state.copyWith(
           submitEmail: ResponseEntity.success(),
@@ -218,5 +230,20 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       emit(state.copyWith(emailVerificationRequestState: RequestState.error));
       rethrow;
     }
+  }
+
+  Future<void> _onSendMetadata(
+    SendMetadata event,
+    Emitter<LoginState> emit,
+  ) async {
+    final fcmtToken = await FirebaseMessaging.instance.getToken();
+    final location = LocationManager.currentLocation;
+    final notificationEnabled =
+        await NotificationService.instance.notificationsEnabled;
+    await _userMetadataRepository.patchUserMetadata(
+      fcmt_token: fcmtToken,
+      location: location,
+      notification_enabled: notificationEnabled,
+    );
   }
 }

@@ -14,6 +14,8 @@ import 'package:gig_buddy/src/repository/buddy_repository.dart';
 import 'package:gig_buddy/src/repository/event_repository.dart';
 import 'package:gig_buddy/src/repository/identity_repository.dart';
 import 'package:gig_buddy/src/route/router.dart';
+import 'package:gig_buddy/src/service/notification_service.dart';
+import 'package:gig_buddy/src/common/widgets/notification_overlay.dart';
 import 'package:gig_buddy/src/theme/blue/blue_theme.dart';
 import 'package:gig_buddy/src/theme/material_theme.dart';
 import 'package:gig_buddy/src/theme/util.dart';
@@ -80,6 +82,7 @@ class GigBuddyApp extends StatelessWidget {
             ),
           ],
           child: MaterialApp.router(
+            debugShowCheckedModeBanner: false,
             backButtonDispatcher: goRouter.backButtonDispatcher,
             routeInformationProvider: goRouter.routeInformationProvider,
             routeInformationParser: goRouter.routeInformationParser,

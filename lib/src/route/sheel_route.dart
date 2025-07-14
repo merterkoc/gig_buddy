@@ -2,8 +2,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:gig_buddy/src/common/widgets/notification_overlay.dart';
 import 'package:gig_buddy/src/route/authentication_listener.dart';
 import 'package:gig_buddy/src/route/global_listener/global_listener.dart';
+import 'package:gig_buddy/src/service/notification_service.dart';
 
 class ShellView extends StatefulWidget {
   const ShellView({required this.child, super.key});
@@ -28,12 +30,15 @@ class _ShellViewState extends State<ShellView>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return GlobalListener.listen(
-      child: GestureDetector(
-        onTap: () {
-          FocusScope.of(context).unfocus();
-        },
-        child: widget.child,
+    return NotificationOverlay(
+      notificationStream: NotificationService().foregroundNotificationStream,
+      child: GlobalListener.listen(
+        child: GestureDetector(
+          onTap: () {
+            FocusScope.of(context).unfocus();
+          },
+          child: widget.child,
+        ),
       ),
     );
   }

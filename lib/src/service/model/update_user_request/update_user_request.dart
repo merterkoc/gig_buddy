@@ -15,6 +15,15 @@ class UpdateUserRequestDTO with _$UpdateUserRequestDTO {
       toJson: _toJsonDate,
     )
     required DateTime birthdate,
+
+    /// Firebase Cloud Messaging Token
+    String? fcmt_token,
+
+    /// User location (as a string, e.g., city or coordinates)
+    String? location,
+
+    /// Whether notifications are enabled
+    bool? notification_enabled,
   }) = _UpdateUserRequestDTO;
 
   factory UpdateUserRequestDTO.fromJson(Map<String, dynamic> json) =>

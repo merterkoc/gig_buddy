@@ -9,7 +9,7 @@ class DioClient extends IDioClient {
 
   DioClient._internal({this.interceptor})
       : super(
-          url: const String.fromEnvironment('BASE_URL'),
+          url: 'http://localhost:8080',
           interceptor: interceptor,
         );
 

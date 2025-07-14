@@ -6,6 +6,7 @@ import 'package:gig_buddy/src/repository/i_repository.dart';
 import 'package:gig_buddy/src/service/api_provider/identiy_api_provider.dart';
 import 'package:gig_buddy/src/service/model/token/token_dto.dart';
 import 'package:gig_buddy/src/service/model/update_user_request/update_user_request.dart';
+import 'package:gig_buddy/src/service/model/enum/gender.dart';
 
 class IdentityRepository extends IRepository {
   final _identityApiProvider = IdentityApiProvider();
@@ -60,7 +61,26 @@ class IdentityRepository extends IRepository {
     return _identityApiProvider.fetchUserProfile(userId);
   }
 
-  Future<ResponseEntity<dynamic>> updateUserDetails(UpdateUserRequestDTO updateUserRequestDTO) async {
+  Future<ResponseEntity<dynamic>> updateUserDetails(
+      UpdateUserRequestDTO updateUserRequestDTO) async {
     return _identityApiProvider.updateUserDetails(updateUserRequestDTO);
+  }
+
+  Future<ResponseEntity<dynamic>> patchUserMetadata({
+    String? fcmt_token,
+    String? location,
+    bool? notification_enabled,
+    Gender? gender,
+    DateTime? birthdate,
+  }) async {
+    // Only gender and birthdate are required in DTO, but for metadata patch, allow them to be optional
+    final dto = UpdateUserRequestDTO(
+      gender: gender ?? Gender.other, // fallback if not provided
+      birthdate: birthdate ?? DateTime(2000, 1, 1), // fallback if not provided
+      fcmt_token: fcmt_token,
+      location: location,
+      notification_enabled: notification_enabled,
+    );
+    return _identityApiProvider.updateUserDetails(dto);
   }
 }

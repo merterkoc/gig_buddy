@@ -82,8 +82,16 @@ abstract class ApiProvider {
     Map<String, dynamic>? queryParameters,
     CancelToken? cancelToken,
   }) async {
+    String url = [_path, resource]
+        .where((e) => e != null && e.isNotEmpty)
+        .join('/');
+
+    if (url.endsWith('/')) {
+      url = url.substring(0, url.length - 1);
+    }
+
     final response = await _dio.patch<Map<String, dynamic>>(
-      '$_path/$resource',
+      url,
       queryParameters: queryParameters,
       data: data,
     );

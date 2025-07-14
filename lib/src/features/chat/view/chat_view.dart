@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:gig_buddy/core/extensions/context_extensions.dart';
 import 'package:gig_buddy/src/route/router.dart';
 import 'package:gig_buddy/src/service/chat_service.dart';
+import 'package:gig_buddy/src/service/notification_service.dart';
 import 'package:go_router/go_router.dart';
 
 class ChatView extends StatefulWidget {
@@ -52,14 +53,32 @@ class _ChatViewState extends State<ChatView> {
       appBar: AppBar(
         forceMaterialTransparency: true,
         title: Text(context.l10.chat_title),
+        actions: [
+          // Test notification butonu
+          IconButton(
+            icon: const Icon(Icons.notifications),
+            onPressed: () {
+              NotificationService().sendManualNotification(
+                title: 'Yeni Mesaj',
+                body: 'Ahmet size mesaj gönderdi: Merhaba!',
+                type: 'chat',
+                data: {
+                  'chatId': 'test_chat_123',
+                  'senderName': 'Ahmet',
+                },
+              );
+            },
+          ),
+        ],
       ),
       body: StreamBuilder<List<Map<String, dynamic>>>(
         stream: ChatService().getUserChatRooms(),
         builder: (context, snapshot) {
           // İlk yükleme sırasında loading göster
           if (((snapshot.connectionState == ConnectionState.waiting &&
-                  !_isInitialized) &&
-              !snapshot.hasData)&& ChatService().cachingChatRooms.isEmpty) {
+                      !_isInitialized) &&
+                  !snapshot.hasData) &&
+              ChatService().cachingChatRooms.isEmpty) {
             return const Center(child: CircularProgressIndicator.adaptive());
           }
 

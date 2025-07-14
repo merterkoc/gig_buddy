@@ -9,7 +9,7 @@ import 'package:gig_buddy/src/service/model/update_user_request/update_user_requ
 class IdentityApiProvider extends ApiProvider {
   IdentityApiProvider()
       : super(
-          HttpConst.identity,
+          HttpConst.identityPath,
         );
 
   Future<ResponseEntity<dynamic>> create({

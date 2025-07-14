@@ -83,3 +83,5 @@ class PatchUserInterests extends LoginEvent {
 }
 
 class VerifyEmail extends LoginEvent {}
+
+class SendMetadata extends LoginEvent {}

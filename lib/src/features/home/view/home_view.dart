@@ -39,9 +39,11 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
 
   @override
   void initState() {
+
     refreshCallback = refreshHomePageEvent;
     fetchData();
     context.read<LoginBloc>().add(const FetchUserInfo());
+    context.read<LoginBloc>().add(SendMetadata());
 
     super.initState();
   }

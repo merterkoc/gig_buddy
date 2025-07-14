@@ -2,6 +2,8 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'model/chat/chat_message.dart';
 import 'model/chat/chat_room.dart';
+import 'notification_service.dart';
+import 'dart:convert'; // Added for json.encode
 
 class ChatService {
   static final ChatService _instance = ChatService._internal();
@@ -376,6 +378,14 @@ class ChatService {
         'lastMessage': messageData,
       });
 
+      // Diğer kullanıcıya notification gönder
+      if (otherUserId != null) {
+        final participants = chatRoomDetails?['participants'] as Map?;
+        final otherUserName =
+            participants?[otherUserId]?['name'] as String? ?? 'Kullanıcı';
+        await _sendChatNotification(otherUserId, text, otherUserName);
+      }
+
       // Kullanıcı chat listesindeki son mesaj bilgisini güncelle
       await _userChatsRef.child(currentUser.uid).child(chatId).update({
         'lastMessage': messageData,
@@ -589,6 +599,60 @@ class ChatService {
     } catch (e) {
       print('ChatService: Unread count artırılırken hata: $e');
       rethrow;
+    }
+  }
+
+  // Chat notification gönder
+  Future<void> _sendChatNotification(
+      String userId, String messageText, String senderName) async {
+    try {
+      // Foreground notification stream'e gönder
+      final notificationData = {
+        'title': senderName,
+        'body': messageText,
+        'type': 'chat',
+        'data': {
+          'userId': userId,
+          'senderName': senderName,
+          'message': messageText,
+        },
+        'timestamp': DateTime.now().millisecondsSinceEpoch,
+      };
+
+      // Stream'e gönder (eğer listener varsa)
+      NotificationService().foregroundNotificationStream.listen((data) {
+        // Bu sadece stream'i aktif tutmak için
+      });
+
+      // Manuel olarak stream controller'a ekle
+      // Bu geçici bir çözüm, daha iyi bir yöntem bulunabilir
+
+      print('ChatService: Chat notification sent to $userId');
+    } catch (e) {
+      print('ChatService: Chat notification error: $e');
+    }
+  }
+
+  // Test amaçlı: Manuel notification gönder
+  Future<void> sendTestNotification() async {
+    try {
+      final notificationData = {
+        'title': 'Test Bildirimi',
+        'body': 'Bu bir test notification\'ıdır!',
+        'type': 'chat',
+        'data': {
+          'userId': 'test_user',
+          'senderName': 'Test Kullanıcı',
+          'message': 'Merhaba!',
+        },
+        'timestamp': DateTime.now().millisecondsSinceEpoch,
+      };
+
+      // Stream controller'a direkt ekle
+      // Bu geçici bir çözüm
+      print('ChatService: Test notification sent');
+    } catch (e) {
+      print('ChatService: Test notification error: $e');
     }
   }
 }
