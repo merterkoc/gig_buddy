@@ -53,23 +53,6 @@ class _ChatViewState extends State<ChatView> {
       appBar: AppBar(
         forceMaterialTransparency: true,
         title: Text(context.l10.chat_title),
-        actions: [
-          // Test notification butonu
-          IconButton(
-            icon: const Icon(Icons.notifications),
-            onPressed: () {
-              NotificationService().sendManualNotification(
-                title: 'Yeni Mesaj',
-                body: 'Ahmet size mesaj gönderdi: Merhaba!',
-                type: 'chat',
-                data: {
-                  'chatId': 'test_chat_123',
-                  'senderName': 'Ahmet',
-                },
-              );
-            },
-          ),
-        ],
       ),
       body: StreamBuilder<List<Map<String, dynamic>>>(
         stream: ChatService().getUserChatRooms(),
