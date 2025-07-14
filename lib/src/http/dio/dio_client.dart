@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:gig_buddy/src/common/environment_manager/environment_manager.dart';
 import 'package:gig_buddy/src/http/dio/interface/i_dio_client.dart';
 
 class DioClient extends IDioClient {
@@ -9,7 +10,7 @@ class DioClient extends IDioClient {
 
   DioClient._internal({this.interceptor})
       : super(
-          url: 'http://localhost:8080',
+    url: const String.fromEnvironment('BASE_URL'),
           interceptor: interceptor,
         );
 
