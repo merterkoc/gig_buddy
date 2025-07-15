@@ -64,6 +64,7 @@ class AuthManager {
       const SignInInitParameters(
         scopes: <String>[
           'email',
+           'profile'
         ],
       ),
     );
