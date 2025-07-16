@@ -276,10 +276,14 @@ class EventBloc extends Bloc<EventEvent, EventState> {
       limit: event.limit,
     );
     if (response.isOk) {
-      final cities = (response.data['data'] as List<dynamic>)
-          .map((e) => city.City.fromJson(e as Map<String, dynamic>))
-          .toList();
-      emit(state.copyWith(nearCity: cities));
+      if (response.data['data'] != null) {
+        final cities = (response.data['data'] as List<dynamic>)
+            .map((e) => city.City.fromJson(e as Map<String, dynamic>))
+            .toList();
+        emit(state.copyWith(nearCity: cities));
+      } else {
+        emit(state.copyWith(nearCity: []));
+      }
     } else {
       emit(
         state.copyWith(),

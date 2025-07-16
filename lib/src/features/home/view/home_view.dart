@@ -183,10 +183,16 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
                                   onChanged: onChangeKeyword,
                                 ),
                                 const SizedBox(height: 8),
-                                SizedBox(
-                                  height: 50,
-                                  child: buildNearCityList(state),
-                                ),
+                                BlocBuilder<EventBloc, EventState>(builder:
+                                    (BuildContext context, EventState state) {
+                                  if ((currentKeyword ?? '').isNotEmpty) {
+                                    return const SizedBox.shrink();
+                                  }
+                                  return SizedBox(
+                                    height: 50,
+                                    child: buildNearCityList(state),
+                                  );
+                                }),
                                 const SizedBox(height: 8),
                               ],
                             ),
@@ -221,7 +227,7 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
                               return PagedSliverList<int, EventDetail>(
                                 builderDelegate:
                                     PagedChildBuilderDelegate<EventDetail>(
-                                  animateTransitions: true,
+                                  animateTransitions: false,
                                   transitionDuration:
                                       const Duration(milliseconds: 300),
                                   firstPageProgressIndicatorBuilder:

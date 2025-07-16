@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:gig_buddy/src/common/environment_manager/env_variables.dart';
+import 'package:gig_buddy/src/common/environment_manager/environment_manager.dart';
 
 class PresenceService {
   final Map<String, StreamSubscription<DatabaseEvent>> _subscriptions = {};
@@ -18,7 +20,7 @@ class PresenceService {
       final ref = FirebaseDatabase.instanceFor(
         app: Firebase.app(),
         databaseURL:
-        'https://gigbuddy-dev-default-rtdb.europe-west1.firebasedatabase.app/',
+            EnvironmentManager().getValue(EnvVariables.FIREBASE_DB_URI),
       ).ref('presence/$uid');
 
       final sub = ref.onValue.listen((event) {

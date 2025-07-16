@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:gig_buddy/src/common/environment_manager/env_variables.dart';
 import 'package:gig_buddy/src/common/environment_manager/environment_manager.dart';
 import 'package:gig_buddy/src/http/dio/interface/i_dio_client.dart';
 
@@ -10,7 +11,7 @@ class DioClient extends IDioClient {
 
   DioClient._internal({this.interceptor})
       : super(
-    url: const String.fromEnvironment('BASE_URL'),
+          url: EnvironmentManager().getValue(EnvVariables.BASE_URL),
           interceptor: interceptor,
         );
 
