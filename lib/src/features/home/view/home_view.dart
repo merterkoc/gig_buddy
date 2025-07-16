@@ -39,7 +39,6 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
 
   @override
   void initState() {
-
     refreshCallback = refreshHomePageEvent;
     fetchData();
     context.read<LoginBloc>().add(const FetchUserInfo());
@@ -155,7 +154,6 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
                     ),
                     SliverToBoxAdapter(
                       child: Column(
-                        spacing: 8,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           CupertinoSearchTextField(
@@ -169,24 +167,35 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
                             placeholder: context.l10.search_placeholder,
                             onChanged: onChangeKeyword,
                           ),
-                          if (state.nearCity?.isNotEmpty ?? false)
-                            SizedBox(
-                              height: 50,
-                              child: buildNearCityList(state),
-                            ),
-                          Text(
-                            context.l10.home_view_title_1,
-                            style: Theme.of(context).textTheme.headlineMedium,
+                          const SizedBox(height: 8),
+                          SizedBox(
+                            height: 50,
+                            child: buildNearCityList(state),
                           ),
-                          buildVenueSuggests(state, context),
-                          Text(
-                            context.l10.home_view_title_2,
-                            style: Theme.of(context).textTheme.headlineSmall,
-                          ),
-                          const SizedBox(height: 10),
+                          const SizedBox(height: 8),
                         ],
                       ),
                     ),
+                    if ((currentKeyword ?? '').isEmpty) ...[
+                      SliverToBoxAdapter(
+                        child: Column(
+                          spacing: 8,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              context.l10.home_view_title_1,
+                              style: Theme.of(context).textTheme.headlineMedium,
+                            ),
+                            buildVenueSuggests(state, context),
+                            Text(
+                              context.l10.home_view_title_2,
+                              style: Theme.of(context).textTheme.headlineSmall,
+                            ),
+                            const SizedBox(height: 10),
+                          ],
+                        ),
+                      ),
+                    ],
                     BlocBuilder<HomePagePaginationBloc,
                         Map<String, PagingState<int, EventDetail>>>(
                       builder: (context, pageState) {
@@ -204,6 +213,23 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
                                 const Center(
                               child: CircularProgressIndicator.adaptive(),
                             ),
+                            noItemsFoundIndicatorBuilder: (context) =>
+                                const Center(
+                              child: Text('No items found'),
+                            ),
+                            noMoreItemsIndicatorBuilder: (context) =>
+                                const Center(
+                              child: Text('No more items'),
+                            ),
+                            firstPageErrorIndicatorBuilder: (context) =>
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                     Text('No items found'),
+                                    const SizedBox(height: 8),
+                                    Icon(CupertinoIcons.exclamationmark_triangle_fill),
+                                  ],
+                                ),
                             itemBuilder: (context, item, index) {
                               return BlocBuilder<EventAvatarsCubit,
                                   EventAvatarsState>(
