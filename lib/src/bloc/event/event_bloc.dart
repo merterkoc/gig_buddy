@@ -42,6 +42,7 @@ class EventBloc extends Bloc<EventEvent, EventState> {
     on<GetEventsByUserId>(_onGetEventsByUserId);
     on<EventLoadNearCity>(_onLoadNearCity, transformer: concurrent());
     on<Suggests>(_onSuggests);
+    on<EventLoadByLocation>(_onLoadByLocation);
   }
 
   final EventRepository _eventRepository;
@@ -143,8 +144,7 @@ class EventBloc extends Bloc<EventEvent, EventState> {
       final event =
           EventDetail.fromJson(fetchData.data['data'] as Map<String, dynamic>);
       emit(state.copyWith(selectedEventDetail: event));
-    } else {
-    }
+    } else {}
   }
 
   Future<void> _onFetchEventByVenueId(
@@ -322,6 +322,24 @@ class EventBloc extends Bloc<EventEvent, EventState> {
         ),
       );
       rethrow;
+    }
+  }
+
+  Future<void> _onLoadByLocation(
+      EventLoadByLocation event, Emitter<EventState> emit) async {
+    emit(state.copyWith(requestState: RequestState.loading));
+    final fetchData = await _eventRepository.fetchData(
+      page: 0,
+      location: '${event.lat},${event.lng}',
+      size: event.limit,
+    );
+    if (fetchData.isOk) {
+      final events = (fetchData.data['data'] as List<dynamic>)
+          .map((e) => EventDetail.fromJson(e as Map<String, dynamic>))
+          .toList();
+      emit(state.copyWith(events: events, requestState: RequestState.success));
+    } else {
+      emit(state.copyWith(requestState: RequestState.error));
     }
   }
 

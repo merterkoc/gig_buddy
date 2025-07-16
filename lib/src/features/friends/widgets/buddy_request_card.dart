@@ -87,8 +87,7 @@ class _BuddyRequestCardState extends State<BuddyRequestCard> {
                       ?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
-                if (widget.buddyRequests.event.location != null &&
-                    widget.buddyRequests.event.location!.isNotEmpty)
+                if (widget.buddyRequests.event.location != null)
                   Row(
                     children: [
                       Icon(Icons.location_on,
@@ -97,7 +96,7 @@ class _BuddyRequestCardState extends State<BuddyRequestCard> {
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
-                          widget.buddyRequests.event.location!,
+                          widget.buddyRequests.event.location!.latitude,
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                       ),

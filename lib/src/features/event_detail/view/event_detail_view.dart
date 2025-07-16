@@ -168,7 +168,7 @@ class _EventDetailViewState extends State<EventDetailView> {
           style: Theme.of(context).textTheme.headlineLarge,
         ),
         Text(
-          widget.eventDetail.location ?? '',
+          widget.eventDetail.location?.latitude ?? '',
           style: Theme.of(context).textTheme.bodyMedium,
         ),
         const SizedBox(height: 10),

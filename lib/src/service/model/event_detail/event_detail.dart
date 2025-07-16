@@ -16,7 +16,7 @@ class EventDetail with _$EventDetail {
     required String name,
     required String start,
     required String end,
-    required String? location,
+    required Location? location,
     required String? distance,
     required String? locale,
     required String? city,
@@ -34,6 +34,17 @@ class EventDetail with _$EventDetail {
 
   factory EventDetail.fromJson(Map<String, dynamic> json) =>
       _$EventDetailFromJson(json);
+}
+
+@freezed
+@immutable
+class Location with _$Location {
+  factory Location({
+    required String longitude,
+    required String latitude,
+  }) = _Location;
+
+  factory Location.fromJson(Map<String, dynamic> json) => _$LocationFromJson(json);
 }
 
 @freezed

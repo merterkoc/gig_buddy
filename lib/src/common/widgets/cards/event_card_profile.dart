@@ -6,6 +6,7 @@ import 'package:gig_buddy/src/bloc/event/event_bloc.dart';
 import 'package:gig_buddy/src/common/util/date_util.dart';
 import 'package:gig_buddy/src/common/widgets/containers/surface_container.dart';
 import 'package:gig_buddy/src/service/model/enum/buddy_request_status.dart';
+import 'package:gig_buddy/src/service/model/event_detail/event_detail.dart';
 import 'package:go_router/go_router.dart';
 
 class EventCardProfile extends StatefulWidget {
@@ -33,7 +34,7 @@ class EventCardProfile extends StatefulWidget {
   final String? title;
   final String? subtitle;
   final String? imageUrl;
-  final String? location;
+  final Location? location;
   final String? startDateTime;
   final String? endDate;
   final String? type;

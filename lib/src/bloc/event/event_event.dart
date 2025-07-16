@@ -124,3 +124,15 @@ class Suggests extends EventEvent {
   final num lat;
   final num lng;
 }
+
+class EventLoadByLocation extends EventEvent {
+  const EventLoadByLocation(
+      {required this.lat, required this.lng, this.limit = 50});
+
+  final double lat;
+  final double lng;
+  final int limit;
+
+  @override
+  List<Object?> get props => [lat, lng, limit];
+}

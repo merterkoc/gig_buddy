@@ -31,7 +31,7 @@ class EventMiniCard extends StatefulWidget {
   final String? title;
   final String? subtitle;
   final String? imageUrl;
-  final String? location;
+  final Location? location;
   final String? city;
   final String? startDateTime;
   final String? endDate;
@@ -133,7 +133,7 @@ class _EventCardState extends State<EventMiniCard> {
           Row(
             children: [
               Text(
-                widget.location ?? '',
+                widget.location?.latitude ?? '',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               const SizedBox(width: 8),

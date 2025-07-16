@@ -22,6 +22,7 @@ import 'package:gig_buddy/src/service/chat_service.dart';
 import 'package:gig_buddy/src/service/model/event_detail/event_detail.dart';
 import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:gig_buddy/src/features/home/view/home_map_view.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({required this.scrollController, super.key});
@@ -36,6 +37,7 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
   final TextEditingController _controller = TextEditingController();
   late final RefreshCallback refreshCallback;
   late Completer<void> _refreshCompleter = Completer<void>();
+  bool _showMap = false;
 
   @override
   void initState() {
@@ -90,6 +92,15 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           actions: [
+            IconButton(
+              icon: Icon(_showMap ? Icons.list : Icons.map),
+              tooltip: _showMap ? 'Listeyi Göster' : 'Haritayı Göster',
+              onPressed: () {
+                setState(() {
+                  _showMap = !_showMap;
+                });
+              },
+            ),
             Padding(
               padding: const EdgeInsets.only(right: 16, top: 8, bottom: 8),
               child: StreamBuilder<int>(
@@ -132,190 +143,202 @@ class _HomeViewState extends State<HomeView> with HomeViewMixin {
             ),
           ],
         ),
-        body: BlocBuilder<EventBloc, EventState>(
-          buildWhen: (previous, current) => previous.events != current.events,
-          builder: (context, state) {
-            if (state.requestState.isLoading || state.events == null) {
-              return const Center(
-                child: CircularProgressIndicator.adaptive(),
-              );
-            }
-            return Padding(
-              padding: const EdgeInsets.only(left: 18, right: 18),
-              child: SafeArea(
-                bottom: false,
-                child: CustomScrollView(
-                  controller: widget.scrollController,
-                  keyboardDismissBehavior:
-                      ScrollViewKeyboardDismissBehavior.onDrag,
-                  slivers: [
-                    CupertinoSliverRefreshControl(
-                      onRefresh: refreshCallback,
-                    ),
-                    SliverToBoxAdapter(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          CupertinoSearchTextField(
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurface,
-                            ),
-                            controller: _controller,
-                            onSubmitted: (_) {
-                              FocusScope.of(context).unfocus();
-                            },
-                            placeholder: context.l10.search_placeholder,
-                            onChanged: onChangeKeyword,
+        body: _showMap
+            ? const HomeMapView()
+            : BlocBuilder<EventBloc, EventState>(
+                buildWhen: (previous, current) =>
+                    previous.events != current.events,
+                builder: (context, state) {
+                  if (state.requestState.isLoading || state.events == null) {
+                    return const Center(
+                      child: CircularProgressIndicator.adaptive(),
+                    );
+                  }
+                  return Padding(
+                    padding: const EdgeInsets.only(left: 18, right: 18),
+                    child: SafeArea(
+                      bottom: false,
+                      child: CustomScrollView(
+                        controller: widget.scrollController,
+                        keyboardDismissBehavior:
+                            ScrollViewKeyboardDismissBehavior.onDrag,
+                        slivers: [
+                          CupertinoSliverRefreshControl(
+                            onRefresh: refreshCallback,
                           ),
-                          const SizedBox(height: 8),
-                          SizedBox(
-                            height: 50,
-                            child: buildNearCityList(state),
-                          ),
-                          const SizedBox(height: 8),
-                        ],
-                      ),
-                    ),
-                    if ((currentKeyword ?? '').isEmpty) ...[
-                      SliverToBoxAdapter(
-                        child: Column(
-                          spacing: 8,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              context.l10.home_view_title_1,
-                              style: Theme.of(context).textTheme.headlineMedium,
-                            ),
-                            buildVenueSuggests(state, context),
-                            Text(
-                              context.l10.home_view_title_2,
-                              style: Theme.of(context).textTheme.headlineSmall,
-                            ),
-                            const SizedBox(height: 10),
-                          ],
-                        ),
-                      ),
-                    ],
-                    BlocBuilder<HomePagePaginationBloc,
-                        Map<String, PagingState<int, EventDetail>>>(
-                      builder: (context, pageState) {
-                        return PagedSliverList<int, EventDetail>(
-                          builderDelegate:
-                              PagedChildBuilderDelegate<EventDetail>(
-                            animateTransitions: true,
-                            transitionDuration:
-                                const Duration(milliseconds: 300),
-                            firstPageProgressIndicatorBuilder: (context) =>
-                                const Center(
-                              child: CircularProgressIndicator.adaptive(),
-                            ),
-                            newPageProgressIndicatorBuilder: (context) =>
-                                const Center(
-                              child: CircularProgressIndicator.adaptive(),
-                            ),
-                            noItemsFoundIndicatorBuilder: (context) =>
-                                const Center(
-                              child: Text('No items found'),
-                            ),
-                            noMoreItemsIndicatorBuilder: (context) =>
-                                const Center(
-                              child: Text('No more items'),
-                            ),
-                            firstPageErrorIndicatorBuilder: (context) =>
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                     Text('No items found'),
-                                    const SizedBox(height: 8),
-                                    Icon(CupertinoIcons.exclamationmark_triangle_fill),
-                                  ],
+                          SliverToBoxAdapter(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                CupertinoSearchTextField(
+                                  style: TextStyle(
+                                    color:
+                                        Theme.of(context).colorScheme.onSurface,
+                                  ),
+                                  controller: _controller,
+                                  onSubmitted: (_) {
+                                    FocusScope.of(context).unfocus();
+                                  },
+                                  placeholder: context.l10.search_placeholder,
+                                  onChanged: onChangeKeyword,
                                 ),
-                            itemBuilder: (context, item, index) {
-                              return BlocBuilder<EventAvatarsCubit,
-                                  EventAvatarsState>(
-                                buildWhen: (previous, current) =>
-                                    previous.seenImages != current.seenImages,
-                                builder: (context, eventAvatarsState) {
-                                  return EventMiniCard(
-                                    id: item.id,
-                                    title: item.name,
-                                    subtitle: item.name,
-                                    startDateTime: item.start,
-                                    location: item.location,
-                                    city: item.city,
-                                    imageUrl: item.images.isNotEmpty
-                                        ? item.images.first.url
-                                        : null,
-                                    distance: item.distance,
-                                    isJoined: (eventAvatarsState
-                                                .seenImages[item.id] ??
-                                            [])
-                                        .any(
-                                      (participantAvatars) =>
-                                          participantAvatars.userId ==
-                                          context
-                                              .read<LoginBloc>()
-                                              .state
-                                              .user!
-                                              .id,
-                                    ),
-                                    onTap: () {
-                                      context.goNamed(
-                                        AppRoute.eventDetailView.name,
-                                        extra: item,
-                                        pathParameters: {'eventId': item.id},
-                                      );
-                                    },
-                                    venueName: item.venue!.name,
-                                    avatars: [
-                                      ...eventAvatarsState
-                                              .seenImages[item.id] ??
-                                          [],
-                                      ...(item.participantAvatars ?? []),
+                                const SizedBox(height: 8),
+                                SizedBox(
+                                  height: 50,
+                                  child: buildNearCityList(state),
+                                ),
+                                const SizedBox(height: 8),
+                              ],
+                            ),
+                          ),
+                          if ((currentKeyword ?? '').isEmpty) ...[
+                            SliverToBoxAdapter(
+                              child: Column(
+                                spacing: 8,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    context.l10.home_view_title_1,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineMedium,
+                                  ),
+                                  buildVenueSuggests(state, context),
+                                  Text(
+                                    context.l10.home_view_title_2,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineSmall,
+                                  ),
+                                  const SizedBox(height: 10),
+                                ],
+                              ),
+                            ),
+                          ],
+                          BlocBuilder<HomePagePaginationBloc,
+                              Map<String, PagingState<int, EventDetail>>>(
+                            builder: (context, pageState) {
+                              return PagedSliverList<int, EventDetail>(
+                                builderDelegate:
+                                    PagedChildBuilderDelegate<EventDetail>(
+                                  animateTransitions: true,
+                                  transitionDuration:
+                                      const Duration(milliseconds: 300),
+                                  firstPageProgressIndicatorBuilder:
+                                      (context) => const Center(
+                                    child: CircularProgressIndicator.adaptive(),
+                                  ),
+                                  newPageProgressIndicatorBuilder: (context) =>
+                                      const Center(
+                                    child: CircularProgressIndicator.adaptive(),
+                                  ),
+                                  noItemsFoundIndicatorBuilder: (context) =>
+                                      const Center(
+                                    child: Text('No items found'),
+                                  ),
+                                  noMoreItemsIndicatorBuilder: (context) =>
+                                      const Center(
+                                    child: Text('No more items'),
+                                  ),
+                                  firstPageErrorIndicatorBuilder: (context) =>
+                                      Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text('No items found'),
+                                      const SizedBox(height: 8),
+                                      Icon(CupertinoIcons
+                                          .exclamationmark_triangle_fill),
                                     ],
-                                    onJoinedChanged: (isJoined) {
-                                      if (isJoined) {
-                                        context.read<EventBloc>().add(
-                                              JoinEvent(
-                                                'homepage',
-                                                eventId: item.id,
-                                              ),
+                                  ),
+                                  itemBuilder: (context, item, index) {
+                                    return BlocBuilder<EventAvatarsCubit,
+                                        EventAvatarsState>(
+                                      buildWhen: (previous, current) =>
+                                          previous.seenImages !=
+                                          current.seenImages,
+                                      builder: (context, eventAvatarsState) {
+                                        return EventMiniCard(
+                                          id: item.id,
+                                          title: item.name,
+                                          subtitle: item.name,
+                                          startDateTime: item.start,
+                                          location: item.location,
+                                          city: item.city,
+                                          imageUrl: item.images.isNotEmpty
+                                              ? item.images.first.url
+                                              : null,
+                                          distance: item.distance,
+                                          isJoined: (eventAvatarsState
+                                                      .seenImages[item.id] ??
+                                                  [])
+                                              .any(
+                                            (participantAvatars) =>
+                                                participantAvatars.userId ==
+                                                context
+                                                    .read<LoginBloc>()
+                                                    .state
+                                                    .user!
+                                                    .id,
+                                          ),
+                                          onTap: () {
+                                            context.goNamed(
+                                              AppRoute.eventDetailView.name,
+                                              extra: item,
+                                              pathParameters: {
+                                                'eventId': item.id
+                                              },
                                             );
-                                      } else {
-                                        context.read<EventBloc>().add(
-                                              LeaveEvent(
-                                                'homepage',
-                                                eventId: item.id,
-                                              ),
-                                            );
-                                      }
-                                    },
-                                  );
+                                          },
+                                          venueName: item.venue!.name,
+                                          avatars: [
+                                            ...eventAvatarsState
+                                                    .seenImages[item.id] ??
+                                                [],
+                                            ...(item.participantAvatars ?? []),
+                                          ],
+                                          onJoinedChanged: (isJoined) {
+                                            if (isJoined) {
+                                              context.read<EventBloc>().add(
+                                                    JoinEvent(
+                                                      'homepage',
+                                                      eventId: item.id,
+                                                    ),
+                                                  );
+                                            } else {
+                                              context.read<EventBloc>().add(
+                                                    LeaveEvent(
+                                                      'homepage',
+                                                      eventId: item.id,
+                                                    ),
+                                                  );
+                                            }
+                                          },
+                                        );
+                                      },
+                                    );
+                                  },
+                                ),
+                                state: pageState['homepage'] ??
+                                    PagingState<int, EventDetail>(),
+                                fetchNextPage: () {
+                                  context.read<HomePagePaginationBloc>().add(
+                                        FetchNextPaginationEvent<
+                                            HomePagePaginationBloc>(
+                                          'homepage',
+                                          selectedCity: selectedCity,
+                                          keyword: currentKeyword,
+                                        ),
+                                      );
                                 },
                               );
                             },
                           ),
-                          state: pageState['homepage'] ??
-                              PagingState<int, EventDetail>(),
-                          fetchNextPage: () {
-                            context.read<HomePagePaginationBloc>().add(
-                                  FetchNextPaginationEvent<
-                                      HomePagePaginationBloc>(
-                                    'homepage',
-                                    selectedCity: selectedCity,
-                                    keyword: currentKeyword,
-                                  ),
-                                );
-                          },
-                        );
-                      },
+                        ],
+                      ),
                     ),
-                  ],
-                ),
+                  );
+                },
               ),
-            );
-          },
-        ),
       ),
     );
   }
